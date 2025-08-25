@@ -1,3 +1,0 @@
-= User Commands
-
-User Commands are declaratively defined commands that let you add or modify code and configuration files.
