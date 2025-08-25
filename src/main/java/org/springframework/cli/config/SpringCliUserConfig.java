@@ -33,9 +33,7 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Janne Valkealahti
  */
-@RegisterReflectionForBinding({
-		SpringCliUserConfig.Initializrs.class, SpringCliUserConfig.Initializr.class,
-		 })
+@RegisterReflectionForBinding({ SpringCliUserConfig.Initializrs.class, SpringCliUserConfig.Initializr.class, })
 public class SpringCliUserConfig {
 
 	/**
@@ -142,4 +140,5 @@ public class SpringCliUserConfig {
 		}
 
 	}
+
 }

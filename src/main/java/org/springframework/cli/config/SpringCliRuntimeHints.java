@@ -74,4 +74,5 @@ public class SpringCliRuntimeHints implements RuntimeHintsRegistrar {
 			});
 		}
 	}
+
 }
