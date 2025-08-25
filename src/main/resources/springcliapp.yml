@@ -15,9 +15,6 @@ spring:
       version:
         show-git-short-commit-id: true
   cli:
-    github:
-      client-id: 10a18d1837ecdac59ba2
-      default-scopes: repo,read:org
 
 ## disable/enable console logging
 logging:
