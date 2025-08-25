@@ -39,7 +39,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Janne Valkealahti
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({ SpringCliProperties.class, SpringCliProjectCatalogProperties.class })
+@EnableConfigurationProperties({ SpringCliProperties.class })
 public class SpringCliConfiguration {
 
 	@Bean
