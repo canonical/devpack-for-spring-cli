@@ -37,10 +37,6 @@ import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalog;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalogs;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectRepositories;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectRepository;
-import org.springframework.cli.runtime.engine.model.MavenModelPopulator;
-import org.springframework.cli.runtime.engine.model.ModelPopulator;
-import org.springframework.cli.runtime.engine.model.RootPackageModelPopulator;
-import org.springframework.cli.runtime.engine.model.SystemModelPopulator;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,21 +62,6 @@ public class MockConfigurations {
 		@Bean
 		BuildCommands buildCommands() throws IOException {
 			return new BuildCommands(TerminalMessage.noop(), null);
-		}
-
-		@Bean
-		ModelPopulator systemModelPopulator() {
-			return new SystemModelPopulator();
-		}
-
-		@Bean
-		ModelPopulator mavenModelPopulator() {
-			return new MavenModelPopulator();
-		}
-
-		@Bean
-		ModelPopulator rootPackageModelPopulator() {
-			return new RootPackageModelPopulator();
 		}
 
 	}
