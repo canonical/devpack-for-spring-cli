@@ -1,7 +1,0 @@
-actions:
-  - if: "#{ false }"
-    vars:
-      data:
-        name: John
-        age: 30
-        person: true

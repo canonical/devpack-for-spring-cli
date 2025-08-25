@@ -1,5 +1,0 @@
-actions:
-  - generate:
-      to:  "{{output-temp-file}}"
-      text: Hello {{phone-type.[0]}}
-

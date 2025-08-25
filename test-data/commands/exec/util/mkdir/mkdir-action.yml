@@ -1,4 +1,0 @@
-actions:
-  - exec:
-      command: mkdir {{directory-to-create}}
-

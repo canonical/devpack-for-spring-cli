@@ -1,3 +1,0 @@
-= AI
-
-Large Language Models such at OpenAI's ChatGPT offer a powerful solution for generating code using AI.

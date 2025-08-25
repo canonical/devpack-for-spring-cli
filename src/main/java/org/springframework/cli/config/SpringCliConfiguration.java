@@ -17,27 +17,18 @@
 package org.springframework.cli.config;
 
 import java.time.Duration;
-import java.util.Collection;
 
 import io.netty.resolver.DefaultAddressResolverGroup;
 import org.jline.terminal.Terminal;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.ReactorNettyHttpClientMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
-import org.springframework.cli.runtime.command.DynamicMethodCommandResolver;
-import org.springframework.cli.runtime.engine.model.MavenModelPopulator;
-import org.springframework.cli.runtime.engine.model.ModelPopulator;
-import org.springframework.cli.runtime.engine.model.RootPackageModelPopulator;
-import org.springframework.cli.runtime.engine.model.SystemModelPopulator;
 import org.springframework.cli.util.SpringCliTerminal;
-import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.shell.command.CommandExceptionResolver;
-import org.springframework.shell.command.CommandRegistration;
 import org.springframework.shell.result.CommandNotFoundMessageProvider;
 import org.springframework.shell.style.ThemeResolver;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -48,7 +39,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Janne Valkealahti
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({ SpringCliProperties.class, SpringCliProjectCatalogProperties.class })
+@EnableConfigurationProperties({ SpringCliProperties.class })
 public class SpringCliConfiguration {
 
 	@Bean
@@ -64,28 +55,6 @@ public class SpringCliConfiguration {
 	@Bean
 	public SpringCliTerminal springCliTerminalMessage(Terminal terminal, ThemeResolver themeResolver) {
 		return new SpringCliTerminal(terminal, themeResolver);
-	}
-
-	@Bean
-	public ModelPopulator systemModelPopulator() {
-		return new SystemModelPopulator();
-	}
-
-	@Bean
-	public ModelPopulator mavenModelPopulator() {
-		return new MavenModelPopulator();
-	}
-
-	@Bean
-	public ModelPopulator rootPackageModelPopulator() {
-		return new RootPackageModelPopulator();
-	}
-
-	@Bean
-	public DynamicMethodCommandResolver dynamicMethodTargetRegistrar(Collection<ModelPopulator> modelPopulators,
-			CommandRegistration.BuilderSupplier builder, TerminalMessage terminalMessage,
-			ObjectProvider<Terminal> terminalProvider) {
-		return new DynamicMethodCommandResolver(modelPopulators, builder, terminalMessage, terminalProvider);
 	}
 
 	@Bean
@@ -113,11 +82,4 @@ public class SpringCliConfiguration {
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
 	}
-
-	@Bean
-	public ProjectCatalogInitializer projectCatalogInitializer(SpringCliUserConfig springCliUserConfig,
-			SpringCliProjectCatalogProperties springCliProjectCatalogProperties) {
-		return new ProjectCatalogInitializer(springCliUserConfig, springCliProjectCatalogProperties);
-	}
-
 }

@@ -32,8 +32,6 @@ public class SpringCliPropertiesTests {
 		this.contextRunner.withUserConfiguration(Config1.class).run((context) -> {
 			SpringCliProperties properties = context.getBean(SpringCliProperties.class);
 			assertThat(properties.getInitializr().getBaseUrl()).isEqualTo("https://start.spring.io");
-			assertThat(properties.getGithub().getClientId()).isNull();
-			assertThat(properties.getGithub().getDefaultScopes()).isEqualTo("repo,read:org");
 		});
 	}
 
@@ -46,8 +44,6 @@ public class SpringCliPropertiesTests {
 			.run((context) -> {
 				SpringCliProperties properties = context.getBean(SpringCliProperties.class);
 				assertThat(properties.getInitializr().getBaseUrl()).isEqualTo("fakeurl");
-				assertThat(properties.getGithub().getClientId()).isEqualTo("fakeid");
-				assertThat(properties.getGithub().getDefaultScopes()).isEqualTo("fakescopes");
 			});
 	}
 

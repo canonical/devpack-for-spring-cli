@@ -1,5 +1,0 @@
-actions:
-  - if: "#{ ['functions'].varNotDefined('name') }"
-    vars:
-      data:
-        name: "{{name}}"

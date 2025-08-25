@@ -19,8 +19,8 @@ format:
 rockcraft:
   gradle:
     id: io.github.rockcrafters.rockcraft
-    version: 1.0.0
-    classpath: "io.github.rockcrafters.rockcraft:io.github.rockcrafters.rockcraft.gradle.plugin:1.0.0"
+    version: 1.2.1
+    classpath: "io.github.rockcrafters.rockcraft:io.github.rockcrafters.rockcraft.gradle.plugin:1.2.1"
     class-name: com.canonical.rockcraft.gradle.RockcraftPlugin
     repository: gradlePluginPortal()
     default-task: build-rock
@@ -40,7 +40,7 @@ rockcraft:
           }
   maven:
     id: io.github.rockcrafters:rockcraft-maven-plugin
-    version: 1.0.0
+    version: 1.2.1
     default-task: install :create-rock :build-rock
     description: |
       Plugin for rock image generation

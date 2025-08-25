@@ -31,21 +31,8 @@ import org.apache.commons.io.FileUtils;
 import org.jline.terminal.Terminal;
 import org.mockito.Mockito;
 
-import org.springframework.cli.command.BootCommands;
 import org.springframework.cli.command.BuildCommands;
-import org.springframework.cli.command.CommandCommands;
-import org.springframework.cli.command.RoleCommands;
-import org.springframework.cli.command.SpecialCommands;
 import org.springframework.cli.config.SpringCliUserConfig;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalog;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalogs;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectRepositories;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectRepository;
-import org.springframework.cli.git.SourceRepositoryService;
-import org.springframework.cli.runtime.engine.model.MavenModelPopulator;
-import org.springframework.cli.runtime.engine.model.ModelPopulator;
-import org.springframework.cli.runtime.engine.model.RootPackageModelPopulator;
-import org.springframework.cli.runtime.engine.model.SystemModelPopulator;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,87 +56,8 @@ public class MockConfigurations {
 		}
 
 		@Bean
-		SourceRepositoryService sourceRepositoryService() {
-			return new SourceRepositoryService() {
-
-				@Override
-				public Path retrieveRepositoryContents(String sourceRepoUrl) {
-					String testData = null;
-					if ("https://github.com/rd-1-2022/rest-service".equals(sourceRepoUrl)) {
-						testData = "rest-service";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-spring-data-jpa".equals(sourceRepoUrl)) {
-						testData = "spring-data-jpa";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-spring-scheduling-tasks".equals(sourceRepoUrl)) {
-						testData = "spring-scheduling-tasks";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-config-client".equals(sourceRepoUrl)) {
-						testData = "config-client";
-					}
-					if (testData != null) {
-						try {
-							Path projectPath = Path.of("test-data").resolve("projects").resolve(testData);
-							Path tempPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(),
-									UUID.randomUUID().toString());
-							File tmpdir = Files.createDirectories(tempPath).toFile();
-							FileUtils.copyDirectory(projectPath.toFile(), tmpdir);
-							return tmpdir.toPath();
-						}
-						catch (Exception ex) {
-							throw new RuntimeException(ex);
-						}
-
-					}
-					else {
-						throw new RuntimeException("Unknown mock for " + sourceRepoUrl);
-					}
-				}
-
-			};
-		}
-
-		@Bean
 		BuildCommands buildCommands() throws IOException {
 			return new BuildCommands(TerminalMessage.noop(), null);
-		}
-
-		@Bean
-		SpecialCommands specialCommands() {
-			return new SpecialCommands(TerminalMessage.noop());
-		}
-
-		@Bean
-		BootCommands bootCommands(SpringCliUserConfig springCliUserConfig,
-				SourceRepositoryService sourceRepositoryService) {
-			BootCommands bootCommands = new BootCommands(springCliUserConfig, sourceRepositoryService,
-					TerminalMessage.noop());
-			return bootCommands;
-		}
-
-		@Bean
-		CommandCommands commandCommands(SourceRepositoryService sourceRepositoryService) {
-			return new CommandCommands(sourceRepositoryService, TerminalMessage.noop());
-		}
-
-		@Bean
-		RoleCommands roleCommands() {
-			return new RoleCommands(TerminalMessage.noop());
-		}
-
-		@Bean
-		ModelPopulator systemModelPopulator() {
-			return new SystemModelPopulator();
-		}
-
-		@Bean
-		ModelPopulator mavenModelPopulator() {
-			return new MavenModelPopulator();
-		}
-
-		@Bean
-		ModelPopulator rootPackageModelPopulator() {
-			return new RootPackageModelPopulator();
 		}
 
 	}
@@ -172,18 +80,6 @@ public class MockConfigurations {
 		@Bean
 		SpringCliUserConfig springCliUserConfig() {
 			SpringCliUserConfig mock = Mockito.mock(SpringCliUserConfig.class);
-			ProjectRepository pr1 = ProjectRepository.of("jpa", "Learn JPA",
-					"https://github.com/rd-1-2022/rpt-spring-data-jpa", null);
-			ProjectRepository pr2 = ProjectRepository.of("scheduling", "Scheduling",
-					"https://github.com/rd-1-2022/rpt-spring-scheduling-tasks", null);
-			ProjectRepositories prs = new ProjectRepositories();
-			prs.setProjectRepositories(Arrays.asList(pr1, pr2));
-			Mockito.when(mock.getProjectRepositories()).thenReturn(prs);
-			ProjectCatalogs pcs = new ProjectCatalogs();
-			ProjectCatalog pc = ProjectCatalog.of("getting-started", "Spring Getting Started Projects",
-					"https://github.com/rd-1-2022/spring-gs-catalog/", null);
-			pcs.setProjectCatalogs(Arrays.asList(pc));
-			Mockito.when(mock.getProjectCatalogs()).thenReturn(pcs);
 			return mock;
 		}
 

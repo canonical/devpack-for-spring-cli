@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cli.support.CommandRunner;
 import org.springframework.cli.support.MockConfigurations;
+import org.springframework.cli.support.ProjectBuilder;
 import org.springframework.cli.util.StubTerminalMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,9 +53,9 @@ public class RockcraftCommandsTests {
 
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			RockcraftCommands commands = new RockcraftCommands(terminalMessage, workingDir);
-			CommandRunner commandRunner = new CommandRunner.Builder(context).prepareProject(project, workingDir)
-				.build();
-			commandRunner.run();
+			new ProjectBuilder(context)
+                    .prepareProject(project, workingDir)
+                    .build();
 			String expected = commands.addRockcraft(workingDir.toString());
 			assertThat(expected).isEqualTo("Added rockcraft plugin to " + workingDir);
 			Process proc = new ProcessBuilder().command(checkCommand)

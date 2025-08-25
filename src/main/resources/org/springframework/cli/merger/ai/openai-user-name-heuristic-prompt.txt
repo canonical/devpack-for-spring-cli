@@ -1,5 +1,0 @@
-Here is the description of the Java application that uses Spring projects
-
-{{description}}
-
-Response in JSON format using the fields 'springProjectName' and 'shortName'
