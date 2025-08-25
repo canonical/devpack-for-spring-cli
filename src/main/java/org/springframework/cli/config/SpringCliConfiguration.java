@@ -26,7 +26,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.ReactorNettyHttpClientMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
-import org.springframework.cli.runtime.command.DynamicMethodCommandResolver;
 import org.springframework.cli.runtime.engine.model.MavenModelPopulator;
 import org.springframework.cli.runtime.engine.model.ModelPopulator;
 import org.springframework.cli.runtime.engine.model.RootPackageModelPopulator;
@@ -79,13 +78,6 @@ public class SpringCliConfiguration {
 	@Bean
 	public ModelPopulator rootPackageModelPopulator() {
 		return new RootPackageModelPopulator();
-	}
-
-	@Bean
-	public DynamicMethodCommandResolver dynamicMethodTargetRegistrar(Collection<ModelPopulator> modelPopulators,
-			CommandRegistration.BuilderSupplier builder, TerminalMessage terminalMessage,
-			ObjectProvider<Terminal> terminalProvider) {
-		return new DynamicMethodCommandResolver(modelPopulators, builder, terminalMessage, terminalProvider);
 	}
 
 	@Bean
