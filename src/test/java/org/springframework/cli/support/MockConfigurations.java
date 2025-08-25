@@ -37,7 +37,6 @@ import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalog;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalogs;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectRepositories;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectRepository;
-import org.springframework.cli.git.SourceRepositoryService;
 import org.springframework.cli.runtime.engine.model.MavenModelPopulator;
 import org.springframework.cli.runtime.engine.model.ModelPopulator;
 import org.springframework.cli.runtime.engine.model.RootPackageModelPopulator;
@@ -62,47 +61,6 @@ public class MockConfigurations {
 		ThemeResolver themeResolver() {
 			ThemeResolver mockThemeResolver = Mockito.mock(ThemeResolver.class);
 			return mockThemeResolver;
-		}
-
-		@Bean
-		SourceRepositoryService sourceRepositoryService() {
-			return new SourceRepositoryService() {
-
-				@Override
-				public Path retrieveRepositoryContents(String sourceRepoUrl) {
-					String testData = null;
-					if ("https://github.com/rd-1-2022/rest-service".equals(sourceRepoUrl)) {
-						testData = "rest-service";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-spring-data-jpa".equals(sourceRepoUrl)) {
-						testData = "spring-data-jpa";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-spring-scheduling-tasks".equals(sourceRepoUrl)) {
-						testData = "spring-scheduling-tasks";
-					}
-					else if ("https://github.com/rd-1-2022/rpt-config-client".equals(sourceRepoUrl)) {
-						testData = "config-client";
-					}
-					if (testData != null) {
-						try {
-							Path projectPath = Path.of("test-data").resolve("projects").resolve(testData);
-							Path tempPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(),
-									UUID.randomUUID().toString());
-							File tmpdir = Files.createDirectories(tempPath).toFile();
-							FileUtils.copyDirectory(projectPath.toFile(), tmpdir);
-							return tmpdir.toPath();
-						}
-						catch (Exception ex) {
-							throw new RuntimeException(ex);
-						}
-
-					}
-					else {
-						throw new RuntimeException("Unknown mock for " + sourceRepoUrl);
-					}
-				}
-
-			};
 		}
 
 		@Bean
