@@ -17,23 +17,19 @@
 package org.springframework.cli.config;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.cli.support.configfile.UserConfig;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Access to user level settings stored on the filesystem.
  *
  * @author Janne Valkealahti
  */
-@RegisterReflectionForBinding({ SpringCliUserConfig.Initializrs.class, SpringCliUserConfig.Initializr.class, })
+@RegisterReflectionForBinding({ SpringCliUserConfig.Initializrs.class, SpringCliUserConfig.Initializr.class })
 public class SpringCliUserConfig {
 
 	/**

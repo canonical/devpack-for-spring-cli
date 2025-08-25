@@ -16,17 +16,12 @@
 
 package org.springframework.cli.config;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.openrewrite.internal.EncodingDetectingInputStream;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.ReflectionHints;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
-import org.springframework.aot.hint.TypeReference;
 import org.springframework.cli.initializr.model.ArtifactId;
 import org.springframework.cli.initializr.model.BootVersion;
 import org.springframework.cli.initializr.model.Dependencies;

@@ -16,18 +16,12 @@
 
 package org.springframework.cli.support;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.UUID;
 import java.util.function.Function;
 
 import com.google.common.jimfs.Jimfs;
-import org.apache.commons.io.FileUtils;
 import org.jline.terminal.Terminal;
 import org.mockito.Mockito;
 
