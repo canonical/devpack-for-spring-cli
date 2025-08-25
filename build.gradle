@@ -101,7 +101,7 @@ dependencies {
 	implementation "org.openrewrite:rewrite-gradle:${openrewriteVersion}"
 	implementation "org.openrewrite:rewrite-kotlin:${openrewriteVersion}"
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r"
-	implementation "org.codehaus.groovy:groovy-all:3.0.24"
+	implementation "org.codehaus.groovy:groovy-all:3.0.25"
 	implementation "org.gradle:gradle-tooling-api:8.9"
 	// -dependencies for canonical snap
 
