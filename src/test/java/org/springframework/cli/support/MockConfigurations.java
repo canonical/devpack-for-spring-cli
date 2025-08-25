@@ -31,11 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.jline.terminal.Terminal;
 import org.mockito.Mockito;
 
-import org.springframework.cli.command.BootCommands;
 import org.springframework.cli.command.BuildCommands;
-import org.springframework.cli.command.CommandCommands;
-import org.springframework.cli.command.RoleCommands;
-import org.springframework.cli.command.SpecialCommands;
 import org.springframework.cli.config.SpringCliUserConfig;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalog;
 import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalogs;
@@ -112,29 +108,6 @@ public class MockConfigurations {
 		@Bean
 		BuildCommands buildCommands() throws IOException {
 			return new BuildCommands(TerminalMessage.noop(), null);
-		}
-
-		@Bean
-		SpecialCommands specialCommands() {
-			return new SpecialCommands(TerminalMessage.noop());
-		}
-
-		@Bean
-		BootCommands bootCommands(SpringCliUserConfig springCliUserConfig,
-				SourceRepositoryService sourceRepositoryService) {
-			BootCommands bootCommands = new BootCommands(springCliUserConfig, sourceRepositoryService,
-					TerminalMessage.noop());
-			return bootCommands;
-		}
-
-		@Bean
-		CommandCommands commandCommands(SourceRepositoryService sourceRepositoryService) {
-			return new CommandCommands(sourceRepositoryService, TerminalMessage.noop());
-		}
-
-		@Bean
-		RoleCommands roleCommands() {
-			return new RoleCommands(TerminalMessage.noop());
 		}
 
 		@Bean

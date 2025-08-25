@@ -100,7 +100,7 @@ public class BuildCommandTests {
 	public void testRunMavenPlugin(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("rest-service");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			// we can specify the task to run
@@ -111,5 +111,4 @@ public class BuildCommandTests {
 			assertThat(workingDir.resolve("target/rock")).exists();
 		});
 	}
-
 }
