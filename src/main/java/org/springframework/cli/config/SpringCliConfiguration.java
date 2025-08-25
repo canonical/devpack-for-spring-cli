@@ -82,4 +82,5 @@ public class SpringCliConfiguration {
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
 	}
+
 }

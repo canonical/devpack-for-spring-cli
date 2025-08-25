@@ -111,4 +111,5 @@ public class BuildCommandTests {
 			assertThat(workingDir.resolve("target/rock")).exists();
 		});
 	}
+
 }
