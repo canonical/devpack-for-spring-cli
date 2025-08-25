@@ -1,5 +1,0 @@
-actions:
-  - inject:
-      to: sample.txt
-      text: "INJECTED AFTER"
-      after: marker2

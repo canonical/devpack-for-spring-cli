@@ -1,8 +1,0 @@
-actions:
-  - if: "#{ ['name'] == null }"
-    vars:
-      data:
-        name: "{{name-to-use}}"
-        age: "{{age}}"
-        "height-in-{{height-unit}}": "{{height}}"
-        person: "{{is-person}}"
