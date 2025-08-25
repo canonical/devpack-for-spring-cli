@@ -1,38 +1,18 @@
 = A CLI focused on developer productivity
 
-* Note: this is a work in progress.
-
-* https://docs.spring.io/spring-cli/reference/[Read the documentation] for info on *Installing* and *Getting Started*
-
 == Build
 
-NOTE: Use JDK17
+NOTE: Use JDK17+
 
-Normal build without _native_:
+Normal build:
 ```
 ./gradlew clean build
 ```
 
 Which you can then run with:
 ```
-java -jar build/libs/spring-cli-0.0.1-SNAPSHOT.jar
+java -jar build/libs/devpack-for-spring-cli-0.0.1-SNAPSHOT.jar
 ```
-
-For native build:
-```
-./gradlew clean build nativeCompile -PspringCliNative=true
-```
-
-NOTE: You need to have `GRAALVM_HOME` pointing to your _graal_ installation
-
-Which you can then run with:
-```
-build/native/nativeCompile/spring
-```
-
-TIP: There is a CI workflow which builds native binaries for linux, macos and windows.
-     Published artifacts in CI workflow will get removed daily so take it from
-     a latest run which is scheduled nightly.
 
 === Code Formatting
 
@@ -47,26 +27,16 @@ Run individual tasks:
 ./gradlew format
 ```
 
-You can temporarily disable checks by setting property `springCliChecks` to `false`:
+You can temporarily disable checks by setting property `cliChecks` to `false`:
 
 ```
-./gradlew build -PspringCliChecks=false
+./gradlew build -PcliChecks=false
 ```
-
-=== Building Documentation
-
-```
-./gradlew antora
-```
-
-Output is in `./docs/build/site/index.html`
-
-For more information on the build see https://github.com/spring-projects-experimental/spring-cli/tree/docs-build[README in the docs-build branch].
 
 === Shell Completion
 
 Shell completion for `bash` can be generated with `completion bash` command:
 
 ```
-$ source <(spring completion bash)
+$ source <(devpack-for-spring completion bash)
 ```
