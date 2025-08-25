@@ -53,7 +53,9 @@ public class RockcraftCommandsTests {
 
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			RockcraftCommands commands = new RockcraftCommands(terminalMessage, workingDir);
-			new ProjectBuilder(context).prepareProject(project, workingDir);
+			new ProjectBuilder(context)
+                    .prepareProject(project, workingDir)
+                    .build();
 			String expected = commands.addRockcraft(workingDir.toString());
 			assertThat(expected).isEqualTo("Added rockcraft plugin to " + workingDir);
 			Process proc = new ProcessBuilder().command(checkCommand)

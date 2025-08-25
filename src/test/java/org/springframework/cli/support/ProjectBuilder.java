@@ -91,4 +91,12 @@ public class ProjectBuilder {
         this.arguments.add(entry);
         return this;
     }
+
+    public void build() {
+        this.projectName = Objects.requireNonNull(projectName);
+        assertThat(projectName).withFailMessage(
+                        "Please invoke the method 'prepareProject' with the project name and temporary working directory")
+                .isNotNull();
+        IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+    }
 }
