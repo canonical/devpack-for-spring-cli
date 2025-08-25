@@ -33,10 +33,6 @@ import org.mockito.Mockito;
 
 import org.springframework.cli.command.BuildCommands;
 import org.springframework.cli.config.SpringCliUserConfig;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalog;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectCatalogs;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectRepositories;
-import org.springframework.cli.config.SpringCliUserConfig.ProjectRepository;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -84,18 +80,6 @@ public class MockConfigurations {
 		@Bean
 		SpringCliUserConfig springCliUserConfig() {
 			SpringCliUserConfig mock = Mockito.mock(SpringCliUserConfig.class);
-			ProjectRepository pr1 = ProjectRepository.of("jpa", "Learn JPA",
-					"https://github.com/rd-1-2022/rpt-spring-data-jpa", null);
-			ProjectRepository pr2 = ProjectRepository.of("scheduling", "Scheduling",
-					"https://github.com/rd-1-2022/rpt-spring-scheduling-tasks", null);
-			ProjectRepositories prs = new ProjectRepositories();
-			prs.setProjectRepositories(Arrays.asList(pr1, pr2));
-			Mockito.when(mock.getProjectRepositories()).thenReturn(prs);
-			ProjectCatalogs pcs = new ProjectCatalogs();
-			ProjectCatalog pc = ProjectCatalog.of("getting-started", "Spring Getting Started Projects",
-					"https://github.com/rd-1-2022/spring-gs-catalog/", null);
-			pcs.setProjectCatalogs(Arrays.asList(pc));
-			Mockito.when(mock.getProjectCatalogs()).thenReturn(pcs);
 			return mock;
 		}
 
