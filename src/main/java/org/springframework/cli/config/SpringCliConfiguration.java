@@ -113,11 +113,4 @@ public class SpringCliConfiguration {
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
 	}
-
-	@Bean
-	public ProjectCatalogInitializer projectCatalogInitializer(SpringCliUserConfig springCliUserConfig,
-			SpringCliProjectCatalogProperties springCliProjectCatalogProperties) {
-		return new ProjectCatalogInitializer(springCliUserConfig, springCliProjectCatalogProperties);
-	}
-
 }
