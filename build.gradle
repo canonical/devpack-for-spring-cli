@@ -3,14 +3,11 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 	id 'org.graalvm.buildtools.native' version '0.9.19' apply false
-	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
-	id 'org.antora' version '1.0.0'
-	id 'org.jreleaser.jdks' version '1.7.0'
 	id 'io.spring.javaformat' version '0.0.41' apply false
 }
 
-def useNative = project.hasProperty('springCliNative') && springCliNative.toBoolean()
-def useChecks = project.hasProperty('springCliChecks') ? springCliChecks.toBoolean() : true
+def useNative = project.hasProperty('cliNative') && cliNative.toBoolean()
+def useChecks = project.hasProperty('cliChecks') ? cliChecks.toBoolean() : true
 
 if (useNative) {
 	apply plugin: 'org.graalvm.buildtools.native'
@@ -26,44 +23,28 @@ if (useChecks) {
 	}
 }
 
-description = 'Spring Cli'
-group = 'org.springframework.experimental'
+description = 'Devpack for Spring Cli'
+group = 'com.canonical'
 sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
 	mavenLocal()
-	if (version.contains('-')) {
-		maven { url "https://repo.spring.io/milestone" }
-	}
-	if (version.endsWith('-SNAPSHOT')) {
-		maven { url "https://repo.spring.io/snapshot" }
-	}
-	// +dependencies for canonical snap
 	maven { url 'https://repo.gradle.org/gradle/libs-releases' }
-	// -dependencies for canonical snap
 }
 
 ext {
 	set('springShellVersion', '3.3.0')
 	set('initializrVersion', '0.11.1')
 	set('jarchivelibVersion', '1.2.0')
-	set('kohsukeVersion', '1.301')
-	set('gitlab4jVersion', '4.19.0')
 	set('openrewriteVersion', '8.49.0')
 	set('antVersion', '1.10.9')
 	set('mavenModelVersion', '3.5.4')
-	set('tikaVersion', '1.18')
 	set('jimfsVersion', '1.2')
-	set('diffUtilsVersion', '4.12')
-	set('systemStubsVersion', '2.0.1')
-	set('handlebarsVersion', '4.1.2')
 	set('jsonpathVersion', '2.7.0')
 	set('jaxbApiVersion', '2.3.1')
 	set('jaxbRuntimeVersion', '2.3.3')
 	set('jacksonVersion', '2.15.0')
-	set('openaiVersion', '0.12.0')
-	set('commonmarkVersion', '0.21.0')
 }
 
 configurations.all {
@@ -74,43 +55,27 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation "org.springframework.shell:spring-shell-starter-jna"
 	implementation 'io.spring.initializr:initializr-generator'
-	implementation 'io.projectreactor.addons:reactor-extra'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	implementation 'org.rauschig:jarchivelib'
-	implementation 'org.kohsuke:github-api'
-	implementation ('org.gitlab4j:gitlab4j-api') {
-		exclude group: 'commons-logging', module: 'commons-logging'
-	}
 	implementation 'org.openrewrite:rewrite-java-17'
 	implementation 'org.openrewrite:rewrite-maven'
 	implementation 'org.openrewrite:rewrite-xml'
 	implementation 'org.apache.ant:ant'
 	implementation 'org.apache.maven:maven-model'
-	implementation 'org.apache.tika:tika-core'
-	implementation 'com.github.jknack:handlebars'
-	implementation 'com.github.jknack:handlebars-humanize'
-	implementation 'com.jayway.jsonpath:json-path'
 	implementation 'javax.xml.bind:jaxb-api'
 	implementation 'org.glassfish.jaxb:jaxb-runtime'
-	implementation 'com.theokanning.openai-gpt3-java:service'
-	implementation 'org.commonmark:commonmark'
 
-	// +dependencies for canonical snap
 	implementation 'org.yaml:snakeyaml:2.2'
 	implementation "org.openrewrite:rewrite-gradle:${openrewriteVersion}"
 	implementation "org.openrewrite:rewrite-kotlin:${openrewriteVersion}"
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r"
 	implementation "org.codehaus.groovy:groovy-all:3.0.24"
 	implementation "org.gradle:gradle-tooling-api:8.9"
-	// -dependencies for canonical snap
 
-	testImplementation 'org.openrewrite:rewrite-test'
-	testImplementation 'uk.org.webcompere:system-stubs-jupiter'
+    testImplementation 'com.google.jimfs:jimfs'
+    testImplementation 'org.openrewrite:rewrite-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'com.google.jimfs:jimfs'
-	testImplementation 'com.squareup.okhttp3:mockwebserver'
-	testImplementation 'io.github.java-diff-utils:java-diff-utils'
 
 	if (useChecks) {
 		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.41")
@@ -121,8 +86,6 @@ dependencyManagement {
 	dependencies {
 		dependency "org.springframework.shell:spring-shell-starter-jna:${springShellVersion}"
 		dependency "org.rauschig:jarchivelib:${jarchivelibVersion}"
-		dependency "org.kohsuke:github-api:${kohsukeVersion}"
-		dependency "org.gitlab4j:gitlab4j-api:${gitlab4jVersion}"
 		dependency "org.openrewrite:rewrite-test:${openrewriteVersion}"
 		dependency "org.openrewrite:rewrite-java-17:${openrewriteVersion}"
 		dependency "org.openrewrite:rewrite-xml:${openrewriteVersion}"
@@ -131,18 +94,10 @@ dependencyManagement {
 		}
 		dependency "org.apache.ant:ant:${antVersion}"
 		dependency "org.apache.maven:maven-model:${mavenModelVersion}"
-		dependency "org.apache.tika:tika-core:${tikaVersion}"
-		dependency "com.github.jknack:handlebars:${handlebarsVersion}"
-		dependency "com.github.jknack:handlebars-humanize:${handlebarsVersion}"
-		dependency "com.jayway.jsonpath:json-path:${jsonpathVersion}"
 		dependency "com.google.jimfs:jimfs:${jimfsVersion}"
-		dependency "io.github.java-diff-utils:java-diff-utils:${diffUtilsVersion}"
-		dependency "uk.org.webcompere:system-stubs-jupiter:${systemStubsVersion}"
 		dependency "javax.xml.bind:jaxb-api:${jaxbApiVersion}"
 		dependency "org.glassfish.jaxb:jaxb-runtime:${jaxbRuntimeVersion}"
 		dependency "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
-		dependency "com.theokanning.openai-gpt3-java:service:${openaiVersion}"
-		dependency "org.commonmark:commonmark:${commonmarkVersion}"
 	}
 	imports {
 		mavenBom "org.springframework.shell:spring-shell-dependencies:${springShellVersion}"
@@ -214,7 +169,7 @@ if (useNative) {
 	graalvmNative {
 		binaries {
 			main {
-				imageName = 'spring'
+				imageName = 'devpack-for-spring'
 			}
 		}
 		metadataRepository {
@@ -232,76 +187,3 @@ if (useNative) {
 	}
 }
 
-node {
-	version = '16.15.0'
-}
-
-antora {
-	version = '3.2.0-alpha.2'
-	playbook = 'docs/antora-playbook.yml'
-	options = ['--clean', '--stacktrace']
-	dependencies = [
-		'@antora/atlas-extension': '1.0.0-alpha.1',
-		'@antora/collector-extension': '1.0.0-alpha.3',
-		'@asciidoctor/tabs': '1.0.0-beta.3',
-		'@opendevise/antora-release-line-extension': '1.0.0',
-		'@springio/antora-extensions': '1.8.1',
-		'@springio/asciidoctor-extensions': '1.0.0-alpha.9'
-	]
-}
-
-tasks.named("generateAntoraYml") {
-	asciidocAttributes = project.provider( {
-		return  ["project-version": project.version ]
-	} )
-	baseAntoraYmlFile = file('docs/antora.yml')
-}
-
-tasks.create("generateAntoraResources") {
-	dependsOn 'generateAntoraYml'
-}
-
-if (project.hasProperty('cliRelease') && cliRelease.toBoolean()) {
-	jdks {
-		bellsoft17Osx {
-			platform = 'osx-x86_64'
-			url = 'https://download.bell-sw.com/java/17.0.11+12/bellsoft-jdk17.0.11+12-macos-amd64.tar.gz'
-			checksum = 'sha1/d3efd6dffba1ac2f52a2e18bfb4746ae2a009647'
-		}
-		bellsoft17OsxArm {
-			platform = 'osx-aarch64'
-			url = 'https://download.bell-sw.com/java/17.0.11+12/bellsoft-jdk17.0.11+12-macos-aarch64.tar.gz'
-			checksum = 'sha1/3d296f04a92df152eeb4dca033efcb54e261425b'
-		}
-		bellsoft17Linux {
-			platform = 'linux-x86_64'
-			url = 'https://download.bell-sw.com/java/17.0.11+12/bellsoft-jdk17.0.11+12-linux-amd64.tar.gz'
-			checksum = 'sha1/40d606540c7017195513f7468041d42b55f3776c'
-		}
-		bellsoft17Windows {
-			platform = 'windows-x86_64'
-			url = 'https://download.bell-sw.com/java/17.0.11+12/bellsoft-jdk17.0.11+12-windows-amd64.zip'
-			checksum = 'sha1/40d3f7d474c8c98f24d65a1fa32e6a81a6eeef22'
-		}
-	}
-}
-
-task milestoneVersion {
-	doLast{
-		def postfix = project.getProperty('springCliMilestone')
-		if (!(postfix ==~ /(?:M|RC)\d+/)) {
-			throw new GradleException('Illegal milestone version')
-		}
-		def properties = new Properties()
-		def file = new File('gradle.properties')
-		properties.load(file.newDataInputStream())
-		def currentVersion = properties.getProperty('version')
-		if (currentVersion.indexOf('-SNAPSHOT') > 0) {
-			def nextVersion = currentVersion - '-SNAPSHOT' + '-' + postfix
-			properties.setProperty('version', nextVersion)
-			properties.store(file.newWriter(), null)
-		} else {
-			throw new GradleException('Version is not a SNAPSHOT version')
-		}
-	}
-}
