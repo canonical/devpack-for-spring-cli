@@ -38,7 +38,7 @@ public class SpringCliProperties {
 
 	@Override
 	public String toString() {
-		return "SpringCliProperties{" + "initializr=" + initializr + ", github=" + github + '}';
+		return "SpringCliProperties{" + "initializr=" + initializr + "}";
 	}
 
 	/**
