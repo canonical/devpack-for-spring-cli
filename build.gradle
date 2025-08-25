@@ -113,7 +113,7 @@ dependencies {
 	testImplementation 'io.github.java-diff-utils:java-diff-utils'
 
 	if (useChecks) {
-		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.41")
+		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.47")
 	}
 }
 
