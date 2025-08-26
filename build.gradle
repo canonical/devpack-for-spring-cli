@@ -38,7 +38,7 @@ ext {
 	set('initializrVersion', '0.11.1')
 	set('jarchivelibVersion', '1.2.0')
 	set('openrewriteVersion', '8.49.0')
-	set('antVersion', '1.10.9')
+	set('antVersion', '1.10.15')
 	set('mavenModelVersion', '3.5.4')
 	set('jimfsVersion', '1.2')
 	set('jsonpathVersion', '2.7.0')
