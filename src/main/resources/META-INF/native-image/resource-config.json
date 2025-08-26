@@ -12,5 +12,12 @@
       "name":"com.sun.tools.javac.resources.javac",
       "classNames":["com.sun.tools.javac.resources.javac"]
     }
-  ]
+  ],
+  "resources": {
+    "includes": [
+      {
+        "pattern":"\\Qdevpack-for-springcliapp.yml\\E"
+      }
+    ]
+  }
 }
