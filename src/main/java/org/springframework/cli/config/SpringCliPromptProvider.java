@@ -32,7 +32,7 @@ public class SpringCliPromptProvider implements PromptProvider {
 
 	@Override
 	public AttributedString getPrompt() {
-		return new AttributedString("spring:>", AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+		return new AttributedString("devpack-for-spring:>", AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
 	}
 
 }

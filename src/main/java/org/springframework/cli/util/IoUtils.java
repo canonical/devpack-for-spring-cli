@@ -16,21 +16,11 @@
 
 package org.springframework.cli.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.cli.SpringCliException;
-import org.springframework.core.io.Resource;
-import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Mark Pollack
@@ -39,16 +29,6 @@ import org.springframework.util.StringUtils;
 public abstract class IoUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(IoUtils.class);
-
-	public static void createDirectory(Path directory) {
-		if (!Files.exists(directory)) {
-			// TODO remove File usage
-			boolean createdDir = directory.toFile().mkdirs();
-			if (createdDir) {
-				logger.debug("Created directory " + directory.toAbsolutePath());
-			}
-		}
-	}
 
 	public static Path getWorkingDirectory() {
 		return Path.of("").toAbsolutePath();
@@ -64,35 +44,6 @@ public abstract class IoUtils {
 			return true;
 		}
 		return false;
-	}
-
-	public static Path getProjectPath(String path) {
-		Path resolved = null;
-		if (StringUtils.hasText(path)) {
-			resolved = Path.of(path);
-		}
-		return resolved;
-	}
-
-	public static void writeToDir(File dir, String fileName, Resource resource) {
-		try {
-			String data = StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset());
-			File file = new File(dir, fileName);
-			writeText(file, data);
-		}
-		catch (IOException ex) {
-			throw new SpringCliException(
-					"Could not write " + resource.getDescription() + " to directory " + dir.toString(), ex);
-		}
-	}
-
-	public static void writeText(File target, String body) {
-		try (OutputStream stream = new FileOutputStream(target)) {
-			StreamUtils.copy(body, Charset.forName("UTF-8"), stream);
-		}
-		catch (Exception ex) {
-			throw new SpringCliException("Cannot write file " + target, ex);
-		}
 	}
 
 }
