@@ -60,7 +60,7 @@ ext {
 	set('handlebarsVersion', '4.1.2')
 	set('jsonpathVersion', '2.7.0')
 	set('jaxbApiVersion', '2.3.1')
-	set('jaxbRuntimeVersion', '2.3.3')
+	set('jaxbRuntimeVersion', '2.3.9')
 	set('jacksonVersion', '2.15.0')
 	set('openaiVersion', '0.12.0')
 	set('commonmarkVersion', '0.21.0')
