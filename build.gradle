@@ -78,7 +78,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	if (useChecks) {
-		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.41")
+		checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.47")
 	}
 }
 
