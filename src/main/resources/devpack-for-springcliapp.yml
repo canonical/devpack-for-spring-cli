@@ -11,10 +11,11 @@ spring:
       name: spring-cli-history.log
     command:
       completion:
-        root-command: spring
+        root-command: devpack-for-spring
       version:
         show-git-short-commit-id: true
-  cli:
+devpack-for-spring:
+    cli:
 
 ## disable/enable console logging
 logging:

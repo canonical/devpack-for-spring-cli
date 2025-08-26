@@ -31,12 +31,13 @@ import org.springframework.shell.command.annotation.CommandScan;
 @SpringBootApplication
 @ImportRuntimeHints(SpringCliRuntimeHints.class)
 @CommandScan
-public class SpringCliApplication {
+public class DevpackForSpringCliApplication {
 
 	public static void main(String[] args) {
-		SpringApplication app = new SpringApplicationBuilder(SpringCliApplication.class)
-			.properties("spring.config.name=springcliapp")
-			.properties("spring.config.location=classpath:/springcliapp.yml")
+		System.setProperty("java.awt.headless", Boolean.toString(true));
+		SpringApplication app = new SpringApplicationBuilder(DevpackForSpringCliApplication.class)
+			.properties("spring.config.name=devpack-for-springcliap")
+			.properties("spring.config.location=classpath:/devpack-for-springcliapp.yml")
 			.build();
 		app.run(args);
 	}

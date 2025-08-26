@@ -2,12 +2,6 @@ pluginManagement {
 	repositories {
 		mavenCentral()
 		gradlePluginPortal()
-		if (version.contains('-')) {
-			maven { url "https://repo.spring.io/milestone" }
-		}
-		if (version.endsWith('-SNAPSHOT')) {
-			maven { url "https://repo.spring.io/snapshot" }
-		}
 	}
 }
-rootProject.name = 'spring-cli'
+rootProject.name = 'devpack-for-spring-cli'
