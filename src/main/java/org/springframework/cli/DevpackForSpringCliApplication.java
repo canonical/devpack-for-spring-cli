@@ -34,6 +34,7 @@ import org.springframework.shell.command.annotation.CommandScan;
 public class DevpackForSpringCliApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("java.awt.headless", Boolean.toString(true));
 		SpringApplication app = new SpringApplicationBuilder(DevpackForSpringCliApplication.class)
 			.properties("spring.config.name=devpack-for-springcliap")
 			.properties("spring.config.location=classpath:/devpack-for-springcliapp.yml")
