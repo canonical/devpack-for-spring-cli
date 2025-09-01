@@ -103,7 +103,8 @@ public class SpringCliCommandNotFoundMessageProvider
 	}
 
 	private static String defaultHelpMessage(ProviderContext providerContext) {
-		return new AttributedString(providerContext.error().getMessage() + "  Use 'devpack-for-spring help' to get help.",
+		return new AttributedString(
+				providerContext.error().getMessage() + "  Use 'devpack-for-spring help' to get help.",
 				AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
 			.toAnsi();
 	}
