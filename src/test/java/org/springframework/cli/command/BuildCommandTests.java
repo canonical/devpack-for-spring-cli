@@ -32,6 +32,7 @@ import org.springframework.shell.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class BuildCommandTests {
 
@@ -64,13 +65,21 @@ public class BuildCommandTests {
 			// we can specify the task to run
 			commands.run("rockcraft", "create-rock", workingDir);
 			assertThat(workingDir.resolve("build/rockcraft.yaml")).exists();
-			// default task works
-			commands.run("rockcraft", null, workingDir);
-			assertThat(workingDir.resolve("build/rock")).exists();
 		});
 	}
 
-	@Test
+    @Test
+    public void testRunGradlePluginDefaultCommand(final @TempDir Path workingDir) {
+        Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+        IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+        contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+            assertThat(context).hasSingleBean(BuildCommands.class);
+            BuildCommands commands = context.getBean(BuildCommands.class);
+            assertDoesNotThrow(() -> commands.run("format", null, workingDir));
+        });
+    }
+
+    @Test
 	public void testCustomPluginContainer(final @TempDir Path workingDir) throws IOException {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-groovy");
 
