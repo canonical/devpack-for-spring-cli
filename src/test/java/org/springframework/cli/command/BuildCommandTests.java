@@ -32,7 +32,6 @@ import org.springframework.shell.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class BuildCommandTests {
 
@@ -75,7 +74,7 @@ public class BuildCommandTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
-			assertDoesNotThrow(() -> commands.run("format", null, workingDir));
+			assertThatCode(() -> commands.run("format", null, workingDir)).doesNotThrowAnyException();
 		});
 	}
 
