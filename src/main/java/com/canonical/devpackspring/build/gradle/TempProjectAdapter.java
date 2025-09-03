@@ -29,6 +29,7 @@ public class TempProjectAdapter implements AutoCloseable {
 
 	public TempProjectAdapter(Path curProject) throws IOException {
 		projectPath = Files.createTempDirectory(curProject.getFileName().toString());
+        Files.createDirectories(curProject.resolve("build"));
 		File[] files = curProject.toFile().listFiles();
 		if (files == null) {
 			return;
