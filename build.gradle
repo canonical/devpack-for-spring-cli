@@ -40,7 +40,7 @@ ext {
 	set('openrewriteVersion', '8.61.2')
 	set('antVersion', '1.10.15')
 	set('mavenModelVersion', '3.9.11')
-	set('jimfsVersion', '1.2')
+	set('jimfsVersion', '1.3.1')
 	set('jsonpathVersion', '2.7.0')
 	set('jaxbApiVersion', '2.3.1')
 	set('jaxbRuntimeVersion', '4.0.5')
