@@ -68,18 +68,18 @@ public class BuildCommandTests {
 		});
 	}
 
-    @Test
-    public void testRunGradlePluginDefaultCommand(final @TempDir Path workingDir) {
-        Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
-        IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-        contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
-            assertThat(context).hasSingleBean(BuildCommands.class);
-            BuildCommands commands = context.getBean(BuildCommands.class);
-            assertDoesNotThrow(() -> commands.run("format", null, workingDir));
-        });
-    }
+	@Test
+	public void testRunGradlePluginDefaultCommand(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			assertThat(context).hasSingleBean(BuildCommands.class);
+			BuildCommands commands = context.getBean(BuildCommands.class);
+			assertDoesNotThrow(() -> commands.run("format", null, workingDir));
+		});
+	}
 
-    @Test
+	@Test
 	public void testCustomPluginContainer(final @TempDir Path workingDir) throws IOException {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-groovy");
 
