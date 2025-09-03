@@ -1,7 +1,10 @@
+import io.spring.javaformat.gradle.tasks.CheckFormat
+
 plugins {
 	id 'org.springframework.boot' version '3.4.2'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
+    id 'antlr'
 	id 'org.graalvm.buildtools.native' version '0.11.0' apply false
 	id 'io.spring.javaformat' version '0.0.47' apply false
 }
@@ -72,6 +75,8 @@ dependencies {
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r"
 	implementation "org.codehaus.groovy:groovy-all:3.0.25"
 	implementation "org.gradle:gradle-tooling-api:8.14.3"
+    antlr 'org.antlr:antlr4:4.13.2'
+    implementation 'org.antlr:antlr4-runtime:4.13.2'
 
     testImplementation 'com.google.jimfs:jimfs'
     testImplementation 'org.openrewrite:rewrite-test'
@@ -169,8 +174,9 @@ if (useNative) {
 	graalvmNative {
 		binaries {
 			main {
-				imageName = 'devpack-for-spring'
-			}
+				imageName = 'devpack-for-spring-cli'
+                sharedLibrary = false
+            }
 		}
 		metadataRepository {
 			enabled = true
@@ -185,5 +191,29 @@ if (useNative) {
 	tasks.named('checkFormatAotTest') {
 		enabled = false
 	}
+
+    tasks.named('checkstyleAotTest') {
+        enabled = false
+    }
+
+    tasks.named('checkstyleAot') {
+        enabled = false
+    }
+
 }
 
+tasks.named('checkFormatMain') {
+    dependsOn(generateGrammarSource)
+}
+
+tasks.named("checkFormatTest") {
+    dependsOn(generateTestGrammarSource)
+}
+
+tasks.withType(CheckFormat).configureEach {
+    exclude "com/canonical/devpackspring/build/grammar"
+}
+
+tasks.withType(Checkstyle).configureEach {
+    exclude "com/canonical/devpackspring/build/grammar"
+}
