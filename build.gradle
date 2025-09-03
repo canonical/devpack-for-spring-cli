@@ -34,7 +34,7 @@ repositories {
 }
 
 ext {
-	set('springShellVersion', '3.3.0')
+	set('springShellVersion', '3.4.1')
 	set('initializrVersion', '0.22.0')
 	set('jarchivelibVersion', '1.2.0')
 	set('openrewriteVersion', '8.61.2')
