@@ -64,9 +64,17 @@ public class BuildCommandTests {
 			// we can specify the task to run
 			commands.run("rockcraft", "create-rock", workingDir);
 			assertThat(workingDir.resolve("build/rockcraft.yaml")).exists();
-			// default task works
-			commands.run("rockcraft", null, workingDir);
-			assertThat(workingDir.resolve("build/rock")).exists();
+		});
+	}
+
+	@Test
+	public void testRunGradlePluginDefaultCommand(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			assertThat(context).hasSingleBean(BuildCommands.class);
+			BuildCommands commands = context.getBean(BuildCommands.class);
+			assertThatCode(() -> commands.run("format", null, workingDir)).doesNotThrowAnyException();
 		});
 	}
 

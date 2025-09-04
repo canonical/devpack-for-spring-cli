@@ -14,6 +14,25 @@ Which you can then run with:
 java -jar build/libs/devpack-for-spring-cli-0.0.1-SNAPSHOT.jar
 ```
 
+Native image build requires GraalVM:
+```
+snap install  graalvm-jdk --channel=v21/stable
+```
+
+Build the image:
+```
+export JAVA_HOME=/snap/graalvm-jdk/current/graalvm-ce/
+./gradlew --no-daemon build \
+          nativeCompile \
+          -PcliNative=true \
+          -x test
+```
+
+Run the native image:
+```
+./build/native/nativeCompile/devpack-for-spring-cli
+```
+
 === Code Formatting
 
 This project uses Spring Javaformat and is enabled by default.
