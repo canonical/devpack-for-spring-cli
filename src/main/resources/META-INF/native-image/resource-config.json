@@ -7,6 +7,8 @@
   }, {
     "pattern":"\\QMETA-INF/groovy/org.codehaus.groovy.runtime.ExtensionModule\\E"
   }, {
+    "pattern":"\\QMETA-INF/native/libnetty_transport_native_epoll_x86_64.so\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
   }, {
     "pattern":"\\QMETA-INF/services/jakarta.el.ExpressionFactory\\E"
@@ -21,13 +23,21 @@
   }, {
     "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
   }, {
+    "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/java.nio.charset.spi.CharsetProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
   }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
   }, {
     "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLOutputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.xpath.XPathFactory\\E"
   }, {
     "pattern":"\\QMETA-INF/services/org.codehaus.groovy.runtime.ExtensionModule\\E"
   }, {
@@ -60,6 +70,10 @@
     "pattern":"\\Qcom/canonical/devpackspring/plugin-configuration.yaml\\E"
   }, {
     "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
+  }, {
+    "pattern":"\\Qcompletion/bash.stg\\E"
+  }, {
+    "pattern":"\\Qcompletion/zsh.stg\\E"
   }, {
     "pattern":"\\Qdevpack-for-springcliapp-default.yml\\E"
   }, {
@@ -94,6 +108,8 @@
     "pattern":"\\Qorg/jline/utils/xterm-256color.caps\\E"
   }, {
     "pattern":"\\Qorg/springframework/beans/factory/Aware.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/beans/factory/BeanClassLoaderAware.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/beans/factory/BeanFactoryAware.class\\E"
   }, {
@@ -135,6 +151,8 @@
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnBean.class\\E"
   }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnBooleanProperty.class\\E"
+  }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnClass.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/condition/ConditionalOnMissingBean.class\\E"
@@ -158,6 +176,8 @@
     "pattern":"\\Qorg/springframework/boot/autoconfigure/groovy/template/GroovyTemplateAutoConfiguration$GroovyWebConfiguration.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/groovy/template/GroovyTemplateAutoConfiguration.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/http/ConditionalOnPreferredJsonMapper.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/http/GsonHttpMessageConvertersConfiguration.class\\E"
   }, {
@@ -184,6 +204,12 @@
     "pattern":"\\Qorg/springframework/boot/autoconfigure/http/client/NotReactiveWebApplicationCondition$ReactiveWebApplication.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/http/client/NotReactiveWebApplicationCondition.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/http/client/reactive/ClientHttpConnectorAutoConfiguration$ReactorNetty.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/http/client/reactive/ClientHttpConnectorAutoConfiguration.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/http/codec/CodecsAutoConfiguration$DefaultCodecsConfiguration$DefaultCodecCustomizer.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/http/codec/CodecsAutoConfiguration$DefaultCodecsConfiguration.class\\E"
   }, {
@@ -235,6 +261,16 @@
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutionAutoConfiguration.class\\E"
   }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$AsyncConfigurerConfiguration.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$BootstrapExecutorConfiguration.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$OnExecutorCondition$ExecutorBeanCondition.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$OnExecutorCondition$ModelCondition.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$OnExecutorCondition.class\\E"
+  }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$SimpleAsyncTaskExecutorBuilderConfiguration.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/task/TaskExecutorConfigurations$TaskExecutorConfiguration.class\\E"
@@ -257,6 +293,12 @@
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationCondition.class\\E"
   }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition$NotReactiveWebApplication.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition$VirtualThreadsExecutorEnabled.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/NotReactiveWebApplicationOrVirtualThreadsExecutorEnabledCondition.class\\E"
+  }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/RestClientAutoConfiguration.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/client/RestTemplateAutoConfiguration.class\\E"
@@ -275,6 +317,8 @@
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/reactive/error/ErrorWebFluxAutoConfiguration.class\\E"
   }, {
+    "pattern":"\\Qorg/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorAutoConfiguration$ReactorNetty.class\\E"
+  }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorAutoConfiguration.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorFactoryConfiguration$HttpClient5.class\\E"
@@ -290,6 +334,8 @@
     "pattern":"\\Qorg/springframework/boot/context/properties/EnableConfigurationProperties.class\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/context/properties/EnableConfigurationPropertiesRegistrar.class\\E"
+  }, {
+    "pattern":"\\Qorg/springframework/boot/logging/logback/defaults.xml\\E"
   }, {
     "pattern":"\\Qorg/springframework/boot/sql/init/dependency/DatabaseInitializationDependencyConfigurer.class\\E"
   }, {
@@ -388,8 +434,13 @@
     "pattern":"\\Qorg/springframework/shell/result/ResultHandlerConfig.class\\E"
   }, {
     "pattern":"\\Qspring.properties\\E"
+  }, {
+    "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
   }]},
   "bundles":[{
+    "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
+    "locales":["und"]
+  }, {
     "name":"com.sun.tools.javac.resources.compiler",
     "classNames":["com.sun.tools.javac.resources.compiler"]
   }, {
