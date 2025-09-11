@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import com.canonical.devpackspring.ProcessUtil;
 import org.springframework.cli.util.TerminalMessage;
 
 public abstract class MavenRunner {

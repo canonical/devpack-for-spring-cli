@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.canonical.devpackspring.build;
+package com.canonical.devpackspring;
 
 import java.io.BufferedReader;
 import java.io.IOException;
