@@ -1,4 +1,5 @@
 java:
+  description: OpenJDK
   multiselect: true
   apt:
     - openjdk-8-jdk:
@@ -10,7 +11,7 @@ java:
     - openjdk-21-jdk:
         description: OpenJDK 21
 docker:
-  multiselect: false
+  description: Container environment
   apt:
     - docker.io:
         description: docker.io - Docker container runtime
@@ -29,17 +30,24 @@ docker:
           - sudo snap disable docker
           - sudo snap enable docker
 ide:
+  description: Integrated Development Environment
   multiselect: true
   snap:
     - intellij-idea-community:
         description: Intellij Idea Community snap
     - eclipse:
         description: Eclipse snap
-    - vscode:
-        description: VScode snap
+    - code:
+        description: Visual Studio Code snap
         extra-commands:
           - code --install-extension redhat.java
-vcs:
+misc:
+  description: Additional tools
+  snap:
+    - snapcraft:
+        description: snapcraft - easily create snaps
+    - rockcraft:
+        description: rockcraft - a craft like experience to create rocks
   apt:
     - git:
         description: git - fast, scalable, distributed revision control system

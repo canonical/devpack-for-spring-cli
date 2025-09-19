@@ -17,22 +17,26 @@
 package com.canonical.devpackspring.setup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class SetupCategory {
 
 	private String name;
+    private String description;
 
 	private boolean allowMultiSelect;
 
 	private final ArrayList<SetupEntry> setupEntries;
 
-	private final ArrayList<String> setupEntryNames;
-
 	public SetupCategory(String name, Map<String, Object> data) {
 		this.name = name;
+
+        this.description = (String)data.get("description");
+        if (this.description == null) {
+            this.description = name;
+        }
+
 		Object o = data.get("multiselect");
 		if (o == null) {
 			this.allowMultiSelect = true;
@@ -55,7 +59,10 @@ public class SetupCategory {
 				setupEntries.add(factory.createSnapEntry(item));
 			}
 		}
-		setupEntryNames = new ArrayList<>(Arrays.asList(new String[setupEntries.size()]));
+
+        if (!allowMultiSelect) {
+            setupEntries.stream().filter( x -> x.selected() ).forEach( x -> x.setSuffix(" [installed]"));
+        }
 
 	}
 
@@ -63,16 +70,16 @@ public class SetupCategory {
 		return name;
 	}
 
+    public String getDescription() {
+        return description;
+    }
+
 	public boolean isAllowMultiSelect() {
 		return allowMultiSelect;
 	}
 
 	public ArrayList<SetupEntry> getSetupEntries() {
 		return setupEntries;
-	}
-
-	public List<String> getResultValues() {
-		return setupEntryNames;
 	}
 
 }

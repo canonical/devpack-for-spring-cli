@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 import com.canonical.devpackspring.ProcessUtil;
 
+import org.apache.commons.text.StringSubstitutor;
+
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.component.flow.DefaultSelectItem;
 
@@ -28,10 +30,22 @@ public abstract class SetupEntry extends DefaultSelectItem {
 
 	private ArrayList<String> extraCommands;
 
-	public SetupEntry(String name, String description, ArrayList<String> extraCommands) {
-		super(description, name, true, false);
+	private StringSubstitutor substitutor = new StringSubstitutor();
+    private String suffix;
+
+    public SetupEntry(String name, String description, ArrayList<String> extraCommands, boolean selected) {
+		super(description, name, true, selected);
 		this.extraCommands = extraCommands;
+        this.suffix = "";
 	}
+
+    public String name() {
+        return super.name() + suffix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
 
 	public abstract boolean install(TerminalMessage msg) throws IOException;
 
@@ -42,6 +56,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 			return true;
 		}
 		for (var command : extraCommands) {
+			command = substitutor.replace(command); // expand macros
 			ProcessBuilder pb = new ProcessBuilder(command.split(" "));
 			int exitCode = ProcessUtil.runProcess(msg, pb);
 			if (exitCode != 0) {
