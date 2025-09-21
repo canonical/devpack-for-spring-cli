@@ -23,7 +23,8 @@ import java.util.Map;
 public class SetupCategory {
 
 	private String name;
-    private String description;
+
+	private String description;
 
 	private boolean allowMultiSelect;
 
@@ -32,10 +33,10 @@ public class SetupCategory {
 	public SetupCategory(SetupEntryFactory factory, String name, Map<String, Object> data) {
 		this.name = name;
 
-        this.description = (String)data.get("description");
-        if (this.description == null) {
-            this.description = name;
-        }
+		this.description = (String) data.get("description");
+		if (this.description == null) {
+			this.description = name;
+		}
 
 		Object o = data.get("multiselect");
 		if (o == null) {
@@ -59,9 +60,9 @@ public class SetupCategory {
 			}
 		}
 
-        if (!allowMultiSelect) {
-            setupEntries.stream().filter( x -> x.selected() ).forEach( x -> x.setSuffix(" [installed]"));
-        }
+		if (!allowMultiSelect) {
+			setupEntries.stream().filter(x -> x.selected()).forEach(x -> x.setSuffix(" [installed]"));
+		}
 
 	}
 
@@ -69,9 +70,9 @@ public class SetupCategory {
 		return name;
 	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
 	public boolean isAllowMultiSelect() {
 		return allowMultiSelect;

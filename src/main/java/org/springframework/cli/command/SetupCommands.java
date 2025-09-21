@@ -44,13 +44,15 @@ public class SetupCommands {
 	private final TerminalMessage terminalMessage;
 
 	private final ComponentFlow.Builder componentFlowBuilder;
-    private final IProcessUtil processUtil;
 
-    @Autowired
-	public SetupCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder, IProcessUtil processUtil) {
+	private final IProcessUtil processUtil;
+
+	@Autowired
+	public SetupCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder,
+			IProcessUtil processUtil) {
 		this.terminalMessage = terminalMessage;
 		this.componentFlowBuilder = componentFlowBuilder;
-        this.processUtil = processUtil;
+		this.processUtil = processUtil;
 	}
 
 	@Command(command = "setup", description = "Setup development environment")
@@ -58,10 +60,10 @@ public class SetupCommands {
 		try (InputStreamReader ir = new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/setup-configuration.yaml"))) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
-            if (add != null) {
-                headlessSetup(add, model);
-                return;
-            }
+			if (add != null) {
+				headlessSetup(add, model);
+				return;
+			}
 
 			ComponentFlow.Builder builder = componentFlowBuilder.clone().reset();
 			for (SetupCategory cat : model.getCategories()) {
@@ -85,22 +87,24 @@ public class SetupCommands {
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
 			for (SetupCategory cat : model.getCategories()) {
-                HashSet<String> entrySet = new HashSet<>();
-                if (cat.isAllowMultiSelect()) {
-                    List<String> selectedEntries =  result.getContext().get(cat.getName());
-                    entrySet.addAll(selectedEntries);
-                } else {
-                    String selectedEntry =  result.getContext().get(cat.getName());
-                    entrySet.add(selectedEntry);
-                }
+				HashSet<String> entrySet = new HashSet<>();
+				if (cat.isAllowMultiSelect()) {
+					List<String> selectedEntries = result.getContext().get(cat.getName());
+					entrySet.addAll(selectedEntries);
+				}
+				else {
+					String selectedEntry = result.getContext().get(cat.getName());
+					entrySet.add(selectedEntry);
+				}
 
-                for (var entry : cat.getSetupEntries()) {
-                    if (entrySet.contains(entry.item())) {
-                        entry.install(terminalMessage);
-                    } else {
-                        entry.remove(terminalMessage);
-                    }
-                }
+				for (var entry : cat.getSetupEntries()) {
+					if (entrySet.contains(entry.item())) {
+						entry.install(terminalMessage);
+					}
+					else {
+						entry.remove(terminalMessage);
+					}
+				}
 			}
 		}
 		catch (IOException ex) {
@@ -109,19 +113,19 @@ public class SetupCommands {
 
 	}
 
-    private void headlessSetup(String[] add, SetupModel model) throws IOException {
-        HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
-        for (SetupCategory cat : model.getCategories()) {
-            for (SetupEntry entry : cat.getSetupEntries()) {
-                if (toAdd.contains(entry.item())) {
-                    entry.install(this.terminalMessage);
-                    toAdd.remove(entry.item());
-                }
-            }
-        }
-        for (var notInstalled : toAdd) {
-            terminalMessage.print(String.format("Not installed %s - the software item is not defined.", notInstalled));
-        }
-    }
+	private void headlessSetup(String[] add, SetupModel model) throws IOException {
+		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
+		for (SetupCategory cat : model.getCategories()) {
+			for (SetupEntry entry : cat.getSetupEntries()) {
+				if (toAdd.contains(entry.item())) {
+					entry.install(this.terminalMessage);
+					toAdd.remove(entry.item());
+				}
+			}
+		}
+		for (var notInstalled : toAdd) {
+			terminalMessage.print(String.format("Not installed %s - the software item is not defined.", notInstalled));
+		}
+	}
 
 }

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.canonical.devpackspring.IProcessUtil;
-
 import org.apache.commons.text.StringSubstitutor;
 
 import org.springframework.cli.util.TerminalMessage;
@@ -31,21 +30,22 @@ public abstract class SetupEntry extends DefaultSelectItem {
 	private ArrayList<String> extraCommands;
 
 	private StringSubstitutor substitutor = new StringSubstitutor();
-    private String suffix;
 
-    public SetupEntry(String name, String description, ArrayList<String> extraCommands, boolean selected) {
+	private String suffix;
+
+	public SetupEntry(String name, String description, ArrayList<String> extraCommands, boolean selected) {
 		super(description, name, true, selected);
 		this.extraCommands = extraCommands;
-        this.suffix = "";
+		this.suffix = "";
 	}
 
-    public String name() {
-        return super.name() + suffix;
-    }
+	public String name() {
+		return super.name() + suffix;
+	}
 
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
-    }
+	public void setSuffix(String suffix) {
+		this.suffix = suffix;
+	}
 
 	public abstract boolean install(TerminalMessage msg) throws IOException;
 
