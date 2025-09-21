@@ -68,6 +68,8 @@
     "pattern":"\\QMETA-INF/validation.xml\\E"
   }, {
     "pattern":"\\Qcom/canonical/devpackspring/plugin-configuration.yaml\\E"
+  },{
+    "pattern":"\\Qcom/canonical/devpackspring/setup-configuration.yaml\\E"
   }, {
     "pattern":"\\Qcom/sun/jna/linux-x86-64/libjnidispatch.so\\E"
   }, {
