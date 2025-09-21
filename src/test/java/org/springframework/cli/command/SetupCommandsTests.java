@@ -16,26 +16,120 @@
 
 package org.springframework.cli.command;
 
+import java.io.IOException;
+
+import com.canonical.devpackspring.IProcessUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.MockConfigurations;
 import org.springframework.cli.util.StubTerminalMessage;
 import org.springframework.shell.component.flow.ComponentFlow;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+
+@ExtendWith(MockitoExtension.class)
 public class SetupCommandsTests {
+
+	@Mock
+	private IProcessUtil mockProcessUtil;
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
 
 	@Test
-	public void testSetupCommands() {
+	public void testSetupCommand() {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
-			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder());
-			setupCommands.setup();
+			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
+			setupCommands.setup(new String[] { "foo", "bar" });
+			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
+					"Not installed bar - the software item is not defined.");
 
 		});
+	}
+
+	@Test
+	public void testAptInstall() throws IOException {
+		String toInstall = "openjdk-17-jdk";
+		String description = "OpenJDK 17";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(0);
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] { toInstall });
+		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+	}
+
+	@Test
+	public void testFailedAptInstall() throws IOException {
+		String toInstall = "openjdk-17-jdk";
+		String description = "OpenJDK 17";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(0);
+
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("update"))).willReturn(0);
+
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("install"), eq("-y"),
+				eq(toInstall)))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] { toInstall });
+		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install package %s.", toInstall));
+	}
+
+	@Test
+	public void testSnapInstall() throws IOException {
+		String toInstall = "docker";
+		String description = "docker - Docker container runtime snap";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] { toInstall });
+		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+	}
+
+	@Test
+	public void testFailedSnapInstall() throws IOException {
+		String toInstall = "docker";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(1);
+
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"), eq(toInstall)))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] { toInstall });
+		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install snap %s.", toInstall));
 	}
 
 }

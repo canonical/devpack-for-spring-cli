@@ -29,9 +29,8 @@ public class SetupModelTests {
 	public void testParseSetupModel() throws IOException {
 		try (InputStreamReader ir = new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/setup-configuration.yaml"))) {
-			SetupModel model = new SetupModel(ir);
+			SetupModel model = new SetupModel(ir, new SetupEntryFactory(null));
 			assertThat(model.getCategories().stream().map(x -> x.getName())).contains("java", "docker", "ide", "vcs");
-
 		}
 	}
 
