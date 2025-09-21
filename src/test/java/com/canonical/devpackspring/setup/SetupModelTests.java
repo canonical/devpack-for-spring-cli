@@ -19,18 +19,26 @@ package com.canonical.devpackspring.setup;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.canonical.devpackspring.IProcessUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class SetupModelTests {
+
+	@Mock
+	private IProcessUtil mockProcessUtil;
 
 	@Test
 	public void testParseSetupModel() throws IOException {
 		try (InputStreamReader ir = new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/setup-configuration.yaml"))) {
-			SetupModel model = new SetupModel(ir, new SetupEntryFactory(null));
-			assertThat(model.getCategories().stream().map(x -> x.getName())).contains("java", "docker", "ide", "vcs");
+			SetupModel model = new SetupModel(ir, new SetupEntryFactory(mockProcessUtil));
+			assertThat(model.getCategories().stream().map(x -> x.getName())).contains("java", "docker", "ide", "misc");
 		}
 	}
 
