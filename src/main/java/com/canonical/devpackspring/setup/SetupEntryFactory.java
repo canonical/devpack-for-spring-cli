@@ -20,13 +20,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.canonical.devpackspring.ProcessUtil;
+import com.canonical.devpackspring.IProcessUtil;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 import org.springframework.cli.util.TerminalMessage;
 
 public class SetupEntryFactory {
+
+    private IProcessUtil processUtil;
+
+    public SetupEntryFactory(IProcessUtil processUtil) {
+        this.processUtil = processUtil;
+    }
 
 	SetupEntry createSnapEntry(Map<String, Object> item) {
 		if (item.size() != 1) {
@@ -46,15 +52,14 @@ public class SetupEntryFactory {
                     msg.print(String.format("Snap %s is already installed.", item()));
                     return true;
                 }
-				ProcessBuilder pb = new ProcessBuilder("sudo", "snap", "install", item()).inheritIO();
                 AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
 
-                int exitCode = ProcessUtil.runProcess(msg, pb);
+                int exitCode = processUtil.runProcess(msg, true, "sudo", "snap", "install", item());
 				if (exitCode != 0) {
                     msg.print(new AttributedString(String.format("Failed to install snap %s.", item()), style));
 					return false;
 				}
-				boolean ret = executeExtraCommands(msg);
+				boolean ret = executeExtraCommands(msg, processUtil);
                 if (!ret) {
                     msg.print(new AttributedString(String.format("Failed to install snap %s. Post-installation commands failed.", item()), style));
                 }
@@ -66,8 +71,7 @@ public class SetupEntryFactory {
                 if (!installed) {
                     return true;
                 }
-				ProcessBuilder pb = new ProcessBuilder("sudo", "snap", "remove", item()).inheritIO();
-				return ProcessUtil.runProcess(msg, pb) == 0;
+				return processUtil.runProcess(msg, true, "sudo", "snap", "remove", item()) == 0;
 			}
 		};
 	}
@@ -88,22 +92,18 @@ public class SetupEntryFactory {
                     msg.print(String.format("Package %s is already installed.", item()));
                     return true;
                 }
-				ProcessBuilder pb = new ProcessBuilder("sudo", "apt-get", "update").inheritIO();
-
                 AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
-                int exitCode = ProcessUtil.runProcess(msg, pb);
+                int exitCode = processUtil.runProcess(msg, true, "sudo", "apt-get", "update");
 				if (exitCode != 0) {
                     msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
                     return false;
 				}
-				pb = new ProcessBuilder("sudo", "apt-get", "install", "-y", item()).inheritIO();
-
-				exitCode = ProcessUtil.runProcess(msg, pb);
+				exitCode = processUtil.runProcess(msg, true, "sudo", "apt-get", "install", "-y", item());
 				if (exitCode != 0) {
                     msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
 					return false;
 				}
-                boolean ret = executeExtraCommands(msg);
+                boolean ret = executeExtraCommands(msg, processUtil);
                 if (!ret) {
                     msg.print(new AttributedString(String.format("Failed to install package %s. Post-installation commands failed.", item()), style));
                 }
@@ -115,17 +115,15 @@ public class SetupEntryFactory {
                 if (!installed) {
                     return true;
                 }
-				ProcessBuilder pb = new ProcessBuilder("sudo", "apt-get", "remove", "-y", item());
-				return ProcessUtil.runProcess(msg, pb) == 0;
+				return processUtil.runProcess(msg, true, "sudo", "apt-get", "remove", "-y", item()) == 0;
 			}
 		};
 	}
 
 	private boolean isInstalled(String... args) {
-		ProcessBuilder pb = new ProcessBuilder(args);
 		TerminalMessage message = TerminalMessage.noop();
 		try {
-			int exitCode = ProcessUtil.runProcess(message, pb);
+			int exitCode = processUtil.runProcess(message, false, args);
 			return exitCode == 0;
 		}
 		catch (IOException e) {

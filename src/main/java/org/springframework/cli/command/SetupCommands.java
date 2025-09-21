@@ -23,8 +23,10 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
+import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.setup.SetupCategory;
 import com.canonical.devpackspring.setup.SetupEntry;
+import com.canonical.devpackspring.setup.SetupEntryFactory;
 import com.canonical.devpackspring.setup.SetupModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +44,20 @@ public class SetupCommands {
 	private final TerminalMessage terminalMessage;
 
 	private final ComponentFlow.Builder componentFlowBuilder;
+    private final IProcessUtil processUtil;
 
-	@Autowired
-	public SetupCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder) {
+    @Autowired
+	public SetupCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder, IProcessUtil processUtil) {
 		this.terminalMessage = terminalMessage;
 		this.componentFlowBuilder = componentFlowBuilder;
+        this.processUtil = processUtil;
 	}
 
 	@Command(command = "setup", description = "Setup development environment")
 	public void setup(@Option(description = "Software to install") String[] add) {
 		try (InputStreamReader ir = new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/setup-configuration.yaml"))) {
-			SetupModel model = new SetupModel(ir);
+			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
             if (add != null) {
                 headlessSetup(add, model);
                 return;

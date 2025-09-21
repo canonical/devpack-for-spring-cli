@@ -19,7 +19,7 @@ package com.canonical.devpackspring.setup;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.canonical.devpackspring.ProcessUtil;
+import com.canonical.devpackspring.IProcessUtil;
 
 import org.apache.commons.text.StringSubstitutor;
 
@@ -51,14 +51,13 @@ public abstract class SetupEntry extends DefaultSelectItem {
 
 	public abstract boolean remove(TerminalMessage msg) throws IOException;
 
-	protected boolean executeExtraCommands(TerminalMessage msg) throws IOException {
+	protected boolean executeExtraCommands(TerminalMessage msg, IProcessUtil ipc) throws IOException {
 		if (extraCommands == null) {
 			return true;
 		}
 		for (var command : extraCommands) {
 			command = substitutor.replace(command); // expand macros
-			ProcessBuilder pb = new ProcessBuilder(command.split(" "));
-			int exitCode = ProcessUtil.runProcess(msg, pb);
+			int exitCode = ipc.runProcess(msg, false, command.split(" "));
 			if (exitCode != 0) {
 				return false;
 			}

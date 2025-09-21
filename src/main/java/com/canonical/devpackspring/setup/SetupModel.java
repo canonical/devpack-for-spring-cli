@@ -27,7 +27,7 @@ public class SetupModel {
 
 	private final ArrayList<SetupCategory> categories;
 
-	public SetupModel(InputStreamReader reader) {
+	public SetupModel(InputStreamReader reader, SetupEntryFactory factory) {
 		this.categories = new ArrayList<>();
 
 		Yaml yaml = new Yaml();
@@ -35,7 +35,7 @@ public class SetupModel {
 		Set<String> categories = yamlData.keySet();
 		for (var category : categories) {
 			var data = yamlData.get(category);
-			SetupCategory cat = new SetupCategory(category, data);
+			SetupCategory cat = new SetupCategory(factory, category, data);
 			this.categories.add(cat);
 		}
 	}

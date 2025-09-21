@@ -29,7 +29,7 @@ public class SetupCategory {
 
 	private final ArrayList<SetupEntry> setupEntries;
 
-	public SetupCategory(String name, Map<String, Object> data) {
+	public SetupCategory(SetupEntryFactory factory, String name, Map<String, Object> data) {
 		this.name = name;
 
         this.description = (String)data.get("description");
@@ -46,7 +46,6 @@ public class SetupCategory {
 		}
 
 		this.setupEntries = new ArrayList<>();
-		SetupEntryFactory factory = new SetupEntryFactory();
 		var apt = (List<Map<String, Object>>) data.get("apt");
 		if (apt != null) {
 			for (Map<String, Object> item : apt) {

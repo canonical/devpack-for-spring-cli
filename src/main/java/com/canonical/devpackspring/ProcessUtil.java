@@ -29,6 +29,14 @@ import org.springframework.cli.util.TerminalMessage;
  */
 public abstract class ProcessUtil {
 
+    public static int runProcess(final TerminalMessage message, boolean inheritIO, String ...args) throws IOException {
+        ProcessBuilder pb = new ProcessBuilder(args);
+        if (inheritIO) {
+            pb = pb.inheritIO();
+        }
+        return runProcess(message, pb);
+    }
+
 	/**
 	 * Starts the process and outputs to the provided terminal message
 	 * @param message - TerminalMessage
