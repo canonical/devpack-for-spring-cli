@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.canonical.devpackspring.build;
+package com.canonical.devpackspring;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +28,14 @@ import org.springframework.cli.util.TerminalMessage;
  * Runs process and sends output to TerminalMessage
  */
 public abstract class ProcessUtil {
+
+	public static int runProcess(final TerminalMessage message, boolean inheritIO, String... args) throws IOException {
+		ProcessBuilder pb = new ProcessBuilder(args);
+		if (inheritIO) {
+			pb = pb.inheritIO();
+		}
+		return runProcess(message, pb);
+	}
 
 	/**
 	 * Starts the process and outputs to the provided terminal message

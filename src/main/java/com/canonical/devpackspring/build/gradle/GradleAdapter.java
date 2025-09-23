@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import com.canonical.devpackspring.build.ProcessUtil;
+import com.canonical.devpackspring.ProcessUtil;
 import org.gradle.initialization.BuildCancellationToken;
 import org.gradle.internal.classpath.ClassPath;
 import org.gradle.internal.logging.progress.ProgressLogger;
