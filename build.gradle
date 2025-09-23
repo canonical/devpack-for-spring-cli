@@ -75,7 +75,7 @@ dependencies {
 	implementation "org.openrewrite:rewrite-kotlin:${openrewriteVersion}"
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r"
 	implementation "org.codehaus.groovy:groovy-all:3.0.25"
-	implementation "org.gradle:gradle-tooling-api:9.0.0"
+	implementation "org.gradle:gradle-tooling-api:9.1.0"
     antlr 'org.antlr:antlr4:4.13.2'
     implementation 'org.antlr:antlr4-runtime:4.13.2'
 
