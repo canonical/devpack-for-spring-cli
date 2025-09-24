@@ -16,13 +16,16 @@
 
 package org.springframework.cli.command;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
+import com.canonical.devpackspring.ConfigUtil;
 import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.setup.SetupCategory;
 import com.canonical.devpackspring.setup.SetupEntry;
@@ -41,6 +44,8 @@ import org.springframework.shell.component.support.Nameable;
 @Command
 public class SetupCommands {
 
+	public static final String SETUP_CONFIGURATION = "SPRING_CLI_SETUP_COMMANDS_CONFIGURATION";
+
 	private final TerminalMessage terminalMessage;
 
 	private final ComponentFlow.Builder componentFlowBuilder;
@@ -57,8 +62,7 @@ public class SetupCommands {
 
 	@Command(command = "setup", description = "Setup development environment")
 	public void setup(@Option(description = "Software to install") String[] add) {
-		try (InputStreamReader ir = new InputStreamReader(
-				getClass().getResourceAsStream("/com/canonical/devpackspring/setup-configuration.yaml"))) {
+		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null) {
 				headlessSetup(add, model);
@@ -126,6 +130,10 @@ public class SetupCommands {
 		for (var notInstalled : toAdd) {
 			terminalMessage.print(String.format("Not installed %s - the software item is not defined.", notInstalled));
 		}
+	}
+
+	private InputStream getSetupConfiguration() throws FileNotFoundException {
+		return ConfigUtil.openConfigurationFile(SETUP_CONFIGURATION, "setup-configuration.yaml");
 	}
 
 }

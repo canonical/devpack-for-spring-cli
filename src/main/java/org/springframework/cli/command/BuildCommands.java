@@ -16,7 +16,6 @@
 
 package org.springframework.cli.command;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.canonical.devpackspring.ConfigUtil;
 import com.canonical.devpackspring.build.BuildSystem;
 import com.canonical.devpackspring.build.PluginDescriptor;
 import com.canonical.devpackspring.build.PluginDescriptorContainer;
@@ -82,14 +82,7 @@ public class BuildCommands {
 	}
 
 	private InputStream getPluginConfiguration() throws IOException {
-		String pluginConfigurationFile = System.getenv(PLUGIN_CONFIGURATION);
-		if (pluginConfigurationFile == null) {
-			pluginConfigurationFile = System.getProperty(PLUGIN_CONFIGURATION);
-		}
-		if (pluginConfigurationFile != null) {
-			return new FileInputStream(pluginConfigurationFile);
-		}
-		return getClass().getResourceAsStream("/com/canonical/devpackspring/plugin-configuration.yaml");
+		return ConfigUtil.openConfigurationFile(PLUGIN_CONFIGURATION, "plugin-configuration.yaml");
 	}
 
 	@Command(command = "plugin", description = "Run a build plugin for the project")
