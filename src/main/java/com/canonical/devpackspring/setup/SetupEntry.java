@@ -56,8 +56,8 @@ public abstract class SetupEntry extends DefaultSelectItem {
 			return true;
 		}
 		for (var command : extraCommands) {
-			command = substitutor.replace(command); // expand macros
-			int exitCode = ipc.runProcess(msg, false, command.split(" "));
+			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
+			int exitCode = ipc.runProcess(msg, true, command.split(" "));
 			if (exitCode != 0) {
 				return false;
 			}
