@@ -42,7 +42,8 @@ public class SetupEntryFactory {
 		var data = (Map<String, Object>) item.get(itemId);
 		String description = (String) data.get("description");
 		ArrayList<String> extraCommands = (ArrayList<String>) data.get("extra-commands");
-
+		boolean isClassic = (Boolean) data.getOrDefault("classic", false);
+		String channel = (String) data.get("channel");
 		var installed = isInstalled("/bin/sh", "-c", String.format("snap info %s | grep -q \"installed:\"", itemId));
 
 		return new SetupEntry(itemId, description, extraCommands, installed) {
@@ -53,8 +54,18 @@ public class SetupEntryFactory {
 					return true;
 				}
 				AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
-
-				int exitCode = processUtil.runProcess(msg, true, "sudo", "snap", "install", item());
+				ArrayList<String> call = new ArrayList<>();
+				call.add("sudo");
+				call.add("snap");
+				call.add("install");
+				if (isClassic) {
+					call.add("--classic");
+				}
+				call.add(item());
+				if (channel != null) {
+					call.add(String.format("--channel=%s", channel));
+				}
+				int exitCode = processUtil.runProcess(msg, true, call.toArray(String[]::new));
 				if (exitCode != 0) {
 					msg.print(new AttributedString(String.format("Failed to install snap %s.", item()), style));
 					return false;

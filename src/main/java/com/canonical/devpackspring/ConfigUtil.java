@@ -35,19 +35,20 @@ public abstract class ConfigUtil {
 	 * @throws FileNotFoundException - configuration file not found
 	 */
 	public static InputStream openConfigurationFile(String environment, String fileName) throws FileNotFoundException {
-		String pluginConfigurationFile = System.getenv(environment);
-		if (pluginConfigurationFile == null) {
-			pluginConfigurationFile = System.getProperty(environment);
-		}
-		if (pluginConfigurationFile != null) {
-			return new FileInputStream(pluginConfigurationFile);
-		}
 		Path configPath = Path.of(System.getProperty("user.home"))
 			.resolve(".config")
 			.resolve("devpack-for-spring")
 			.resolve(fileName);
 		if (Files.exists(configPath)) {
 			return new FileInputStream(configPath.toFile());
+		}
+
+		String pluginConfigurationFile = System.getenv(environment);
+		if (pluginConfigurationFile == null) {
+			pluginConfigurationFile = System.getProperty(environment);
+		}
+		if (pluginConfigurationFile != null) {
+			return new FileInputStream(pluginConfigurationFile);
 		}
 
 		return ConfigUtil.class.getResourceAsStream(String.format("/com/canonical/devpackspring/%s", fileName));

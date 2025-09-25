@@ -34,11 +34,14 @@ ide:
   multiselect: true
   snap:
     - intellij-idea-community:
+        classic: true
         description: Intellij Idea Community snap
     - eclipse:
+        classic: true
         description: Eclipse snap
     - code:
         description: Visual Studio Code snap
+        classic: true
         extra-commands:
           - code --install-extension redhat.java
 misc:
