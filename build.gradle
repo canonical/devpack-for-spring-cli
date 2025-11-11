@@ -21,7 +21,7 @@ if (useChecks) {
 	apply plugin: 'checkstyle'
 
 	checkstyle {
-		toolVersion = '12.1.0'
+		toolVersion = '12.1.2'
 		configDirectory = file("src/checkstyle")
 	}
 }
