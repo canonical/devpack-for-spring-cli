@@ -47,7 +47,7 @@ public class RefactoringTests {
 		});
 	}
 
-    @Test
+	@Test
 	public void testRefactoringIndent(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
@@ -56,9 +56,8 @@ public class RefactoringTests {
 			Refactoring.appendPlugin(buildFile, "foo", "${bar}");
 			assertThat(buildFile).content().contains("id (\"foo\") version \"${bar}\"");
 			Refactoring.appendPlugin(buildFile, "otherfoo", "bar");
-			assertThat(buildFile).content().contains(
-                "id (\"foo\") version \"${bar}\"",
-                            "id (\"otherfoo\") version \"bar\"");
+			assertThat(buildFile).content()
+				.contains("id (\"foo\") version \"${bar}\"", "id (\"otherfoo\") version \"bar\"");
 		});
 	}
 

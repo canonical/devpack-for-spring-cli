@@ -39,7 +39,7 @@ public final class Refactoring {
 		GradlePluginLexer lexer = new GradlePluginLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		GradlePluginParser parser = new GradlePluginParser(tokens);
-
+		parser.removeErrorListeners(); // disable console reporting
 		ParseTree tree = parser.sequence();
 		FindPluginListener listener = new FindPluginListener();
 		ParseTreeWalker walker = new ParseTreeWalker();
