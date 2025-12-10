@@ -39,7 +39,10 @@ public final class Refactoring {
 		GradlePluginLexer lexer = new GradlePluginLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		GradlePluginParser parser = new GradlePluginParser(tokens);
-		parser.removeErrorListeners(); // Disable console error reporting to suppress parser errors during plugin block analysis, as errors may be expected and should not be printed to the console.
+		parser.removeErrorListeners(); // Disable console error reporting to suppress
+										// parser errors during plugin block analysis, as
+										// errors may be expected and should not be
+										// printed to the console.
 		ParseTree tree = parser.sequence();
 		FindPluginListener listener = new FindPluginListener();
 		ParseTreeWalker walker = new ParseTreeWalker();
