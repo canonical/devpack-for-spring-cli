@@ -12,7 +12,6 @@ plugin_block : ( ~(LBRACE | RBRACE) | nested_braces)*;
 
 nested_braces : LBRACE plugin_block RBRACE;
 
-identifier: LBRACE ANY* RBRACE;
 
 anything: (~(PLUGINS | EOF))*;
 
