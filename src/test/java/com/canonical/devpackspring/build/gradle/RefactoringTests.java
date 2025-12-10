@@ -48,7 +48,7 @@ public class RefactoringTests {
 	}
 
 	@Test
-	public void testRefactoringIndent(final @TempDir Path workingDir) {
+	public void testRefactoringWithVersionVariables(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
