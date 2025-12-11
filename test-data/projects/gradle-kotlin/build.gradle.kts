@@ -26,3 +26,7 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+plugins.withType<Plugin<Any>> {
+
+}

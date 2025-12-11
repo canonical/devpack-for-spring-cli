@@ -47,4 +47,18 @@ public class RefactoringTests {
 		});
 	}
 
+	@Test
+	public void testRefactoringWithVersionVariables(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			Path buildFile = workingDir.resolve("build.gradle.kts");
+			Refactoring.appendPlugin(buildFile, "foo", "${bar}");
+			assertThat(buildFile).content().contains("id (\"foo\") version \"${bar}\"");
+			Refactoring.appendPlugin(buildFile, "otherfoo", "bar");
+			assertThat(buildFile).content()
+				.contains("id (\"foo\") version \"${bar}\"", "id (\"otherfoo\") version \"bar\"");
+		});
+	}
+
 }

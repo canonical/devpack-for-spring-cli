@@ -44,7 +44,7 @@ public class FindPluginListener implements ParseTreeListener {
 
 	@Override
 	public void enterEveryRule(ParserRuleContext ctx) {
-		if (GradlePluginParser.PLUGINS == ctx.getRuleIndex()) {
+		if (GradlePluginParser.RULE_plugin == ctx.getRuleIndex()) {
 			stopIndex = ctx.getStop().getStopIndex();
 			startIndex = ctx.getStart().getStartIndex();
 			hasPluginBlock = true;
