@@ -46,13 +46,36 @@ public abstract class MavenRunner {
 		while (tk.hasMoreTokens()) {
 			String arg = tk.nextToken();
 			if (arg.startsWith(":")) {
+				// Handle format like ":create-rock" ->
+				// "groupId:artifactId:version:create-rock"
 				arg = pluginId + arg;
+			}
+			else if (!isMavenLifecyclePhase(arg) && !arg.contains(":")) {
+				// Handle format like "build-rock" ->
+				// "groupId:artifactId:version:build-rock"
+				// This avoids Maven prefix resolution which requires plugin in pom.xml
+				arg = pluginId + ":" + arg;
 			}
 			args.add(arg);
 		}
 
 		ProcessBuilder pb = new ProcessBuilder().command(args).directory(baseDir.toFile());
 		return ProcessUtil.runProcess(message, pb) == 0;
+	}
+
+	private static boolean isMavenLifecyclePhase(String phase) {
+		// Maven lifecycle phases that should not be prefixed
+		return phase.equals("validate") || phase.equals("initialize") || phase.equals("generate-sources")
+				|| phase.equals("process-sources") || phase.equals("generate-resources")
+				|| phase.equals("process-resources") || phase.equals("compile") || phase.equals("process-classes")
+				|| phase.equals("generate-test-sources") || phase.equals("process-test-sources")
+				|| phase.equals("generate-test-resources") || phase.equals("process-test-resources")
+				|| phase.equals("test-compile") || phase.equals("process-test-classes") || phase.equals("test")
+				|| phase.equals("prepare-package") || phase.equals("package") || phase.equals("pre-integration-test")
+				|| phase.equals("integration-test") || phase.equals("post-integration-test") || phase.equals("verify")
+				|| phase.equals("install") || phase.equals("deploy") || phase.equals("pre-clean")
+				|| phase.equals("clean") || phase.equals("post-clean") || phase.equals("pre-site")
+				|| phase.equals("site") || phase.equals("post-site") || phase.equals("site-deploy");
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {
