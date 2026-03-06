@@ -29,12 +29,17 @@ rockcraft:
       }
   maven:
     id: io.github.rockcrafters:rockcraft-maven-plugin
-    version: 1.2.4
-    default-task: install create-rock build-rock
+    version: 1.2.3
+    default-task: install :create-rock :build-rock
     description: |
       Plugin for rock image generation
     tasks:
-      - create-rock
-      - build-rock
-      - install create-rock
-      - install create-rock build-rock
+      - :create-rock
+      - :build-rock
+      - :create-build-rock
+      - :build-build-rock
+      - :push-rock
+      - :push-build-rock
+      - install :create-rock
+      - install :create-rock :build-rock
+      - install :create-rock :build-rock :push-rock

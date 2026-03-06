@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import com.canonical.devpackspring.ProcessUtil;
@@ -28,8 +30,18 @@ import org.springframework.cli.util.TerminalMessage;
 
 public abstract class MavenRunner {
 
+	private static final List<String> MAVEN_LIFECYCLE_PHASES = List.of("validate", "initialize", "generate-sources",
+			"process-sources", "generate-resources", "process-resources", "compile", "process-classes",
+			"generate-test-sources", "process-test-sources", "generate-test-resources", "process-test-resources",
+			"test-compile", "process-test-classes", "test", "prepare-package", "package", "pre-integration-test",
+			"integration-test", "post-integration-test", "verify", "install", "deploy", "pre-clean", "clean",
+			"post-clean", "pre-site", "site", "post-site", "site-deploy");
+
 	public static boolean run(Path baseDir, PluginDescriptor plugin, String goal, TerminalMessage message)
 			throws IOException {
+		if (plugin == null) {
+			throw new IllegalArgumentException("PluginDescriptor must not be null");
+		}
 		String command = "mvn";
 		if (Files.exists(baseDir.resolve("mvnw")) && validWrapper(baseDir)) {
 			command = "./mvnw";
@@ -46,14 +58,9 @@ public abstract class MavenRunner {
 		while (tk.hasMoreTokens()) {
 			String arg = tk.nextToken();
 			if (arg.startsWith(":")) {
-				// Handle format like ":create-rock" ->
-				// "groupId:artifactId:version:create-rock"
 				arg = pluginId + arg;
 			}
 			else if (!isMavenLifecyclePhase(arg) && !arg.contains(":")) {
-				// Handle format like "build-rock" ->
-				// "groupId:artifactId:version:build-rock"
-				// This avoids Maven prefix resolution which requires plugin in pom.xml
 				arg = pluginId + ":" + arg;
 			}
 			args.add(arg);
@@ -64,18 +71,7 @@ public abstract class MavenRunner {
 	}
 
 	private static boolean isMavenLifecyclePhase(String phase) {
-		// Maven lifecycle phases that should not be prefixed
-		return phase.equals("validate") || phase.equals("initialize") || phase.equals("generate-sources")
-				|| phase.equals("process-sources") || phase.equals("generate-resources")
-				|| phase.equals("process-resources") || phase.equals("compile") || phase.equals("process-classes")
-				|| phase.equals("generate-test-sources") || phase.equals("process-test-sources")
-				|| phase.equals("generate-test-resources") || phase.equals("process-test-resources")
-				|| phase.equals("test-compile") || phase.equals("process-test-classes") || phase.equals("test")
-				|| phase.equals("prepare-package") || phase.equals("package") || phase.equals("pre-integration-test")
-				|| phase.equals("integration-test") || phase.equals("post-integration-test") || phase.equals("verify")
-				|| phase.equals("install") || phase.equals("deploy") || phase.equals("pre-clean")
-				|| phase.equals("clean") || phase.equals("post-clean") || phase.equals("pre-site")
-				|| phase.equals("site") || phase.equals("post-site") || phase.equals("site-deploy");
+		return MAVEN_LIFECYCLE_PHASES.stream().anyMatch(p -> Objects.equals(p, phase));
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {
@@ -85,7 +81,8 @@ public abstract class MavenRunner {
 			return ret == 0;
 		}
 		catch (InterruptedException ex) {
-			return false;
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted while checking Maven wrapper", ex);
 		}
 	}
 
