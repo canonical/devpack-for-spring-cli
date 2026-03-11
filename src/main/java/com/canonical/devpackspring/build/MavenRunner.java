@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import com.canonical.devpackspring.ProcessUtil;
@@ -28,8 +30,18 @@ import org.springframework.cli.util.TerminalMessage;
 
 public abstract class MavenRunner {
 
+	private static final List<String> MAVEN_LIFECYCLE_PHASES = List.of("validate", "initialize", "generate-sources",
+			"process-sources", "generate-resources", "process-resources", "compile", "process-classes",
+			"generate-test-sources", "process-test-sources", "generate-test-resources", "process-test-resources",
+			"test-compile", "process-test-classes", "test", "prepare-package", "package", "pre-integration-test",
+			"integration-test", "post-integration-test", "verify", "install", "deploy", "pre-clean", "clean",
+			"post-clean", "pre-site", "site", "post-site", "site-deploy");
+
 	public static boolean run(Path baseDir, PluginDescriptor plugin, String goal, TerminalMessage message)
 			throws IOException {
+		if (plugin == null) {
+			throw new IllegalArgumentException("PluginDescriptor must not be null");
+		}
 		String command = "mvn";
 		if (Files.exists(baseDir.resolve("mvnw")) && validWrapper(baseDir)) {
 			command = "./mvnw";
@@ -48,11 +60,18 @@ public abstract class MavenRunner {
 			if (arg.startsWith(":")) {
 				arg = pluginId + arg;
 			}
+			else if (!isMavenLifecyclePhase(arg) && !arg.contains(":")) {
+				arg = pluginId + ":" + arg;
+			}
 			args.add(arg);
 		}
 
 		ProcessBuilder pb = new ProcessBuilder().command(args).directory(baseDir.toFile());
 		return ProcessUtil.runProcess(message, pb) == 0;
+	}
+
+	private static boolean isMavenLifecyclePhase(String phase) {
+		return MAVEN_LIFECYCLE_PHASES.stream().anyMatch(p -> Objects.equals(p, phase));
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {
@@ -62,7 +81,8 @@ public abstract class MavenRunner {
 			return ret == 0;
 		}
 		catch (InterruptedException ex) {
-			return false;
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted while checking Maven wrapper", ex);
 		}
 	}
 

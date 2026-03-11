@@ -45,7 +45,12 @@ rockcraft:
     description: |
       Plugin for rock image generation
     tasks:
+      - :create-rock
+      - :build-rock
+      - :create-build-rock
+      - :build-build-rock
+      - :push-rock
+      - :push-build-rock
       - install :create-rock
       - install :create-rock :build-rock
-      - :create-build-rock
       - install :create-rock :build-rock :push-rock
