@@ -33,11 +33,20 @@ rockcraft:
       - build-build-rock
       - push-rock
       - push-build-rock
-    # Gradle Kotlin DSL snippet to configure the defaults
-    default-configuration: |
-          configure<com.canonical.rockcraft.builder.RockcraftOptions> {
-              setTargetRelease(21)
-          }
+    configuration:
+      resources:
+        - path: .config/config.xml
+          content: | 
+            <resource/>
+      maven: |
+        <maven-element-config/>
+      gradleKotlin: |
+        configure<com.canonical.rockcraft.builder.RockcraftOptions> {
+            setTargetRelease(21)
+        }
+      gradleGroovy: |
+        groovyDslObject {
+        }
   maven:
     id: io.github.rockcrafters:rockcraft-maven-plugin
     version: 1.2.3

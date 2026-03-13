@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.canonical.devpackspring.build;
 
-/**
- * Describes gradle plugin configuration
- *
- */
-public record PluginDescriptor(String id, String version, String classpath, String className, String repository,
-		String defaultTask, String[] tasks, PluginConfiguration configuration,
-		String description) {
+public record PluginConfiguration(PluginResource[] resources,
+                                  String mavenSnippet,
+                                  String gradleKotlinSnippet,
+                                  String gradleGroovySnippet) {
 }

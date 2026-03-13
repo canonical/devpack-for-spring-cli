@@ -24,6 +24,17 @@ rockcraft:
       - push-build-rock
     description: |
       This is a plugin description
-    default-configuration: |
-      rockcraft {
-      }
+    configuration:
+      resources:
+        - path: .config/config.xml
+          content: |
+            <resource/>
+      maven: |
+        <maven-element-config/>
+      gradleKotlin: |
+        configure<com.canonical.rockcraft.builder.RockcraftOptions> {
+            setTargetRelease(21)
+        }
+      gradleGroovy: |
+        groovyDslObject {
+        }
