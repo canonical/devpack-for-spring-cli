@@ -89,7 +89,7 @@ dependencies {
 	implementation 'org.glassfish.jaxb:jaxb-runtime'
 
     implementation 'org.apache.commons:commons-text:1.15.0'
-	implementation 'org.yaml:snakeyaml:2.5'
+	implementation 'org.yaml:snakeyaml:2.6'
 	implementation "org.openrewrite:rewrite-gradle:${openrewriteVersion}"
 	implementation "org.openrewrite:rewrite-kotlin:${openrewriteVersion}"
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.5.0.202512021534-r"
