@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.canonical.devpackspring.build;
 
 public record PluginConfiguration(PluginResource[] resources, String mavenSnippet, String gradleKotlinSnippet,

@@ -16,8 +16,6 @@
 
 package com.canonical.devpackspring.build;
 
-import org.springframework.util.FileSystemUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -25,13 +23,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import org.springframework.util.FileSystemUtils;
+
 /***
- * This class creates a "clone" of the project in .devpack-for-spring/<project name>
+ * This class creates a "clone" of the project in ".devpack-for-spring/project name"
  * directory The top level directories and files except build files are symlinked under it
  */
 public class ShadowProjectAdapter {
 
-	private final static Path LOCAL = Path.of(".devpack-for-spring");
+	private static final Path LOCAL = Path.of(".devpack-for-spring");
 
 	private final Path projectPath;
 
@@ -51,7 +51,7 @@ public class ShadowProjectAdapter {
 					try {
 						Files.createSymbolicLink(projectPath.resolve(f.getName()), f.toPath());
 					}
-					catch (FileAlreadyExistsException e) {
+					catch (FileAlreadyExistsException ex) {
 						// ignore the already created top-level symlinks
 					}
 				}

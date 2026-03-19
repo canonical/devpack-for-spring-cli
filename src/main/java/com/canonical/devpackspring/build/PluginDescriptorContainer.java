@@ -22,12 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.model.Plugin;
-import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.Yaml;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("unchecked")
 public class PluginDescriptorContainer {
@@ -76,11 +74,11 @@ public class PluginDescriptorContainer {
 			.toArray(PluginResource[]::new);
 	}
 
-	private static @NotNull String getKey(String key, BuildSystem buildSystem) {
+	private static @Nonnull String getKey(String key, BuildSystem buildSystem) {
 		return key + "-" + buildSystem;
 	}
 
-	private static @NotNull String toName(String key, BuildSystem buildSystem) {
+	private static @Nonnull String toName(String key, BuildSystem buildSystem) {
 		return key.substring(0, key.indexOf('-'));
 	}
 
