@@ -37,7 +37,9 @@ public class ShadowProjectAdapter {
 
 	public ShadowProjectAdapter(Path curProject, PluginResource[] resources) throws IOException {
 		projectPath = curProject.resolve(LOCAL).resolve(curProject.getFileName());
+		// ensure build output directories exist
 		Files.createDirectories(curProject.resolve("build"));
+		Files.createDirectories(curProject.resolve("target"));
 		Files.createDirectories(projectPath);
 		File[] files = curProject.toFile().listFiles();
 		if (files == null) {
