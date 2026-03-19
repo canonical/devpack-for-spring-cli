@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.canonical.devpackspring.build.gradle;
+package com.canonical.devpackspring.build;
 
 import java.nio.file.Path;
 
@@ -27,7 +27,7 @@ import org.springframework.cli.support.MockConfigurations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestProjectAdapterTests {
+public class ShadowProjectAdapterTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
@@ -38,11 +38,10 @@ public class TestProjectAdapterTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path clonedPath = null;
-			try (TempProjectAdapter adapter = new TempProjectAdapter(workingDir)) {
-				clonedPath = adapter.getProjectPath();
-				assertThat(clonedPath.resolve("gradle")).exists();
-				assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
-			}
+			ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
+			clonedPath = adapter.getProjectPath();
+			assertThat(clonedPath.resolve("gradle")).exists();
+			assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
 			assertThat(clonedPath).doesNotExist();
 		});
 
