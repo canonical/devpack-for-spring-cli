@@ -48,7 +48,6 @@ public class PluginDescriptorContainerTests {
 		assertThat(description.configuration().gradleGroovySnippet()).isNotEmpty();
 		assertThat(description.configuration().mavenSnippet()).isNotEmpty();
 
-
 		assertThat(description.description()).contains("plugin description");
 	}
 

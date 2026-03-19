@@ -21,6 +21,11 @@ package com.canonical.devpackspring.build;
  *
  */
 public record PluginDescriptor(String id, String version, String classpath, String className, String repository,
-		String defaultTask, String[] tasks, PluginConfiguration configuration,
-		String description) {
+		String defaultTask, String[] tasks, PluginConfiguration configuration, String description) {
+	PluginResource[] resources() {
+		if (configuration != null) {
+			return configuration.resources();
+		}
+		return new PluginResource[0];
+	}
 }
