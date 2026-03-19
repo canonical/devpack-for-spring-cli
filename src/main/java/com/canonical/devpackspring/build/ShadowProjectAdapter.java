@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /***
  * This class creates a "clone" of the project in .devpack-for-spring/<project name>
@@ -37,6 +38,7 @@ public class ShadowProjectAdapter {
 	public ShadowProjectAdapter(Path curProject, PluginResource[] resources) throws IOException {
 		projectPath = curProject.resolve(LOCAL).resolve(curProject.getFileName());
 		Files.createDirectories(curProject.resolve("build"));
+		Files.createDirectories(projectPath);
 		File[] files = curProject.toFile().listFiles();
 		if (files == null) {
 			return;
@@ -55,15 +57,9 @@ public class ShadowProjectAdapter {
 				}
 			}
 		}
-		projectPath.forEach(x -> {
-			if (!Files.isSymbolicLink(x)) {
-                try {
-                    FileSystemUtils.deleteRecursively(x);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to refresh the shadow project.", e);
-                }
-            }
-		});
+		Arrays.stream(projectPath.toFile().listFiles())
+			.filter(x -> !Files.isSymbolicLink(x.toPath()))
+			.forEach(x -> FileSystemUtils.deleteRecursively(x));
 
 		for (PluginResource res : resources) {
 			Path resource = projectPath.resolve(res.relativePath());
