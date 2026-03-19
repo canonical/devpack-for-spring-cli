@@ -37,7 +37,7 @@ public class ShadowProjectAdapterTests {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
-			Path clonedPath = null;
+			Path clonedPath;
 			ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 			clonedPath = adapter.getProjectPath();
 			assertThat(clonedPath.resolve("gradle")).exists();
@@ -83,7 +83,7 @@ public class ShadowProjectAdapterTests {
 			Path clonedPath = adapter1.getProjectPath();
 			assertThat(clonedPath.resolve("to-be-removed.txt")).hasContent("content");
 
-			ShadowProjectAdapter adapter2 = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
+			new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 
 			assertThat(clonedPath.resolve("to-be-removed.txt")).doesNotExist();
 			assertThat(clonedPath.resolve("gradle")).exists();

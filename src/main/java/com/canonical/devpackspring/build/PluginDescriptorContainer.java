@@ -30,7 +30,7 @@ import org.yaml.snakeyaml.Yaml;
 @SuppressWarnings("unchecked")
 public class PluginDescriptorContainer {
 
-	private Map<String, PluginDescriptor> plugins = new HashMap<>();
+	private final Map<String, PluginDescriptor> plugins = new HashMap<>();
 
 	public PluginDescriptorContainer(Reader source) {
 		Yaml yaml = new Yaml();

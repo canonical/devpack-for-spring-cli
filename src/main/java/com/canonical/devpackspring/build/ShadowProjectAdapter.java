@@ -57,9 +57,12 @@ public class ShadowProjectAdapter {
 				}
 			}
 		}
-		Arrays.stream(projectPath.toFile().listFiles())
-			.filter(x -> !Files.isSymbolicLink(x.toPath()))
-			.forEach(x -> FileSystemUtils.deleteRecursively(x));
+		var toDelete = projectPath.toFile().listFiles();
+		if (toDelete != null) {
+			Arrays.stream(toDelete)
+				.filter(x -> !Files.isSymbolicLink(x.toPath()))
+				.forEach(FileSystemUtils::deleteRecursively);
+		}
 
 		for (PluginResource res : resources) {
 			Path resource = projectPath.resolve(res.relativePath());
