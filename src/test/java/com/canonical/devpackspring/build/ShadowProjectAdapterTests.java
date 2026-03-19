@@ -42,9 +42,52 @@ public class ShadowProjectAdapterTests {
 			clonedPath = adapter.getProjectPath();
 			assertThat(clonedPath.resolve("gradle")).exists();
 			assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
-			assertThat(clonedPath).doesNotExist();
+			assertThat(clonedPath).exists();
 		});
 
+	}
+
+	@Test
+	void testCopyResources(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			PluginResource[] initialResources = new PluginResource[] { new PluginResource("res1.txt", "initial"),
+					new PluginResource("dir1/res2.txt", "old content") };
+			ShadowProjectAdapter adapter1 = new ShadowProjectAdapter(workingDir, initialResources);
+			Path clonedPath = adapter1.getProjectPath();
+			assertThat(clonedPath.resolve("res1.txt")).hasContent("initial");
+			assertThat(clonedPath.resolve("dir1/res2.txt")).hasContent("old content");
+			assertThat(clonedPath.resolve("gradle")).exists();
+
+			PluginResource[] newResources = new PluginResource[] { new PluginResource("dir1/res2.txt", "new content"),
+					new PluginResource("res3.txt", "added") };
+
+			new ShadowProjectAdapter(workingDir, newResources);
+
+			assertThat(clonedPath.resolve("res1.txt")).doesNotExist();
+			assertThat(clonedPath.resolve("dir1/res2.txt")).hasContent("new content");
+			assertThat(clonedPath.resolve("res3.txt")).hasContent("added");
+			assertThat(clonedPath.resolve("gradle")).exists();
+		});
+	}
+
+	@Test
+	void testAllResourcesRemoved(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			PluginResource[] initialResources = new PluginResource[] {
+					new PluginResource("to-be-removed.txt", "content") };
+			ShadowProjectAdapter adapter1 = new ShadowProjectAdapter(workingDir, initialResources);
+			Path clonedPath = adapter1.getProjectPath();
+			assertThat(clonedPath.resolve("to-be-removed.txt")).hasContent("content");
+
+			ShadowProjectAdapter adapter2 = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
+
+			assertThat(clonedPath.resolve("to-be-removed.txt")).doesNotExist();
+			assertThat(clonedPath.resolve("gradle")).exists();
+		});
 	}
 
 }
