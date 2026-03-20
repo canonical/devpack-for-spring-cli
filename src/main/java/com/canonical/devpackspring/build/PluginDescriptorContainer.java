@@ -22,13 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("unchecked")
 public class PluginDescriptorContainer {
 
-	private Map<String, PluginDescriptor> plugins = new HashMap<>();
+	private final Map<String, PluginDescriptor> plugins = new HashMap<>();
 
 	public PluginDescriptorContainer(Reader source) {
 		Yaml yaml = new Yaml();
@@ -43,21 +45,40 @@ public class PluginDescriptorContainer {
 	private void addPlugin(String key, Map<String, Object> root, BuildSystem buildSystem) {
 		Map<String, Object> description = (Map<String, Object>) root.get(buildSystem.name());
 		if (description != null) {
+			PluginConfiguration config = readPluginConfiguration(
+					(Map<String, Object>) description.get("configuration"));
 			plugins.put(getKey(key, buildSystem),
 					new PluginDescriptor((String) description.get("id"), (String) description.get("version"),
 							(String) description.get("classpath"), (String) description.get("class-name"),
 							(String) description.get("repository"), (String) description.get("default-task"),
-							((ArrayList<String>) description.get("tasks")).toArray(String[]::new),
-							(String) description.get("default-configuration"),
+							((ArrayList<String>) description.get("tasks")).toArray(String[]::new), config,
 							(String) description.get("description")));
 		}
 	}
 
-	private static @NotNull String getKey(String key, BuildSystem buildSystem) {
+	private @Nullable PluginConfiguration readPluginConfiguration(Map<String, Object> configuration) {
+		if (configuration == null) {
+			return null;
+		}
+		return new PluginConfiguration(readResources((ArrayList<Map<String, String>>) configuration.get("resources")),
+				(String) configuration.get("maven"), (String) configuration.get("gradleKotlin"),
+				(String) configuration.get("gradleGroovy"));
+	}
+
+	private @Nonnull PluginResource[] readResources(ArrayList<Map<String, String>> resources) {
+		if (resources == null) {
+			return new PluginResource[0];
+		}
+		return resources.stream()
+			.map(x -> new PluginResource(x.get("path"), x.get("content")))
+			.toArray(PluginResource[]::new);
+	}
+
+	private static @Nonnull String getKey(String key, BuildSystem buildSystem) {
 		return key + "-" + buildSystem;
 	}
 
-	private static @NotNull String toName(String key, BuildSystem buildSystem) {
+	private static @Nonnull String toName(String key, BuildSystem buildSystem) {
 		return key.substring(0, key.indexOf('-'));
 	}
 

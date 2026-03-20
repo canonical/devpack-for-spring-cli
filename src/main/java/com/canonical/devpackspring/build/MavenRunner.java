@@ -30,6 +30,8 @@ public abstract class MavenRunner {
 
 	public static boolean run(Path baseDir, PluginDescriptor plugin, String goal, TerminalMessage message)
 			throws IOException {
+		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, plugin.resources());
+
 		String command = "mvn";
 		if (Files.exists(baseDir.resolve("mvnw")) && validWrapper(baseDir)) {
 			command = "./mvnw";
@@ -51,7 +53,7 @@ public abstract class MavenRunner {
 			args.add(arg);
 		}
 
-		ProcessBuilder pb = new ProcessBuilder().command(args).directory(baseDir.toFile());
+		ProcessBuilder pb = new ProcessBuilder().command(args).directory(projectAdapter.getProjectPath().toFile());
 		return ProcessUtil.runProcess(message, pb) == 0;
 	}
 

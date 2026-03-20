@@ -25,7 +25,6 @@ import java.nio.file.StandardCopyOption;
 
 import com.canonical.devpackspring.build.gradle.GradleAdapter;
 import com.canonical.devpackspring.build.gradle.Refactoring;
-import com.canonical.devpackspring.build.gradle.TempProjectAdapter;
 import org.jline.utils.AttributedStyle;
 
 import org.springframework.cli.util.TerminalMessage;
@@ -37,7 +36,7 @@ public abstract class GradleRunner {
 		OutputStream terminalStreamError = new TerminalOutputStream(message,
 				new AttributedStyle().foreground(AttributedStyle.RED));
 
-		TempProjectAdapter projectAdapter = new TempProjectAdapter(baseDir);
+		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
 		appendPlugin(baseDir, projectAdapter.getProjectPath(), desc);
 

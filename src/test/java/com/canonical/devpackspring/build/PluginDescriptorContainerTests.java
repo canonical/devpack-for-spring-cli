@@ -39,7 +39,15 @@ public class PluginDescriptorContainerTests {
 		assertThat(description.repository()).isEqualTo("gradlePluginPortal()");
 		assertThat(description.defaultTask()).isEqualTo("build-rock");
 		assertThat(description.tasks()).contains("create-rock", "build-rock", "create-build-rock");
-		assertThat(description.defaultConfiguration()).contains("rockcraft");
+
+		PluginResource[] resources = description.configuration().resources();
+		assertThat(resources.length).isEqualTo(1);
+		assertThat(resources[0].relativePath()).isEqualTo(".config/config.xml");
+
+		assertThat(description.configuration().gradleKotlinSnippet()).isNotEmpty();
+		assertThat(description.configuration().gradleGroovySnippet()).isNotEmpty();
+		assertThat(description.configuration().mavenSnippet()).isNotEmpty();
+
 		assertThat(description.description()).contains("plugin description");
 	}
 
