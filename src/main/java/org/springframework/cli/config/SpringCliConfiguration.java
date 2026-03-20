@@ -21,6 +21,7 @@ import java.time.Duration;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import org.jline.terminal.Terminal;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.ReactorNettyHttpClientMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
@@ -48,8 +49,8 @@ public class SpringCliConfiguration {
 	}
 
 	@Bean
-	public CommandExceptionResolver commandExceptionResolver() {
-		return new SpringCliExceptionResolver();
+	public CommandExceptionResolver commandExceptionResolver(@Value("${app.debug:false}") boolean debug) {
+		return new SpringCliExceptionResolver(debug);
 	}
 
 	@Bean

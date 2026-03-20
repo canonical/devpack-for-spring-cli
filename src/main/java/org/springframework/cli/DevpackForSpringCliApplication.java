@@ -16,6 +16,8 @@
 
 package org.springframework.cli;
 
+import java.util.Arrays;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -35,11 +37,27 @@ public class DevpackForSpringCliApplication {
 
 	public static void main(String[] args) {
 		System.setProperty("java.awt.headless", Boolean.toString(true));
-		SpringApplication app = new SpringApplicationBuilder(DevpackForSpringCliApplication.class)
-			.properties("spring.config.name=devpack-for-springcliap")
-			.properties("spring.config.location=classpath:/devpack-for-springcliapp.yml")
-			.build();
-		app.run(args);
+		boolean debug = false;
+		if (args.length > 1) {
+			debug = "--debug".equals(args[0]);
+			if (debug) {
+				args = Arrays.stream(args).skip(1).toArray(String[]::new);
+			}
+		}
+		try {
+			SpringApplication app = new SpringApplicationBuilder(DevpackForSpringCliApplication.class)
+				.properties("spring.config.name=devpack-for-springcliap")
+				.properties("spring.config.location=classpath:/devpack-for-springcliapp.yml")
+				.properties(String.format("app.debug=%b", debug))
+				.properties("logging.level.org.springframework.boot.SpringApplication=" + (debug ? "DEBUG" : "OFF"))
+				.build();
+			app.run(args);
+		}
+		catch (Throwable tx) {
+			if (debug) {
+				tx.printStackTrace();
+			}
+		}
 	}
 
 }
