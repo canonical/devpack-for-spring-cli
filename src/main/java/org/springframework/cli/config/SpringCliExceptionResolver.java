@@ -16,11 +16,6 @@
 
 package org.springframework.cli.config;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.util.Arrays;
-
 import org.jline.terminal.Terminal;
 
 import org.springframework.beans.BeansException;
@@ -37,32 +32,23 @@ public class SpringCliExceptionResolver implements CommandExceptionResolver, App
 
 	private ObjectProvider<Terminal> terminalProvider;
 
+	private final boolean debug;
+
+	public SpringCliExceptionResolver(boolean debug) {
+		this.debug = debug;
+	}
+
 	@Override
 	public CommandHandlingResult resolve(Exception e) {
-		File stackTraceFile = new File(System.getProperty("java.io.tmpdir"), "spring-cli-stacktrace.txt");
-		try {
-			e.printStackTrace(new PrintStream(stackTraceFile));
+		if (debug) {
+			e.printStackTrace(getTerminal().writer());
+			return CommandHandlingResult.of("", 1);
 		}
-		catch (FileNotFoundException ex) {
-			shellPrint("Could not write stack trace to file " + stackTraceFile);
-			shellPrint(Arrays.toString(ex.getStackTrace()));
-		}
-		return CommandHandlingResult.of(e.getMessage(), 1);
+		return CommandHandlingResult.of(String.format("%s\n", e.getMessage()), 1);
 	}
 
 	private Terminal getTerminal() {
 		return terminalProvider.getObject();
-	}
-
-	protected void shellPrint(String... text) {
-		for (String t : text) {
-			getTerminal().writer().println(t);
-		}
-		shellFlush();
-	}
-
-	protected void shellFlush() {
-		getTerminal().writer().flush();
 	}
 
 	@Override
