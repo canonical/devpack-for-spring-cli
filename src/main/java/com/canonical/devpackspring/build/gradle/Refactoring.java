@@ -17,16 +17,7 @@
 package com.canonical.devpackspring.build.gradle;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-
-import com.canonical.devpackspring.build.grammar.GradlePluginLexer;
-import com.canonical.devpackspring.build.grammar.GradlePluginParser;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public final class Refactoring {
 
@@ -34,36 +25,6 @@ public final class Refactoring {
 	}
 
 	public static void appendPlugin(Path buildFile, String id, String version) throws IOException {
-		String content = Files.readString(buildFile);
-		CharStream input = CharStreams.fromString(content);
-		GradlePluginLexer lexer = new GradlePluginLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		GradlePluginParser parser = new GradlePluginParser(tokens);
-		parser.removeErrorListeners(); // Disable console error reporting to suppress
-										// parser errors during plugin block analysis, as
-										// errors may be expected and should not be
-										// printed to the console.
-		ParseTree tree = parser.sequence();
-		FindPluginListener listener = new FindPluginListener();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(listener, tree);
-		if (listener.isHasPluginBlock()) {
-			String block = content.substring(listener.getStartIndex(), listener.getStopIndex());
-			if (block.contains(id)) {
-				return;
-			}
-			StringBuilder sb = new StringBuilder(content);
-			sb.insert(listener.getStopIndex(), String.format("\nid (\"%s\") version \"%s\"\n", id, version));
-			content = sb.toString();
-		}
-		else {
-			content = String.format("""
-					plugins {
-					    id ("%s") version "%s"
-					}
-					""", id, version) + content;
-		}
-		Files.writeString(buildFile, content);
 	}
 
 }
