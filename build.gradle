@@ -61,7 +61,7 @@ ext {
 	set('jsonpathVersion', '2.7.0')
 	set('jaxbApiVersion', '2.3.1')
 	set('jaxbRuntimeVersion', '4.0.7')
-	set('jacksonVersion', '2.21.1')
+	set('jacksonVersion', '2.21.2')
 }
 
 configurations.all {
