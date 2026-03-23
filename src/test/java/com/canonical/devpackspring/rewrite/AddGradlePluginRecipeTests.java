@@ -83,9 +83,8 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						version = "1.0"
 						""", """
 						plugins {
-						    id("org.springframework.boot") version "3.4.3"
+							id("org.springframework.boot") version "3.4.3"
 						}
-
 						group = "com.example"
 						version = "1.0"
 						"""));

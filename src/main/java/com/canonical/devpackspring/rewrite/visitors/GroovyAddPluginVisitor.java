@@ -55,25 +55,16 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
 
 		List<Statement> statements = ((G.CompilationUnit) templateSource).getStatements();
-		G.MethodInvocation stm = (G.MethodInvocation) statements.get(0);
-		G.Lambda lambda = (G.Lambda) stm.getArguments().get(0);
+		G.MethodInvocation stm = (G.MethodInvocation) statements.getFirst();
+		G.Lambda lambda = (G.Lambda) stm.getArguments().getFirst();
 		G.Block gBlock = (G.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, ((J.Return) gBlock.getStatements().getFirst()));
+		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation)((J.Return) gBlock.getStatements().getFirst()).getExpression());
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			ExecutionContext executionContext) {
-		var ret = visitor.vistMethodInvocation(method, getCursor());
-		var visitResult = super.visitMethodInvocation(method, executionContext);
-		if (ret != null) {
-			return ret;
-		}
-		ret = visitor.postVistMethodInvocation(method, getCursor());
-		if (ret != null) {
-			return ret;
-		}
-		return visitResult;
+		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override

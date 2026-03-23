@@ -28,7 +28,6 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.gradle.GradleParser;
-import org.openrewrite.groovy.tree.G;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 import org.openrewrite.kotlin.KotlinIsoVisitor;
@@ -63,22 +62,13 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
 		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
 		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, (J.Return) kBlock.getStatements().getFirst());
+		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation)kBlock.getStatements().getFirst());
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			ExecutionContext executionContext) {
-		var ret = visitor.vistMethodInvocation(method, getCursor());
-		var visitResult = super.visitMethodInvocation(method, executionContext);
-		if (ret != null) {
-			return ret;
-		}
-		ret = visitor.postVistMethodInvocation(method, getCursor());
-		if (ret != null) {
-			return ret;
-		}
-		return visitResult;
+															 ExecutionContext executionContext) {
+		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override

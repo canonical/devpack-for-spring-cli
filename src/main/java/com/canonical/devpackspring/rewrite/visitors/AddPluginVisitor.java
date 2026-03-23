@@ -17,18 +17,12 @@
 package com.canonical.devpackspring.rewrite.visitors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Space;
@@ -49,16 +43,17 @@ public class AddPluginVisitor {
 
 	public static final String METHOD_PLUGINS = "plugins";
 
-	public J.Return call;
+	public J.MethodInvocation call;
 
 	private final String pluginName;
 
-	public AddPluginVisitor(String pluginName, J.Return call) {
+	public AddPluginVisitor(String pluginName, J.MethodInvocation call) {
 		this.pluginName = pluginName;
 		this.call = call;
 	}
 
-	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor, BiFunction<J.MethodInvocation,ExecutionContext,J.MethodInvocation> parent) {
+		J.MethodInvocation newCall = null;
 		switch (method.getSimpleName()) {
 			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
 			case METHOD_ID -> {
@@ -78,7 +73,7 @@ public class AddPluginVisitor {
 				}
 				else {
 					if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-						return createMethodInvocation(method, cursor);
+						newCall = createMethodInvocation(method, cursor);
 					}
 				}
 			}
@@ -86,27 +81,19 @@ public class AddPluginVisitor {
 			default -> {
 			}
 		}
-		;
-		return null;
-	}
-
-	private J.@Nullable MethodInvocation createMethodInvocation(J.MethodInvocation method, Cursor cursor) {
-		var toReturn = ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
-		String targetText = toReturn.printTrimmed(cursor).trim();
-		String sourceText = method.printTrimmed(cursor).trim();
-		cursor.getRoot().putMessage(PLUGIN_ADDED, true);
-		if (!targetText.equals(sourceText)) {
-			return ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
+		var visitResult = parent.apply(method, context);
+		if (newCall != null) {
+			return newCall;
 		}
-		return null;
-	}
 
-	public J.MethodInvocation postVistMethodInvocation(J.MethodInvocation method, Cursor cursor) {
 		if (METHOD_VERSION.equals(method.getSimpleName())) {
 			cursor.getRoot().pollMessage(HAS_VERSION);
 			var pluginNameStr = cursor.getRoot().pollMessage(METHOD_NAME);
 			if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-				return createMethodInvocation(method, cursor);
+				newCall = createMethodInvocation(method, cursor);
+				if (newCall != null) {
+					return newCall;
+				}
 			}
 		}
 		if (METHOD_PLUGINS.equals(method.getSimpleName()) && !Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))) {
@@ -116,13 +103,23 @@ public class AddPluginVisitor {
 			Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
 					: block.getStatements().get(0).getPrefix();
 			List<Statement> newStatements = new ArrayList<>(block.getStatements());
-			newStatements.add(((J.MethodInvocation) call.getExpression()).withPrefix(prefix));
+			newStatements.add(call.withPrefix(prefix));
 
 			block = block.withStatements(newStatements);
 			lambda = lambda.withBody(block);
 			return method.withArguments(List.of(lambda));
 		}
-		return null;
+		return visitResult;
 	}
 
+	private J.@Nullable MethodInvocation createMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+		var toReturn = call.withPrefix(method.getPrefix());
+		String targetText = toReturn.printTrimmed(cursor).trim();
+		String sourceText = method.printTrimmed(cursor).trim();
+		cursor.getRoot().putMessage(PLUGIN_ADDED, true);
+		if (!targetText.equals(sourceText)) {
+			return call.withPrefix(method.getPrefix());
+		}
+		return null;
+	}
 }
