@@ -68,12 +68,11 @@ public abstract class GradleRunner {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {
 				var buildFile = targetProject.resolve(file);
-				Files.copy(sourceProject.resolve(file), buildFile,
-						StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(sourceProject.resolve(file), buildFile, StandardCopyOption.REPLACE_EXISTING);
 				boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
 				Refactoring.appendPlugin(targetProject.resolve(file), desc.id(), desc.version(), kotlin);
-				Refactoring.appendConfiguration(targetProject.resolve(file),
-						kotlin ? desc.configuration().gradleKotlinSnippet() : desc.configuration().gradleGroovySnippet());
+				Refactoring.appendConfiguration(targetProject.resolve(file), kotlin
+						? desc.getGradleKotlinSnippet() : desc.getGradleGroovySnippet());
 				return;
 			}
 		}
