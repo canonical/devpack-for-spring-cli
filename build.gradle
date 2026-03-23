@@ -41,7 +41,7 @@ description = 'Devpack for Spring Cli'
 group = 'com.canonical'
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 17
+    options.release = 21
 }
 
 repositories {
