@@ -72,7 +72,7 @@ public class AddPluginVisitor {
 					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
 				} else {
 					if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-						return (J.MethodInvocation) call.getExpression();
+						return createMethodInvocation(method, cursor);
 					}
 				}
 			}
@@ -82,12 +82,22 @@ public class AddPluginVisitor {
 		return null;
 	}
 
+	private J.@Nullable MethodInvocation createMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+		var toReturn = ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
+		String targetText = toReturn.printTrimmed(cursor).trim();
+		String sourceText = method.printTrimmed(cursor).trim();
+		if (!targetText.equals(sourceText)) {
+			return ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
+		}
+		return null;
+	}
+
 	public J.MethodInvocation postVistMethodInvocation(J.MethodInvocation method, Cursor cursor) {
 		if (METHOD_VERSION.equals(method.getSimpleName())) {
 			cursor.getRoot().pollMessage(HAS_VERSION);
 			var pluginNameStr = cursor.getRoot().pollMessage(METHOD_NAME);
 			if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-				return (J.MethodInvocation) call.getExpression();
+				return createMethodInvocation(method, cursor);
 			}
 		}
 		return null;
