@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -62,26 +61,28 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
 		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
 		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, kBlock.getStatements());
+		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation) kBlock.getStatements().getFirst());
 	}
 
 	@Override
-	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext) {
-		return visitor.postVisit(tree, executionContext, (t, context) -> {
-			if (Boolean.TRUE.equals(context.getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
-				return tree;
-			}
+	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
+			ExecutionContext executionContext) {
+		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+	}
 
-			if (tree instanceof K.CompilationUnit unit) {
-				if (!unit.getSourcePath().toString().equals("build.gradle.kts")) {
-					return tree;
-				}
-				List<Statement> statements = StatementUtil.append(unit.getStatements(),
-						((K.CompilationUnit) templateSource).getStatements());
-				return unit.withStatements(statements);
-			}
-			return t;
-		});
+	@Override
+	public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
+			ExecutionContext executionContext) {
+		var tree = super.visitCompilationUnit(cu, executionContext);
+		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
+			return tree;
+		}
+		if (!tree.getSourcePath().toString().endsWith("build.gradle.kts")) {
+			return tree;
+		}
+		List<Statement> statements = StatementUtil.append(((K.CompilationUnit) templateSource).getStatements(),
+				tree.getStatements());
+		return tree.withStatements(statements);
 	}
 
 }
