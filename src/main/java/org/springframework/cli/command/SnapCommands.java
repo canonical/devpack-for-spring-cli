@@ -192,8 +192,7 @@ public class SnapCommands {
 
 	private static String loadManifest() throws IOException {
 		var ret = new StringBuilder();
-		try (BufferedReader r = new BufferedReader(
-				new FileReader("/snap/devpack-for-spring-manifest/current/supported.yaml"))) {
+		try (BufferedReader r = new BufferedReader(new FileReader(getSupportedYamlPath()))) {
 			String line;
 			while ((line = r.readLine()) != null) {
 				ret.append(line);
@@ -201,6 +200,18 @@ public class SnapCommands {
 			}
 		}
 		return ret.toString();
+	}
+
+	private static final String SUPPORTED_YAML = "/snap/devpack-for-spring-manifest/current/supported.yaml";
+
+	private static final String SUPPORTED_CONFIGURATION = "SPRING_CLI_SNAP_COMMANDS_CONFIGURATION";
+
+	private static String getSupportedYamlPath() {
+		String override = System.getenv(SUPPORTED_CONFIGURATION);
+		if (null == override) {
+			override = System.getProperty(SUPPORTED_CONFIGURATION);
+		}
+		return (null != override) ? override : SUPPORTED_YAML;
 	}
 
 }
