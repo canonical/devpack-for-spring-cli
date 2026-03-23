@@ -58,7 +58,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		G.MethodInvocation stm = (G.MethodInvocation) statements.getFirst();
 		G.Lambda lambda = (G.Lambda) stm.getArguments().getFirst();
 		G.Block gBlock = (G.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation)((J.Return) gBlock.getStatements().getFirst()).getExpression());
+		visitor = new AddPluginVisitor(pluginName,
+				(J.MethodInvocation) ((J.Return) gBlock.getStatements().getFirst()).getExpression());
 	}
 
 	@Override

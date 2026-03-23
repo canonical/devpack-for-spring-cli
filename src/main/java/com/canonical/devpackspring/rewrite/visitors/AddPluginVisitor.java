@@ -31,11 +31,17 @@ import org.openrewrite.java.tree.Statement;
 public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
+
 	private static final String UNKNOWN = "?";
+
 	private static final String PLUGIN_ADDED = "plugin_added";
+
 	private static final String METHOD_NAME = "method_name";
+
 	private static final String METHOD_ID = "id";
+
 	private static final String METHOD_VERSION = "version";
+
 	private static final String METHOD_PLUGINS = "plugins";
 
 	public J.MethodInvocation call;
@@ -47,15 +53,15 @@ public class AddPluginVisitor {
 		this.call = call;
 	}
 
-	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor, BiFunction<J.MethodInvocation,ExecutionContext,J.MethodInvocation> parent) {
+	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor,
+			BiFunction<J.MethodInvocation, ExecutionContext, J.MethodInvocation> parent) {
 		J.MethodInvocation newCall = null;
 		switch (method.getSimpleName()) {
 			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
 			case METHOD_ID -> {
 				Expression expr = method.getArguments().getFirst();
-				String pluginNameStr = expr instanceof J.Literal literal && literal.getValue() != null
-						? literal.getValue().toString()
-						: expr.toString();
+				String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
+						? literal.getValue().toString() : expr.toString();
 
 				if (UNKNOWN.equals(cursor.getRoot().getMessage(METHOD_NAME))) {
 					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
@@ -109,5 +115,5 @@ public class AddPluginVisitor {
 		}
 		return null;
 	}
-	
+
 }

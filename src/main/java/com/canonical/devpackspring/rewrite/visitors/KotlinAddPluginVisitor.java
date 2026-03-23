@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -62,12 +61,12 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
 		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
 		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation)kBlock.getStatements().getFirst());
+		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation) kBlock.getStatements().getFirst());
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-															 ExecutionContext executionContext) {
+			ExecutionContext executionContext) {
 		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
