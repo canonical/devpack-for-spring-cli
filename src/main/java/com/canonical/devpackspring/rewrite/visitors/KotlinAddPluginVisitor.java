@@ -28,6 +28,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.gradle.GradleParser;
+import org.openrewrite.groovy.tree.G;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 import org.openrewrite.kotlin.KotlinIsoVisitor;
@@ -62,11 +63,12 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
 		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
 		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, (J.Return)kBlock.getStatements().getFirst());
+		visitor = new AddPluginVisitor(pluginName, (J.Return) kBlock.getStatements().getFirst());
 	}
 
 	@Override
-	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method, ExecutionContext executionContext) {
+	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
+			ExecutionContext executionContext) {
 		var ret = visitor.vistMethodInvocation(method, getCursor());
 		var visitResult = super.visitMethodInvocation(method, executionContext);
 		if (ret != null) {
@@ -79,23 +81,19 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		return visitResult;
 	}
 
-
 	@Override
-	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext) {
+	public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
+			ExecutionContext executionContext) {
+		var tree = super.visitCompilationUnit(cu, executionContext);
 		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
 			return tree;
 		}
-
-		if (tree instanceof K.CompilationUnit unit) {
-			if (!unit.getSourcePath().toString().equals("build.gradle.kts")) {
-				return tree;
-			}
-			List<Statement> statements = StatementUtil.append(
-					((K.CompilationUnit) templateSource).getStatements(),
-					unit.getStatements());
-			return unit.withStatements(statements);
+		if (!tree.getSourcePath().toString().endsWith("build.gradle.kts")) {
+			return tree;
 		}
-		return tree;
+		List<Statement> statements = StatementUtil.append(((K.CompilationUnit) templateSource).getStatements(),
+				tree.getStatements());
+		return tree.withStatements(statements);
 	}
 
 }

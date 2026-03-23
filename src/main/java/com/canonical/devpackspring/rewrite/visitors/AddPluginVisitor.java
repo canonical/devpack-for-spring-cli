@@ -37,10 +37,14 @@ import org.openrewrite.java.tree.Statement;
 public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
+	public static final String PLUGIN_ADDED = "plugin_added";
+
 	public static final String HAS_VERSION = "has_version";
+
 	public static final String METHOD_NAME = "method_name";
 
 	public static final String METHOD_ID = "id";
+
 	public static final String METHOD_VERSION = "version";
 
 	public static final String METHOD_PLUGINS = "plugins";
@@ -65,20 +69,24 @@ public class AddPluginVisitor {
 					if (value != null) {
 						pluginNameStr = value.toString();
 					}
-				} else {
+				}
+				else {
 					pluginNameStr = pluginNameExpression.toString();
 				}
 				if (Boolean.TRUE.equals(cursor.getRoot().getMessage(HAS_VERSION))) {
 					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
-				} else {
+				}
+				else {
 					if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
 						return createMethodInvocation(method, cursor);
 					}
 				}
 			}
 			case METHOD_VERSION -> cursor.getRoot().putMessage(HAS_VERSION, true);
-			default -> {}
-		};
+			default -> {
+			}
+		}
+		;
 		return null;
 	}
 
@@ -86,6 +94,7 @@ public class AddPluginVisitor {
 		var toReturn = ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
 		String targetText = toReturn.printTrimmed(cursor).trim();
 		String sourceText = method.printTrimmed(cursor).trim();
+		cursor.getRoot().putMessage(PLUGIN_ADDED, true);
 		if (!targetText.equals(sourceText)) {
 			return ((J.MethodInvocation) call.getExpression()).withPrefix(method.getPrefix());
 		}
@@ -100,6 +109,20 @@ public class AddPluginVisitor {
 				return createMethodInvocation(method, cursor);
 			}
 		}
+		if (METHOD_PLUGINS.equals(method.getSimpleName()) && !Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))) {
+			J.Lambda lambda = (J.Lambda) method.getArguments().get(0);
+			J.Block block = (J.Block) lambda.getBody();
+
+			Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
+					: block.getStatements().get(0).getPrefix();
+			List<Statement> newStatements = new ArrayList<>(block.getStatements());
+			newStatements.add(((J.MethodInvocation) call.getExpression()).withPrefix(prefix));
+
+			block = block.withStatements(newStatements);
+			lambda = lambda.withBody(block);
+			return method.withArguments(List.of(lambda));
+		}
 		return null;
 	}
+
 }
