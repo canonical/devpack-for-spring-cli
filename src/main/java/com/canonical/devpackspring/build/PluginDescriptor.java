@@ -20,8 +20,8 @@ package com.canonical.devpackspring.build;
  * Describes gradle plugin configuration
  *
  */
-public record PluginDescriptor(String id, String version, String repository,
-		String defaultTask, String[] tasks, PluginConfiguration configuration, String description) {
+public record PluginDescriptor(String id, String version, String repository, String defaultTask, String[] tasks,
+		PluginConfiguration configuration, String description) {
 	PluginResource[] resources() {
 		if (configuration != null) {
 			return configuration.resources();

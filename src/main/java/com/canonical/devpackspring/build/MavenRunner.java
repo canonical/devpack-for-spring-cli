@@ -28,10 +28,6 @@ import java.util.StringTokenizer;
 import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
-
-import com.canonical.devpackspring.build.gradle.Refactoring;
-import com.canonical.devpackspring.rewrite.AddRockcraftMavenRecipe;
-import com.canonical.devpackspring.rewrite.EnableRockcraftRefactoring;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -41,6 +37,7 @@ import org.openrewrite.maven.AddPlugin;
 import org.openrewrite.maven.MavenParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.cli.util.TerminalMessage;
 
 public abstract class MavenRunner {
@@ -84,12 +81,11 @@ public abstract class MavenRunner {
 			return;
 		}
 		var target = targetProject.resolve("pom.xml");
-		Files.copy(source, target,
-				StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
 		var groupAndArtifact = desc.id().split(":");
 		if (groupAndArtifact.length < 2) {
-			throw new RuntimeException("Maven plugin descriptor should be <groupId>:<artifactId> but was "+ desc.id());
+			throw new RuntimeException("Maven plugin descriptor should be <groupId>:<artifactId> but was " + desc.id());
 		}
 		InMemoryExecutionContext context = new InMemoryExecutionContext(new Consumer<Throwable>() {
 			@Override
@@ -98,8 +94,7 @@ public abstract class MavenRunner {
 			}
 		});
 		Recipe recipe = new AddPlugin(groupAndArtifact[0], groupAndArtifact[1], desc.version(),
-				desc.configuration().mavenSnippet().configuration(),
-				desc.configuration().mavenSnippet().dependencies(),
+				desc.configuration().mavenSnippet().configuration(), desc.configuration().mavenSnippet().dependencies(),
 				desc.configuration().mavenSnippet().executions(), null);
 		var files = parseMaven(targetProject, context);
 		RecipeUtil.applyRecipe(targetProject, recipe, files, context);
@@ -108,8 +103,8 @@ public abstract class MavenRunner {
 	private static List<SourceFile> parseMaven(Path baseDir, InMemoryExecutionContext context) {
 		Parser p = MavenParser.builder().build();
 		List<Path> files = Arrays.stream(baseDir.toFile().listFiles(file -> "pom.xml".equals(file.getName())))
-				.map(File::toPath)
-				.toList();
+			.map(File::toPath)
+			.toList();
 
 		return p.parse(files, baseDir, context).toList();
 	}
