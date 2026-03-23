@@ -31,17 +31,12 @@ import org.openrewrite.java.tree.Statement;
 public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
-	public static final String PLUGIN_ADDED = "plugin_added";
-
-	public static final String HAS_VERSION = "has_version";
-
-	public static final String METHOD_NAME = "method_name";
-
-	public static final String METHOD_ID = "id";
-
-	public static final String METHOD_VERSION = "version";
-
-	public static final String METHOD_PLUGINS = "plugins";
+	private static final String UNKNOWN = "?";
+	private static final String PLUGIN_ADDED = "plugin_added";
+	private static final String METHOD_NAME = "method_name";
+	private static final String METHOD_ID = "id";
+	private static final String METHOD_VERSION = "version";
+	private static final String METHOD_PLUGINS = "plugins";
 
 	public J.MethodInvocation call;
 
@@ -57,57 +52,49 @@ public class AddPluginVisitor {
 		switch (method.getSimpleName()) {
 			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
 			case METHOD_ID -> {
-				String pluginNameStr = null;
-				Expression pluginNameExpression = method.getArguments().get(0);
-				if (pluginNameExpression instanceof J.Literal) {
-					Object value = ((J.Literal) pluginNameExpression).getValue();
-					if (value != null) {
-						pluginNameStr = value.toString();
-					}
-				}
-				else {
-					pluginNameStr = pluginNameExpression.toString();
-				}
-				if (Boolean.TRUE.equals(cursor.getRoot().getMessage(HAS_VERSION))) {
+				Expression expr = method.getArguments().getFirst();
+				String pluginNameStr = expr instanceof J.Literal literal && literal.getValue() != null
+						? literal.getValue().toString()
+						: expr.toString();
+
+				if (UNKNOWN.equals(cursor.getRoot().getMessage(METHOD_NAME))) {
 					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
 				}
-				else {
-					if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-						newCall = createMethodInvocation(method, cursor);
-					}
+				else if (this.pluginName.equals(pluginNameStr)) {
+					newCall = createMethodInvocation(method, cursor);
 				}
 			}
-			case METHOD_VERSION -> cursor.getRoot().putMessage(HAS_VERSION, true);
-			default -> {
-			}
+			case METHOD_VERSION -> cursor.getRoot().putMessage(METHOD_NAME, UNKNOWN);
 		}
+
 		var visitResult = parent.apply(method, context);
 		if (newCall != null) {
 			return newCall;
 		}
 
-		if (METHOD_VERSION.equals(method.getSimpleName())) {
-			cursor.getRoot().pollMessage(HAS_VERSION);
-			var pluginNameStr = cursor.getRoot().pollMessage(METHOD_NAME);
-			if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
-				newCall = createMethodInvocation(method, cursor);
-				if (newCall != null) {
-					return newCall;
+		switch (method.getSimpleName()) {
+			case METHOD_VERSION -> {
+				var storedName = cursor.getRoot().pollMessage(METHOD_NAME);
+				if (this.pluginName.equals(storedName)) {
+					newCall = createMethodInvocation(method, cursor);
+					if (newCall != null) {
+						return newCall;
+					}
 				}
 			}
-		}
-		if (METHOD_PLUGINS.equals(method.getSimpleName()) && !Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))) {
-			J.Lambda lambda = (J.Lambda) method.getArguments().get(0);
-			J.Block block = (J.Block) lambda.getBody();
+			case METHOD_PLUGINS -> {
+				if (!Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))
+						&& method.getArguments().getFirst() instanceof J.Lambda lambda
+						&& lambda.getBody() instanceof J.Block block) {
 
-			Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
-					: block.getStatements().get(0).getPrefix();
-			List<Statement> newStatements = new ArrayList<>(block.getStatements());
-			newStatements.add(call.withPrefix(prefix));
+					Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
+							: block.getStatements().getFirst().getPrefix();
+					List<Statement> newStatements = new ArrayList<>(block.getStatements());
+					newStatements.add(call.withPrefix(prefix));
 
-			block = block.withStatements(newStatements);
-			lambda = lambda.withBody(block);
-			return method.withArguments(List.of(lambda));
+					return method.withArguments(List.of(lambda.withBody(block.withStatements(newStatements))));
+				}
+			}
 		}
 		return visitResult;
 	}
@@ -122,4 +109,5 @@ public class AddPluginVisitor {
 		}
 		return null;
 	}
+	
 }
