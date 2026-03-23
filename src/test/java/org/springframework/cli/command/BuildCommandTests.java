@@ -120,4 +120,23 @@ public class BuildCommandTests {
 		});
 	}
 
+	@Test
+	public void testRunMavenCheckstylePlugin(final @TempDir Path workingDir) throws IOException {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("rest-service");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		Path pluginsYaml = workingDir.resolve("plugins.yaml");
+		System.setProperty(BuildCommands.PLUGIN_CONFIGURATION, pluginsYaml.toString());
+
+		Files.write(pluginsYaml,
+				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml")
+						.readAllBytes());
+
+		contextRunner.run(context -> {
+
+			assertThat(context).hasSingleBean(BuildCommands.class);
+			BuildCommands commands = context.getBean(BuildCommands.class);
+			commands.run("checkStyle", "checkstyle:check", workingDir);
+		});
+	}
+
 }

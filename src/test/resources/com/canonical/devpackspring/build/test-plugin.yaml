@@ -6,6 +6,43 @@ checkStyle:
     default-task: check
     tasks:
       - check
+  maven:
+    id: org.apache.maven.plugins:maven-checkstyle-plugin
+    version: 3.6.0
+    default-task: check
+    tasks:
+      - checkstyle:check
+    configuration:
+      resources:
+        - path: checkstyle.xml
+          content: |
+            <?xml version="1.0"?>
+            <!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+            <module name="Checker">
+            </module>
+      maven:
+        configuration: |
+          <configuration>
+            <configLocation>${project.basedir}/checkstyle.xml</configLocation>
+          </configuration>
+        dependencies: |
+          <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>10.21.1</version>
+          </dependency>
+          </dependencies>
+        executions: |
+          <executions>
+          <execution>
+            <id>checkstyle</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+          </executions>
 rockcraft:
   gradle:
     id: io.github.rockcrafters.rockcraft
