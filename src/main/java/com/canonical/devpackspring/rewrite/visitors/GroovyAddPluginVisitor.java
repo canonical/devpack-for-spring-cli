@@ -64,7 +64,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 
 	@Override
-	public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
+	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method, ExecutionContext executionContext) {
 		var ret = visitor.vistMethodInvocation(method, getCursor());
 		var visitResult = super.visitMethodInvocation(method, executionContext);
 		if (ret != null) {
