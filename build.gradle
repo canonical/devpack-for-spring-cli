@@ -98,6 +98,7 @@ dependencies {
 
     testImplementation 'com.google.jimfs:jimfs'
     testImplementation 'org.openrewrite:rewrite-test'
+	testImplementation 'org.openrewrite.gradle.tooling:model'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	if (useChecks) {
@@ -115,6 +116,7 @@ dependencyManagement {
 		dependency("org.openrewrite:rewrite-maven:${openrewriteVersion}") {
 			exclude 'org.slf4j:jcl-over-slf4j'
 		}
+		dependency "org.openrewrite.gradle.tooling:model:${openrewriteVersion}"
 		dependency "org.apache.ant:ant:${antVersion}"
 		dependency "org.apache.maven:maven-model:${mavenModelVersion}"
 		dependency "com.google.jimfs:jimfs:${jimfsVersion}"
