@@ -2,7 +2,7 @@
 
 == Build
 
-NOTE: Use JDK17+
+NOTE: Use JDK21+
 
 Normal build:
 ```
