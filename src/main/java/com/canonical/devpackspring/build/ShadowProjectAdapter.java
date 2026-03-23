@@ -47,7 +47,7 @@ public class ShadowProjectAdapter {
 		}
 		for (File f : files) {
 			switch (f.getName()) {
-				case "build.gradle.kts", "build.gradle" -> {
+				case "build.gradle.kts", "build.gradle", "pom.xml" -> {
 				}
 				default -> {
 					try {
