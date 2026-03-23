@@ -17,17 +17,12 @@
 package com.canonical.devpackspring.rewrite.visitors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Space;
@@ -37,61 +32,88 @@ public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
 
-	public static final String METHOD_ID = "id";
+	private static final String UNKNOWN = "?";
 
-	public static final String METHOD_PLUGINS = "plugins";
+	private static final String PLUGIN_ADDED = "plugin_added";
 
-	public List<Statement> statements;
+	private static final String METHOD_NAME = "method_name";
 
-	private final Set<String> appliedPlugins = new HashSet<>();
+	private static final String METHOD_ID = "id";
+
+	private static final String METHOD_VERSION = "version";
+
+	private static final String METHOD_PLUGINS = "plugins";
+
+	public J.MethodInvocation call;
 
 	private final String pluginName;
 
-	public AddPluginVisitor(String pluginName, List<Statement> statements) {
+	public AddPluginVisitor(String pluginName, J.MethodInvocation call) {
 		this.pluginName = pluginName;
-		this.statements = statements;
+		this.call = call;
 	}
 
-	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext,
-			BiFunction<J, ExecutionContext, J> action) {
-		if (tree instanceof J.MethodInvocation) {
-			J.MethodInvocation call = (J.MethodInvocation) tree;
-			if (METHOD_PLUGINS.equals(call.getSimpleName())) {
-				executionContext.putMessage(HAS_PLUGIN_BLOCK, true);
-				new JavaIsoVisitor<ExecutionContext>() {
-					@Override
-					public @NotNull J.MethodInvocation visitMethodInvocation(J.MethodInvocation method,
-							ExecutionContext executionContext) {
-						if (METHOD_ID.equals(method.getSimpleName())) {
-							Expression pluginName = method.getArguments().get(0);
-							appliedPlugins.add(pluginName.toString());
-						}
-						return method;
-					}
-				}.visitMethodInvocation(call, executionContext);
-				if (appliedPlugins.contains(pluginName)) {
-					return tree;
+	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor,
+			BiFunction<J.MethodInvocation, ExecutionContext, J.MethodInvocation> parent) {
+		J.MethodInvocation newCall = null;
+		switch (method.getSimpleName()) {
+			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
+			case METHOD_ID -> {
+				Expression expr = method.getArguments().getFirst();
+				String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
+						? literal.getValue().toString() : expr.toString();
+
+				if (UNKNOWN.equals(cursor.getRoot().getMessage(METHOD_NAME))) {
+					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
 				}
-				return addPluginCall(executionContext, call);
+				else if (this.pluginName.equals(pluginNameStr)) {
+					newCall = createMethodInvocation(method, cursor);
+				}
+			}
+			case METHOD_VERSION -> cursor.getRoot().putMessage(METHOD_NAME, UNKNOWN);
+		}
+
+		var visitResult = parent.apply(method, context);
+		if (newCall != null) {
+			return newCall;
+		}
+
+		switch (method.getSimpleName()) {
+			case METHOD_VERSION -> {
+				var storedName = cursor.getRoot().pollMessage(METHOD_NAME);
+				if (this.pluginName.equals(storedName)) {
+					newCall = createMethodInvocation(method, cursor);
+					if (newCall != null) {
+						return newCall;
+					}
+				}
+			}
+			case METHOD_PLUGINS -> {
+				if (!Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))
+						&& method.getArguments().getFirst() instanceof J.Lambda lambda
+						&& lambda.getBody() instanceof J.Block block) {
+
+					Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
+							: block.getStatements().getFirst().getPrefix();
+					List<Statement> newStatements = new ArrayList<>(block.getStatements());
+					newStatements.add(call.withPrefix(prefix));
+
+					return method.withArguments(List.of(lambda.withBody(block.withStatements(newStatements))));
+				}
 			}
 		}
-		return action.apply(tree, executionContext);
+		return visitResult;
 	}
 
-	private J.@NotNull MethodInvocation addPluginCall(ExecutionContext executionContext, J.MethodInvocation call) {
-		J.Lambda lambda = (J.Lambda) call.getArguments().get(0);
-		J.Block block = (J.Block) lambda.getBody();
-
-		final Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
-				: block.getStatements().get(0).getPrefix();
-		List<Statement> newStatements = new ArrayList<>();
-		newStatements.addAll(block.getStatements());
-		newStatements
-			.addAll(Arrays.asList(statements.stream().map(x -> x.withPrefix(prefix)).toArray(Statement[]::new)));
-
-		block = block.withStatements(newStatements);
-		lambda = lambda.withBody(block);
-		return call.withArguments(List.of(lambda));
+	private J.@Nullable MethodInvocation createMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+		var toReturn = call.withPrefix(method.getPrefix());
+		String targetText = toReturn.printTrimmed(cursor).trim();
+		String sourceText = method.printTrimmed(cursor).trim();
+		cursor.getRoot().putMessage(PLUGIN_ADDED, true);
+		if (!targetText.equals(sourceText)) {
+			return call.withPrefix(method.getPrefix());
+		}
+		return null;
 	}
 
 }
