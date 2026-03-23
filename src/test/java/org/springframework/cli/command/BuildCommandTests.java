@@ -128,8 +128,7 @@ public class BuildCommandTests {
 		System.setProperty(BuildCommands.PLUGIN_CONFIGURATION, pluginsYaml.toString());
 
 		Files.write(pluginsYaml,
-				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml")
-						.readAllBytes());
+				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml").readAllBytes());
 
 		contextRunner.run(context -> {
 
