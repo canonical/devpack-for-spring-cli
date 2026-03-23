@@ -49,31 +49,32 @@ public final class Refactoring {
 
 	public static void appendConfiguration(Path buildFile, String configuration) throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
-		InMemoryExecutionContext context = new InMemoryExecutionContext(throwable -> logger.error(throwable.getMessage(), throwable));
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
 
 		Parser parser = GradleParser.builder()
-				.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-				.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-				.build();
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
 
 		Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
-		SourceFile configSourceFile = parser.parseInputs(
-					Arrays.asList(Parser.Input.fromString(dummyPath, configuration)),
-					Paths.get("/tmp"), context)
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+		SourceFile configSourceFile = parser
+			.parseInputs(Arrays.asList(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
 
 		Recipe recipe = new AddConfigurationRecipe(configSourceFile, kotlin);
 		applyRecipe(buildFile, recipe);
 	}
 
 	private static void applyRecipe(Path buildFile, Recipe recipe) throws IOException {
-		InMemoryExecutionContext context = new InMemoryExecutionContext(throwable -> logger.error(throwable.getMessage(), throwable));
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
 
 		Parser parser = GradleParser.builder()
-				.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-				.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-				.build();
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
 
 		List<SourceFile> sourceFiles = parser.parse(List.of(buildFile), buildFile.getParent(), context).toList();
 		RecipeUtil.applyRecipe(buildFile.getParent(), recipe, sourceFiles, context);
