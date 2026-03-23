@@ -33,9 +33,6 @@ public class PluginDescriptorContainerTests {
 		// validate description field mapping
 		assertThat(description.id()).isEqualTo("io.github.rockcrafters.rockcraft");
 		assertThat(description.version()).isEqualTo("1.0.0");
-		assertThat(description.classpath())
-			.isEqualTo("io.github.rockcrafters.rockcraft:io.github.rockcrafters.rockcraft.gradle.plugin:1.0.0");
-		assertThat(description.className()).isEqualTo("com.canonical.rockcraft.gradle.RockcraftPlugin");
 		assertThat(description.repository()).isEqualTo("gradlePluginPortal()");
 		assertThat(description.defaultTask()).isEqualTo("build-rock");
 		assertThat(description.tasks()).contains("create-rock", "build-rock", "create-build-rock");
@@ -46,7 +43,9 @@ public class PluginDescriptorContainerTests {
 
 		assertThat(description.configuration().gradleKotlinSnippet()).isNotEmpty();
 		assertThat(description.configuration().gradleGroovySnippet()).isNotEmpty();
-		assertThat(description.configuration().mavenSnippet()).isNotEmpty();
+		assertThat(description.configuration().mavenSnippet().configuration()).isEqualTo("<maven-element-config/>\n");
+		assertThat(description.configuration().mavenSnippet().executions()).isEqualTo("<executions/>\n");
+		assertThat(description.configuration().mavenSnippet().dependencies()).isEqualTo("<dependencies/>\n");
 
 		assertThat(description.description()).contains("plugin description");
 	}

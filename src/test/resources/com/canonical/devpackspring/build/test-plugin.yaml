@@ -29,8 +29,13 @@ rockcraft:
         - path: .config/config.xml
           content: |
             <resource/>
-      maven: |
-        <maven-element-config/>
+      maven:
+        configuration: |
+          <maven-element-config/>
+        dependencies: |
+          <dependencies/>
+        executions: |
+          <executions/>
       gradleKotlin: |
         configure<com.canonical.rockcraft.builder.RockcraftOptions> {
             setTargetRelease(21)

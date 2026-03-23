@@ -38,7 +38,7 @@ public class GradleRunnerTests {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
-			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, null, null, "format",
+			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43",  null, "format",
 					new String[] { "format" }, null, null);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			GradleRunner.run(workingDir, desc, "format", terminalMessage);
