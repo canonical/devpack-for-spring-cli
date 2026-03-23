@@ -48,6 +48,9 @@ public final class Refactoring {
 	}
 
 	public static void appendConfiguration(Path buildFile, String configuration) throws IOException {
+		if (configuration == null) {
+			return;
+		}
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
 				throwable -> logger.error(throwable.getMessage(), throwable));
