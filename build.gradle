@@ -153,6 +153,8 @@ test {
 			events = ["standardOut", "started", "passed", "failed", "skipped"]
 		}
 	}
+	minHeapSize = "2G"
+	maxHeapSize = "4G"
 }
 
 task generateGitProperties {
