@@ -67,9 +67,13 @@ public abstract class GradleRunner {
 	private static void appendPlugin(Path sourceProject, Path targetProject, PluginDescriptor desc) throws IOException {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {
-				Files.copy(sourceProject.resolve(file), targetProject.resolve(file),
+				var buildFile = targetProject.resolve(file);
+				Files.copy(sourceProject.resolve(file), buildFile,
 						StandardCopyOption.REPLACE_EXISTING);
-				Refactoring.appendPlugin(targetProject.resolve(file), desc.id(), desc.version());
+				boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
+				Refactoring.appendPlugin(targetProject.resolve(file), desc.id(), desc.version(), kotlin);
+				Refactoring.appendConfiguration(targetProject.resolve(file),
+						kotlin ? desc.configuration().gradleKotlinSnippet() : desc.configuration().gradleGroovySnippet());
 				return;
 			}
 		}
