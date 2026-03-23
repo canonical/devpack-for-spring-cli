@@ -59,26 +59,39 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		G.MethodInvocation stm = (G.MethodInvocation) statements.get(0);
 		G.Lambda lambda = (G.Lambda) stm.getArguments().get(0);
 		G.Block gBlock = (G.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, gBlock.getStatements());
+		visitor = new AddPluginVisitor(pluginName, ((J.Return)gBlock.getStatements().getFirst()));
+	}
+
+
+	@Override
+	public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
+		var ret = visitor.vistMethodInvocation(method, getCursor());
+		var visitResult = super.visitMethodInvocation(method, executionContext);
+		if (ret != null) {
+			return ret;
+		}
+		ret = visitor.postVistMethodInvocation(method, getCursor());
+		if (ret != null) {
+			return ret;
+		}
+		return visitResult;
 	}
 
 	@Override
 	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext) {
-		return visitor.postVisit(tree, executionContext, (t, context) -> {
-			if (Boolean.TRUE.equals(context.getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
+		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
+			return tree;
+		}
+		if (tree instanceof G.CompilationUnit unit) {
+			if (!unit.getSourcePath().toString().equals("build.gradle")) {
 				return tree;
 			}
-			if (tree instanceof G.CompilationUnit unit) {
-				if (!unit.getSourcePath().toString().equals("build.gradle")) {
-					return tree;
-				}
 
-				List<Statement> statements = StatementUtil.append(unit.getStatements(),
-						((G.CompilationUnit) templateSource).getStatements());
-				return unit.withStatements(statements);
-			}
-			return tree;
-		});
+			List<Statement> statements = StatementUtil.append(((G.CompilationUnit) templateSource).getStatements(),
+					unit.getStatements());
+			return unit.withStatements(statements);
+		}
+		return tree;
 	}
 
 }

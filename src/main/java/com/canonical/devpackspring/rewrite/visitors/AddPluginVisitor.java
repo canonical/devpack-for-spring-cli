@@ -26,6 +26,7 @@ import java.util.function.BiFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.Expression;
@@ -36,62 +37,59 @@ import org.openrewrite.java.tree.Statement;
 public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
+	public static final String HAS_VERSION = "has_version";
+	public static final String METHOD_NAME = "method_name";
 
 	public static final String METHOD_ID = "id";
+	public static final String METHOD_VERSION = "version";
 
 	public static final String METHOD_PLUGINS = "plugins";
 
-	public List<Statement> statements;
-
-	private final Set<String> appliedPlugins = new HashSet<>();
+	public J.Return call;
 
 	private final String pluginName;
 
-	public AddPluginVisitor(String pluginName, List<Statement> statements) {
+	public AddPluginVisitor(String pluginName, J.Return call) {
 		this.pluginName = pluginName;
-		this.statements = statements;
+		this.call = call;
 	}
 
-	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext,
-			BiFunction<J, ExecutionContext, J> action) {
-		if (tree instanceof J.MethodInvocation) {
-			J.MethodInvocation call = (J.MethodInvocation) tree;
-			if (METHOD_PLUGINS.equals(call.getSimpleName())) {
-				executionContext.putMessage(HAS_PLUGIN_BLOCK, true);
-				new JavaIsoVisitor<ExecutionContext>() {
-					@Override
-					public @NotNull J.MethodInvocation visitMethodInvocation(J.MethodInvocation method,
-							ExecutionContext executionContext) {
-						if (METHOD_ID.equals(method.getSimpleName())) {
-							Expression pluginName = method.getArguments().get(0);
-							appliedPlugins.add(pluginName.toString());
-						}
-						return method;
+	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+		switch (method.getSimpleName()) {
+			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
+			case METHOD_ID -> {
+				String pluginNameStr = null;
+				Expression pluginNameExpression = method.getArguments().get(0);
+				if (pluginNameExpression instanceof J.Literal) {
+					Object value = ((J.Literal) pluginNameExpression).getValue();
+					if (value != null) {
+						pluginNameStr = value.toString();
 					}
-				}.visitMethodInvocation(call, executionContext);
-				if (appliedPlugins.contains(pluginName)) {
-					return tree;
+				} else {
+					pluginNameStr = pluginNameExpression.toString();
 				}
-				return addPluginCall(executionContext, call);
+				if (Boolean.TRUE.equals(cursor.getRoot().getMessage(HAS_VERSION))) {
+					cursor.getRoot().putMessage(METHOD_NAME, pluginNameStr);
+				} else {
+					if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
+						return (J.MethodInvocation) call.getExpression();
+					}
+				}
+			}
+			case METHOD_VERSION -> cursor.getRoot().putMessage(HAS_VERSION, true);
+			default -> {}
+		};
+		return null;
+	}
+
+	public J.MethodInvocation postVistMethodInvocation(J.MethodInvocation method, Cursor cursor) {
+		if (METHOD_VERSION.equals(method.getSimpleName())) {
+			cursor.getRoot().pollMessage(HAS_VERSION);
+			var pluginNameStr = cursor.getRoot().pollMessage(METHOD_NAME);
+			if (pluginNameStr != null && pluginNameStr.equals(this.pluginName)) {
+				return (J.MethodInvocation) call.getExpression();
 			}
 		}
-		return action.apply(tree, executionContext);
+		return null;
 	}
-
-	private J.@NotNull MethodInvocation addPluginCall(ExecutionContext executionContext, J.MethodInvocation call) {
-		J.Lambda lambda = (J.Lambda) call.getArguments().get(0);
-		J.Block block = (J.Block) lambda.getBody();
-
-		final Space prefix = block.getStatements().isEmpty() ? Space.format("\n\t")
-				: block.getStatements().get(0).getPrefix();
-		List<Statement> newStatements = new ArrayList<>();
-		newStatements.addAll(block.getStatements());
-		newStatements
-			.addAll(Arrays.asList(statements.stream().map(x -> x.withPrefix(prefix)).toArray(Statement[]::new)));
-
-		block = block.withStatements(newStatements);
-		lambda = lambda.withBody(block);
-		return call.withArguments(List.of(lambda));
-	}
-
 }

@@ -62,26 +62,40 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
 		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
 		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, kBlock.getStatements());
+		visitor = new AddPluginVisitor(pluginName, (J.Return)kBlock.getStatements().getFirst());
 	}
 
 	@Override
+	public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {
+		var ret = visitor.vistMethodInvocation(method, getCursor());
+		var visitResult = super.visitMethodInvocation(method, executionContext);
+		if (ret != null) {
+			return ret;
+		}
+		ret = visitor.postVistMethodInvocation(method, getCursor());
+		if (ret != null) {
+			return ret;
+		}
+		return visitResult;
+	}
+
+
+	@Override
 	public @Nullable J postVisit(@NonNull J tree, ExecutionContext executionContext) {
-		return visitor.postVisit(tree, executionContext, (t, context) -> {
-			if (Boolean.TRUE.equals(context.getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
+		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
+			return tree;
+		}
+
+		if (tree instanceof K.CompilationUnit unit) {
+			if (!unit.getSourcePath().toString().equals("build.gradle.kts")) {
 				return tree;
 			}
-
-			if (tree instanceof K.CompilationUnit unit) {
-				if (!unit.getSourcePath().toString().equals("build.gradle.kts")) {
-					return tree;
-				}
-				List<Statement> statements = StatementUtil.append(unit.getStatements(),
-						((K.CompilationUnit) templateSource).getStatements());
-				return unit.withStatements(statements);
-			}
-			return t;
-		});
+			List<Statement> statements = StatementUtil.append(
+					((K.CompilationUnit) templateSource).getStatements(),
+					unit.getStatements());
+			return unit.withStatements(statements);
+		}
+		return tree;
 	}
 
 }
