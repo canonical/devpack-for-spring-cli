@@ -22,9 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("unchecked")
@@ -65,7 +64,7 @@ public class PluginDescriptorContainer {
 				(String) configuration.get("gradleKotlin"), (String) configuration.get("gradleGroovy"));
 	}
 
-	private @Nonnull PluginResource[] readResources(ArrayList<Map<String, String>> resources) {
+	private @NonNull PluginResource[] readResources(ArrayList<Map<String, String>> resources) {
 		if (resources == null) {
 			return new PluginResource[0];
 		}
@@ -74,11 +73,11 @@ public class PluginDescriptorContainer {
 			.toArray(PluginResource[]::new);
 	}
 
-	private static @Nonnull String getKey(String key, BuildSystem buildSystem) {
+	private static @NonNull String getKey(String key, BuildSystem buildSystem) {
 		return key + "-" + buildSystem;
 	}
 
-	private static @Nonnull String toName(String key, BuildSystem buildSystem) {
+	private static @NonNull String toName(String key, BuildSystem buildSystem) {
 		return key.substring(0, key.indexOf('-'));
 	}
 
