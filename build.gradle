@@ -70,6 +70,13 @@ configurations.all {
 		if (requested.group == 'org.jetbrains.kotlin' && requested.name == 'kotlin-compiler-embeddable') {
 			useTarget("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.10")
 		}
+		// workaround vulnerable apache commons versions (transitive of commons-text)
+		if (requested.group == 'org.apache.commons' && requested.name == 'commons-lang3') {
+			useTarget("org.apache.commons:commons-lang3:3.18.0")
+		}
+		if (requested.group == 'org.apache.commons' && requested.name == 'commons-compress') {
+			useTarget("org.apache.commons:commons-compress:1.28.0")
+		}
 	}
 }
 
