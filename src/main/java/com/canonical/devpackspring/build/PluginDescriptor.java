@@ -28,4 +28,26 @@ public record PluginDescriptor(String id, String version, String repository, Str
 		}
 		return new PluginResource[0];
 	}
+
+	String getGradleKotlinSnippet() {
+		if (configuration != null) {
+			return configuration().gradleKotlinSnippet();
+		}
+		return null;
+	}
+
+	String getGradleGroovySnippet() {
+		if (configuration != null) {
+			return configuration().gradleGroovySnippet();
+		}
+		return null;
+	}
+
+	String getMavenSnippet() {
+		if (configuration != null) {
+			return configuration().mavenSnippet();
+		}
+		return null;
+	}
+
 }

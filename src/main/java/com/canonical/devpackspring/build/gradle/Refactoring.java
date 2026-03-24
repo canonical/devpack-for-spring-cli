@@ -17,53 +17,70 @@
 package com.canonical.devpackspring.build.gradle;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
-import com.canonical.devpackspring.build.grammar.GradlePluginLexer;
-import com.canonical.devpackspring.build.grammar.GradlePluginParser;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import com.canonical.devpackspring.rewrite.AddConfigurationRecipe;
+import com.canonical.devpackspring.rewrite.AddGradlePluginRecipe;
+import com.canonical.devpackspring.rewrite.RecipeUtil;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
+import org.openrewrite.gradle.GradleParser;
+import org.openrewrite.groovy.GroovyParser;
+import org.openrewrite.kotlin.KotlinParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Refactoring {
+
+	private static final Logger logger = LoggerFactory.getLogger(Refactoring.class);
 
 	private Refactoring() {
 	}
 
-	public static void appendPlugin(Path buildFile, String id, String version) throws IOException {
-		String content = Files.readString(buildFile);
-		CharStream input = CharStreams.fromString(content);
-		GradlePluginLexer lexer = new GradlePluginLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		GradlePluginParser parser = new GradlePluginParser(tokens);
-		parser.removeErrorListeners(); // Disable console error reporting to suppress
-										// parser errors during plugin block analysis, as
-										// errors may be expected and should not be
-										// printed to the console.
-		ParseTree tree = parser.sequence();
-		FindPluginListener listener = new FindPluginListener();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		walker.walk(listener, tree);
-		if (listener.isHasPluginBlock()) {
-			String block = content.substring(listener.getStartIndex(), listener.getStopIndex());
-			if (block.contains(id)) {
-				return;
-			}
-			StringBuilder sb = new StringBuilder(content);
-			sb.insert(listener.getStopIndex(), String.format("\nid (\"%s\") version \"%s\"\n", id, version));
-			content = sb.toString();
+	public static void appendPlugin(Path buildFile, String id, String version, boolean kotlin) throws IOException {
+		Recipe recipe = new AddGradlePluginRecipe(id, version, kotlin);
+		applyRecipe(buildFile, recipe);
+	}
+
+	public static void appendConfiguration(Path buildFile, String configuration) throws IOException {
+		if (configuration == null) {
+			return;
 		}
-		else {
-			content = String.format("""
-					plugins {
-					    id ("%s") version "%s"
-					}
-					""", id, version) + content;
-		}
-		Files.writeString(buildFile, content);
+		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
+
+		Parser parser = GradleParser.builder()
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
+
+		Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
+		SourceFile configSourceFile = parser
+			.parseInputs(Arrays.asList(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+
+		Recipe recipe = new AddConfigurationRecipe(configSourceFile, kotlin);
+		applyRecipe(buildFile, recipe);
+	}
+
+	private static void applyRecipe(Path buildFile, Recipe recipe) throws IOException {
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
+
+		Parser parser = GradleParser.builder()
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
+
+		List<SourceFile> sourceFiles = parser.parse(List.of(buildFile), buildFile.getParent(), context).toList();
+		RecipeUtil.applyRecipe(buildFile.getParent(), recipe, sourceFiles, context);
 	}
 
 }

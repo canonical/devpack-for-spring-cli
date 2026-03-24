@@ -39,11 +39,11 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.appendPlugin(buildFile, "foo", "bar");
-			assertThat(buildFile).content().contains("id (\"foo\") version \"bar\"");
+			Refactoring.appendPlugin(buildFile, "foo", "bar", true);
+			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			Files.writeString(buildFile, "foobar");
-			Refactoring.appendPlugin(buildFile, "foo", "bar");
-			assertThat(buildFile).content().contains("id (\"foo\") version \"bar\"");
+			Refactoring.appendPlugin(buildFile, "foo", "bar", true);
+			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 		});
 	}
 
@@ -53,11 +53,11 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.appendPlugin(buildFile, "foo", "${bar}");
-			assertThat(buildFile).content().contains("id (\"foo\") version \"${bar}\"");
-			Refactoring.appendPlugin(buildFile, "otherfoo", "bar");
+			Refactoring.appendPlugin(buildFile, "foo", "${bar}", true);
+			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
+			Refactoring.appendPlugin(buildFile, "otherfoo", "bar", true);
 			assertThat(buildFile).content()
-				.contains("id (\"foo\") version \"${bar}\"", "id (\"otherfoo\") version \"bar\"");
+				.contains("id(\"foo\") version \"${bar}\"", "id(\"otherfoo\") version \"bar\"");
 		});
 	}
 
