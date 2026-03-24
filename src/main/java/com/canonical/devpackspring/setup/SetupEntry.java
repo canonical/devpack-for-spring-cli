@@ -29,8 +29,6 @@ public abstract class SetupEntry extends DefaultSelectItem {
 
 	private ArrayList<String> extraCommands;
 
-	private StringSubstitutor substitutor = new StringSubstitutor();
-
 	private String suffix;
 
 	public SetupEntry(String name, String description, ArrayList<String> extraCommands, boolean selected) {
