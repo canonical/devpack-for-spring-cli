@@ -28,6 +28,10 @@ import org.springframework.cli.util.TerminalMessage;
 
 public class SetupEntryFactory {
 
+	public static final String SUDO = "sudo";
+
+	public static final String APT_GET = "apt-get";
+
 	private IProcessUtil processUtil;
 
 	public SetupEntryFactory(IProcessUtil processUtil) {
@@ -55,7 +59,7 @@ public class SetupEntryFactory {
 				}
 				AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
 				ArrayList<String> call = new ArrayList<>();
-				call.add("sudo");
+				call.add(SUDO);
 				call.add("snap");
 				call.add("install");
 				if (isClassic) {
@@ -85,7 +89,7 @@ public class SetupEntryFactory {
 				if (!installed) {
 					return true;
 				}
-				return processUtil.runProcess(msg, true, "sudo", "snap", "remove", item()) == 0;
+				return processUtil.runProcess(msg, true, SUDO, "snap", "remove", item()) == 0;
 			}
 		};
 	}
@@ -108,12 +112,12 @@ public class SetupEntryFactory {
 					return true;
 				}
 				AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
-				int exitCode = processUtil.runProcess(msg, true, "sudo", "apt-get", "update");
+				int exitCode = processUtil.runProcess(msg, true, SUDO, APT_GET, "update");
 				if (exitCode != 0) {
 					msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
 					return false;
 				}
-				exitCode = processUtil.runProcess(msg, true, "sudo", "apt-get", "install", "-y", item());
+				exitCode = processUtil.runProcess(msg, true, SUDO, APT_GET, "install", "-y", item());
 				if (exitCode != 0) {
 					msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
 					return false;
@@ -133,7 +137,7 @@ public class SetupEntryFactory {
 				if (!installed) {
 					return true;
 				}
-				return processUtil.runProcess(msg, true, "sudo", "apt-get", "remove", "-y", item()) == 0;
+				return processUtil.runProcess(msg, true, SUDO, APT_GET, "remove", "-y", item()) == 0;
 			}
 		};
 	}

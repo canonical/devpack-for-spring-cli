@@ -29,7 +29,7 @@ import org.yaml.snakeyaml.Yaml;
 @SuppressWarnings("unchecked")
 public class PluginDescriptorContainer {
 
-	private final Map<String, PluginDescriptor> plugins = new HashMap<>();
+	private final Map<String, PluginDescriptor> pluginMap = new HashMap<>();
 
 	public PluginDescriptorContainer(Reader source) {
 		Yaml yaml = new Yaml();
@@ -46,7 +46,7 @@ public class PluginDescriptorContainer {
 		if (description != null) {
 			PluginConfiguration config = readPluginConfiguration(
 					(Map<String, Object>) description.get("configuration"));
-			plugins.put(getKey(key, buildSystem),
+			pluginMap.put(getKey(key, buildSystem),
 					new PluginDescriptor((String) description.get("id"), (String) description.get("version"),
 							(String) description.get("repository"), (String) description.get("default-task"),
 							((ArrayList<String>) description.get("tasks")).toArray(String[]::new), config,
@@ -82,7 +82,7 @@ public class PluginDescriptorContainer {
 	}
 
 	public List<String> plugins(BuildSystem buildSystem) {
-		return plugins.keySet()
+		return pluginMap.keySet()
 			.stream()
 			.filter(x -> x.contains(buildSystem.name()))
 			.map(x -> toName(x, buildSystem))
@@ -90,7 +90,7 @@ public class PluginDescriptorContainer {
 	}
 
 	public PluginDescriptor get(String name, BuildSystem buildSystem) {
-		return plugins.get(getKey(name, buildSystem));
+		return pluginMap.get(getKey(name, buildSystem));
 	}
 
 }

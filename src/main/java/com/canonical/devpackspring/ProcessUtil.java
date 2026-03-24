@@ -31,7 +31,7 @@ import org.springframework.cli.util.TerminalMessage;
  */
 public abstract class ProcessUtil {
 
-	private static final Log logger = LogFactory.getLog(ProcessUtil.class);
+	private static final Log LOG = LogFactory.getLog(ProcessUtil.class);
 
 	public static int runProcess(final TerminalMessage message, boolean inheritIO, String... args) throws IOException {
 		ProcessBuilder pb = new ProcessBuilder(args);
@@ -86,12 +86,14 @@ public abstract class ProcessUtil {
 		}
 		catch (InterruptedException ex) {
 			// ignore the exception
+			LOG.debug("interrupted stderr", ex);
 		}
 		try {
 			stdout.join();
 		}
 		catch (InterruptedException ex) {
 			// ignore the exception
+			LOG.debug("interrupted stout", ex);
 		}
 
 		return ret;
@@ -99,11 +101,10 @@ public abstract class ProcessUtil {
 
 	private static void readOutput(BufferedReader r, TerminalMessage message, AttributedStyle style)
 			throws IOException {
-		String line;
-		while ((line = r.readLine()) != null) {
+		r.lines().forEach(line -> {
 			message.print(new AttributedString(line, style));
-			logger.debug(line);
-		}
+			LOG.debug(line);
+		});
 	}
 
 }

@@ -19,6 +19,7 @@ package org.springframework.cli.config;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,7 +84,7 @@ public class SpringCliCommandNotFoundMessageProvider
 		for (String ansiLine : lines) {
 			String line = AttributedString.stripAnsi(ansiLine);
 			if (line.trim().split("\\s+")[0].equalsIgnoreCase(matchedGroupName)) {
-				if (line.toLowerCase().contains(matchedGroupName.toLowerCase())) {
+				if (line.toLowerCase(Locale.US).contains(matchedGroupName.toLowerCase(Locale.US))) {
 					result.append(ansiLine).append("\n");
 				}
 			}
