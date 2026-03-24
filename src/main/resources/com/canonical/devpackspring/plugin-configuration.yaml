@@ -2,13 +2,11 @@ format:
   gradle:
     id: io.spring.javaformat
     version: 0.0.43
-    class-name: io.spring.javaformat.gradle.SpringJavaFormatPlugin
     default-task: format
     description: Formats source code
     tasks:
       - format
     repository: gradlePluginPortal()
-    classpath: "io.spring.javaformat:io.spring.javaformat.gradle.plugin:0.0.43"
   maven:
     id: io.spring.javaformat:spring-javaformat-maven-plugin
     version: 0.0.43
@@ -20,8 +18,6 @@ rockcraft:
   gradle:
     id: io.github.rockcrafters.rockcraft
     version: 1.2.3
-    classpath: "io.github.rockcrafters.rockcraft:io.github.rockcrafters.rockcraft.gradle.plugin:1.2.3"
-    class-name: com.canonical.rockcraft.gradle.RockcraftPlugin
     repository: gradlePluginPortal()
     default-task: build-rock
     description: |
@@ -38,8 +34,13 @@ rockcraft:
         - path: .config/config.xml
           content: | 
             <resource/>
-      maven: |
-        <maven-element-config/>
+      maven:
+          configuration: |
+            <maven-element-config/>
+          dependencies: |
+            <dependencies/>
+          executions: | 
+            <executions/>
       gradleKotlin: |
         configure<com.canonical.rockcraft.builder.RockcraftOptions> {
             setTargetRelease(21)

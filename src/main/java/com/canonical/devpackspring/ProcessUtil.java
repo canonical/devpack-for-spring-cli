@@ -19,6 +19,8 @@ package com.canonical.devpackspring;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -28,6 +30,8 @@ import org.springframework.cli.util.TerminalMessage;
  * Runs process and sends output to TerminalMessage
  */
 public abstract class ProcessUtil {
+
+	private static final Log logger = LogFactory.getLog(ProcessUtil.class);
 
 	public static int runProcess(final TerminalMessage message, boolean inheritIO, String... args) throws IOException {
 		ProcessBuilder pb = new ProcessBuilder(args);
@@ -98,6 +102,7 @@ public abstract class ProcessUtil {
 		String line;
 		while ((line = r.readLine()) != null) {
 			message.print(new AttributedString(line, style));
+			logger.debug(line);
 		}
 	}
 

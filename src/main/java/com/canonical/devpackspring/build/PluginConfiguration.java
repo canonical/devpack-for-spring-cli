@@ -16,6 +16,6 @@
 
 package com.canonical.devpackspring.build;
 
-public record PluginConfiguration(PluginResource[] resources, String mavenSnippet, String gradleKotlinSnippet,
-		String gradleGroovySnippet) {
+public record PluginConfiguration(PluginResource[] resources, MavenConfiguration mavenSnippet,
+		String gradleKotlinSnippet, String gradleGroovySnippet) {
 }

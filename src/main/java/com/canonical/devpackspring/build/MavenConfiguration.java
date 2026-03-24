@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,5 @@
 
 package com.canonical.devpackspring.build;
 
-/**
- * Describes gradle plugin configuration
- *
- */
-public record PluginDescriptor(String id, String version, String repository, String defaultTask, String[] tasks,
-		PluginConfiguration configuration, String description) {
-	PluginResource[] resources() {
-		if (configuration != null) {
-			return configuration.resources();
-		}
-		return new PluginResource[0];
-	}
+public record MavenConfiguration(String configuration, String dependencies, String executions) {
 }

@@ -16,17 +16,33 @@
 
 package com.canonical.devpackspring.build;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
+import com.canonical.devpackspring.rewrite.RecipeUtil;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
+import org.openrewrite.maven.AddPlugin;
+import org.openrewrite.maven.MavenParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.cli.util.TerminalMessage;
 
 public abstract class MavenRunner {
+
+	private static final Logger logger = LoggerFactory.getLogger(MavenRunner.class);
 
 	public static boolean run(Path baseDir, PluginDescriptor plugin, String goal, TerminalMessage message)
 			throws IOException {
@@ -37,11 +53,13 @@ public abstract class MavenRunner {
 			command = "./mvnw";
 		}
 
+		appendPlugin(baseDir, projectAdapter.getProjectPath(), plugin);
+
 		if (goal == null) {
 			goal = plugin.defaultTask();
 		}
 
-		String pluginId = plugin.id() + ":" + plugin.version();
+		String pluginId = plugin.id();
 		ArrayList<String> args = new ArrayList<>();
 		args.add(command);
 		StringTokenizer tk = new StringTokenizer(goal, " ");
@@ -55,6 +73,40 @@ public abstract class MavenRunner {
 
 		ProcessBuilder pb = new ProcessBuilder().command(args).directory(projectAdapter.getProjectPath().toFile());
 		return ProcessUtil.runProcess(message, pb) == 0;
+	}
+
+	private static void appendPlugin(Path sourceProject, Path targetProject, PluginDescriptor desc) throws IOException {
+		var source = sourceProject.resolve("pom.xml");
+		if (!Files.exists(source)) {
+			return;
+		}
+		var target = targetProject.resolve("pom.xml");
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+		var groupAndArtifact = desc.id().split(":");
+		if (groupAndArtifact.length < 2) {
+			throw new RuntimeException("Maven plugin descriptor should be <groupId>:<artifactId> but was " + desc.id());
+		}
+		InMemoryExecutionContext context = new InMemoryExecutionContext(new Consumer<Throwable>() {
+			@Override
+			public void accept(Throwable throwable) {
+				logger.error(throwable.getMessage(), throwable);
+			}
+		});
+		Recipe recipe = new AddPlugin(groupAndArtifact[0], groupAndArtifact[1], desc.version(),
+				desc.configuration().mavenSnippet().configuration(), desc.configuration().mavenSnippet().dependencies(),
+				desc.configuration().mavenSnippet().executions(), null);
+		var files = parseMaven(targetProject, context);
+		RecipeUtil.applyRecipe(targetProject, recipe, files, context);
+	}
+
+	private static List<SourceFile> parseMaven(Path baseDir, InMemoryExecutionContext context) {
+		Parser p = MavenParser.builder().build();
+		List<Path> files = Arrays.stream(baseDir.toFile().listFiles(file -> "pom.xml".equals(file.getName())))
+			.map(File::toPath)
+			.toList();
+
+		return p.parse(files, baseDir, context).toList();
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {
