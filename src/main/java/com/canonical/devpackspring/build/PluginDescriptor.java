@@ -16,38 +16,24 @@
 
 package com.canonical.devpackspring.build;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Describes gradle plugin configuration
  *
  */
 public record PluginDescriptor(String id, String version, String repository, String defaultTask, String[] tasks,
-		PluginConfiguration configuration, String description) {
+		@NonNull PluginConfiguration configuration, String description) {
 	PluginResource[] resources() {
-		if (configuration != null) {
-			return configuration.resources();
-		}
-		return new PluginResource[0];
+		return configuration.resources();
 	}
 
 	String getGradleKotlinSnippet() {
-		if (configuration != null) {
-			return configuration().gradleKotlinSnippet();
-		}
-		return null;
+		return configuration().gradleKotlinSnippet();
 	}
 
 	String getGradleGroovySnippet() {
-		if (configuration != null) {
-			return configuration().gradleGroovySnippet();
-		}
-		return null;
-	}
-
-	String getMavenSnippet() {
-		if (configuration != null) {
-			return configuration().mavenSnippet();
-		}
-		return null;
+		return configuration().gradleGroovySnippet();
 	}
 
 }

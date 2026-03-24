@@ -39,7 +39,7 @@ public class GradleRunnerTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, "format",
-					new String[] { "format" }, null, null);
+					new String[] { "format" }, new PluginConfiguration(new PluginResource[0], null, null, null), null);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			GradleRunner.run(workingDir, desc, "format", terminalMessage);
 
