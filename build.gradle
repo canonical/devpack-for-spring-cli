@@ -9,7 +9,6 @@ buildscript {
 		}
 	}
 }
-import io.spring.javaformat.gradle.tasks.CheckFormat
 
 plugins {
 	id 'org.springframework.boot' version '3.5.12'
