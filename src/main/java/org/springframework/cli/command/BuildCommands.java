@@ -67,7 +67,7 @@ public class BuildCommands {
 
 	private final ComponentFlow.Builder componentFlowBuilder;
 
-	private PluginDescriptorContainer container;
+	private final PluginDescriptorContainer container;
 
 	@Autowired
 	public BuildCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder)
@@ -75,7 +75,6 @@ public class BuildCommands {
 		this.terminalMessage = terminalMessage;
 		this.componentFlowBuilder = componentFlowBuilder;
 		this.workingDir = IoUtils.getWorkingDirectory();
-		this.container = null;
 		try (InputStream stream = getPluginConfiguration()) {
 			this.container = new PluginDescriptorContainer(new InputStreamReader(stream));
 		}

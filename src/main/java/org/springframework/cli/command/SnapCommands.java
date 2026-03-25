@@ -53,6 +53,8 @@ public class SnapCommands {
 
 	private static final String SNAP_PARAMETER_NAME = "Snap";
 
+	public static final String SNAP_COMMAND = "snap";
+
 	private final ComponentFlow.Builder componentFlowBuilder;
 
 	private final TerminalMessage terminalMessage;
@@ -94,7 +96,8 @@ public class SnapCommands {
 			return String.format("Snap %s is not available to install.", snap);
 		}
 
-		ProcessBuilder pb = new ProcessBuilder("snap", "install", toInstall.name(), "--channel=" + toInstall.channel());
+		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "install", toInstall.name(),
+				"--channel=" + toInstall.channel());
 		pb.inheritIO();
 		Process p = pb.start();
 		int exitCode = p.waitFor();
@@ -147,7 +150,7 @@ public class SnapCommands {
 			return String.format("Snap %s is not available to remove.", snap);
 		}
 
-		ProcessBuilder pb = new ProcessBuilder("snap", "remove", toRemove.name());
+		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "remove", toRemove.name());
 		pb.inheritIO();
 		Process p = pb.start();
 		int exitCode = p.waitFor();
@@ -193,11 +196,10 @@ public class SnapCommands {
 	private static String loadManifest() throws IOException {
 		var ret = new StringBuilder();
 		try (BufferedReader r = new BufferedReader(new FileReader(getSupportedYamlPath()))) {
-			String line;
-			while ((line = r.readLine()) != null) {
+			r.lines().forEach(line -> {
 				ret.append(line);
 				ret.append("\n");
-			}
+			});
 		}
 		return ret.toString();
 	}

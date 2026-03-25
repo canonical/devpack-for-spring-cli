@@ -9,13 +9,11 @@ buildscript {
 		}
 	}
 }
-import io.spring.javaformat.gradle.tasks.CheckFormat
 
 plugins {
 	id 'org.springframework.boot' version '3.5.12'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
-	id 'antlr'
 	id 'org.graalvm.buildtools.native' version '0.11.5' apply false
 	id 'io.spring.javaformat' version '0.0.47' apply false
 }
@@ -70,6 +68,13 @@ configurations.all {
 		if (requested.group == 'org.jetbrains.kotlin' && requested.name == 'kotlin-compiler-embeddable') {
 			useTarget("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.2.10")
 		}
+		// workaround vulnerable apache commons versions (transitive of commons-text)
+		if (requested.group == 'org.apache.commons' && requested.name == 'commons-lang3') {
+			useTarget("org.apache.commons:commons-lang3:3.18.0")
+		}
+		if (requested.group == 'org.apache.commons' && requested.name == 'commons-compress') {
+			useTarget("org.apache.commons:commons-compress:1.28.0")
+		}
 	}
 }
 
@@ -95,8 +100,6 @@ dependencies {
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r"
 	implementation "org.apache.groovy:groovy:4.0.30"
 	implementation "org.gradle:gradle-tooling-api:9.4.1"
-    antlr 'org.antlr:antlr4:4.13.2'
-    implementation 'org.antlr:antlr4-runtime:4.13.2'
 
     testImplementation 'com.google.jimfs:jimfs'
     testImplementation 'org.openrewrite:rewrite-test'
@@ -224,20 +227,4 @@ if (useNative) {
         enabled = false
     }
 
-}
-
-tasks.named('checkFormatMain') {
-    dependsOn(generateGrammarSource)
-}
-
-tasks.named("checkFormatTest") {
-    dependsOn(generateTestGrammarSource)
-}
-
-tasks.withType(CheckFormat).configureEach {
-    exclude "com/canonical/devpackspring/build/grammar"
-}
-
-tasks.withType(Checkstyle).configureEach {
-    exclude "com/canonical/devpackspring/build/grammar"
 }

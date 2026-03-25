@@ -53,8 +53,7 @@ public class YamlConfigFile implements ConfigFile {
 
 	@Override
 	public void write(Path path, Object value) {
-		try {
-			OutputStream out = new DataOutputStream(Files.newOutputStream(path));
+		try (OutputStream out = new DataOutputStream(Files.newOutputStream(path))) {
 			mapper.writeValue(out, value);
 		}
 		catch (Exception ex) {
