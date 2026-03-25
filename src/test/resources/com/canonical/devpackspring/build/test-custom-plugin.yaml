@@ -6,7 +6,7 @@ format-me:
     default-task: format
     description: Formats source code
     tasks:
-      - format
+      format: format
     repository: gradlePluginPortal()
     classpath: "io.spring.javaformat:io.spring.javaformat.gradle.plugin:0.0.43"
 

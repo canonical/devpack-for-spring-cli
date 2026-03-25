@@ -112,7 +112,7 @@ public class BuildCommandTests {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			// we can specify the task to run
-			commands.run("rockcraft", "install :create-rock", workingDir);
+			commands.run("rockcraft", "create-rock", workingDir);
 			assertThat(workingDir.resolve("target/rockcraft.yaml")).exists();
 			// default task works
 			commands.run("rockcraft", null, workingDir);
@@ -127,14 +127,15 @@ public class BuildCommandTests {
 		Path pluginsYaml = workingDir.resolve("plugins.yaml");
 		System.setProperty(BuildCommands.PLUGIN_CONFIGURATION, pluginsYaml.toString());
 
-		Files.write(pluginsYaml,
-				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml").readAllBytes());
+		try (var stream = getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml")) {
+			Files.write(pluginsYaml, stream.readAllBytes());
+		}
 
 		contextRunner.run(context -> {
 
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
-			commands.run("checkStyle", "checkstyle:check", workingDir);
+			commands.run("checkStyle", "check", workingDir);
 		});
 	}
 

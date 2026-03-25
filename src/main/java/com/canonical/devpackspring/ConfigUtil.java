@@ -35,6 +35,13 @@ public abstract class ConfigUtil {
 	 * @throws FileNotFoundException - configuration file not found
 	 */
 	public static InputStream openConfigurationFile(String environment, String fileName) throws FileNotFoundException {
+		Path currentConfigPath = Path.of(System.getProperty("user.dir"))
+			.resolve(".devpack-for-spring")
+			.resolve(fileName);
+		if (Files.exists(currentConfigPath)) {
+			return new FileInputStream(currentConfigPath.toFile());
+		}
+
 		Path configPath = Path.of(System.getProperty("user.home"))
 			.resolve(".config")
 			.resolve("devpack-for-spring")

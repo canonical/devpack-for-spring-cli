@@ -18,12 +18,12 @@ package com.canonical.devpackspring.build;
 
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("unchecked")
@@ -46,15 +46,36 @@ public class PluginDescriptorContainer {
 		if (description != null) {
 			PluginConfiguration config = readPluginConfiguration(
 					(Map<String, Object>) description.get("configuration"));
+			PluginTasks pluginTasks = readTasks((Map<String, Object>) description.get("tasks"));
 			pluginMap.put(getKey(key, buildSystem),
 					new PluginDescriptor((String) description.get("id"), (String) description.get("version"),
 							(String) description.get("repository"), (String) description.get("default-task"),
-							((ArrayList<String>) description.get("tasks")).toArray(String[]::new), config,
-							(String) description.get("description")));
+							pluginTasks, config, (String) description.get("description")));
 		}
 	}
 
-	private @Nullable PluginConfiguration readPluginConfiguration(Map<String, Object> configuration) {
+	private @NonNull PluginTasks readTasks(Map<String, Object> tasksData) {
+		if (tasksData == null) {
+			return new PluginTasks(Collections.emptyMap());
+		}
+		Map<String, List<String>> result = new HashMap<>();
+		for (Map.Entry<String, Object> entry : tasksData.entrySet()) {
+			String k = entry.getKey();
+			Object v = entry.getValue();
+			if (v instanceof String str) {
+				result.put(k, List.of(str));
+			}
+			else if (v instanceof List<?> list) {
+				result.put(k, (List<String>) list);
+			}
+			else {
+				throw new IllegalArgumentException("Invalid task definition for " + k);
+			}
+		}
+		return new PluginTasks(result);
+	}
+
+	private @NonNull PluginConfiguration readPluginConfiguration(Map<String, Object> configuration) {
 		if (configuration == null) {
 			return new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null);
 		}
