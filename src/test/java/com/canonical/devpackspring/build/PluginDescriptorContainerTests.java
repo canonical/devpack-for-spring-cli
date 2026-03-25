@@ -17,6 +17,7 @@
 package com.canonical.devpackspring.build;
 
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,7 @@ public class PluginDescriptorContainerTests {
 		assertThat(description.repository()).isEqualTo("gradlePluginPortal()");
 		assertThat(description.defaultTask()).isEqualTo("build-rock");
 		assertThat(description.tasks().aliases()).contains("create-rock", "build-rock", "create-build-rock");
+		assertThat(description.tasks().commands("create-rock")).isEqualTo(List.of("create-rock"));
 
 		PluginResource[] resources = description.configuration().resources();
 		assertThat(resources.length).isEqualTo(1);
@@ -48,6 +50,9 @@ public class PluginDescriptorContainerTests {
 		assertThat(description.configuration().mavenSnippet().dependencies()).isEqualTo("<dependencies/>\n");
 
 		assertThat(description.description()).contains("plugin description");
+
+		description = container.get("checkStyle", BuildSystem.maven);
+		assertThat(description.tasks().commands("build-and-check")).isEqualTo(List.of("install", "checkstyle:check"));
 	}
 
 }

@@ -23,7 +23,8 @@ rockcraft:
     description: |
       Plugin for rock image generation
     tasks:
-      create-rock: create-rock
+      create-rock:
+        - create-rock
       build-rock: build-rock
       create-build-rock: create-build-rock
       build-build-rock: build-build-rock
