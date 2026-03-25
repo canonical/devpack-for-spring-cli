@@ -5,15 +5,15 @@ format:
     default-task: format
     description: Formats source code
     tasks:
-      - format
+      format: format
     repository: gradlePluginPortal()
   maven:
     id: io.spring.javaformat:spring-javaformat-maven-plugin
     version: 0.0.43
-    default-task: :apply
+    default-task: apply
     description: Formats source code
     tasks:
-      - :apply
+      apply: :apply
 rockcraft:
   gradle:
     id: io.github.rockcrafters.rockcraft
@@ -23,12 +23,12 @@ rockcraft:
     description: |
       Plugin for rock image generation
     tasks:
-      - create-rock
-      - build-rock
-      - create-build-rock
-      - build-build-rock
-      - push-rock
-      - push-build-rock
+      create-rock: create-rock
+      build-rock: build-rock
+      create-build-rock: create-build-rock
+      build-build-rock: build-build-rock
+      push-rock: push-rock
+      push-build-rock: push-build-rock
     configuration:
       resources:
         - path: .config/config.xml
@@ -51,11 +51,22 @@ rockcraft:
   maven:
     id: io.github.rockcrafters:rockcraft-maven-plugin
     version: 1.2.3
-    default-task: install :create-rock :build-rock
+    default-task: build-rock
     description: |
       Plugin for rock image generation
     tasks:
-      - install :create-rock
-      - install :create-rock :build-rock
-      - :create-build-rock
-      - install :create-rock :build-rock :push-rock
+      create-rock:
+        - install
+        - :create-rock
+      build-rock:
+        - install
+        - :create-rock
+        - :build-rock
+      create-build-rock:
+        - install
+        - :create-build-rock
+      push-rock:
+        - install
+        - :create-rock
+        - :build-rock
+        - :push-rock

@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 import com.canonical.devpackspring.build.gradle.GradleAdapter;
 import com.canonical.devpackspring.build.gradle.Refactoring;
@@ -31,7 +32,7 @@ import org.springframework.cli.util.TerminalMessage;
 
 public abstract class GradleRunner {
 
-	public static boolean run(Path baseDir, PluginDescriptor desc, String task, TerminalMessage message)
+	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs, TerminalMessage message)
 			throws IOException {
 		OutputStream terminalStreamError = new TerminalOutputStream(message,
 				new AttributedStyle().foreground(AttributedStyle.RED));
@@ -40,12 +41,12 @@ public abstract class GradleRunner {
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
 		appendPlugin(baseDir, projectAdapter.getProjectPath(), desc);
 
-		if (task == null) {
-			task = desc.defaultTask();
+		if (taskArgs == null || taskArgs.isEmpty()) {
+			taskArgs = desc.tasks().commands(desc.defaultTask());
 		}
 
 		try {
-			adapter.run(task);
+			adapter.run(taskArgs.toArray(new String[0]));
 			return true;
 		}
 		catch (RuntimeException ex) {

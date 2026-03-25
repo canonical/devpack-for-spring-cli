@@ -17,6 +17,8 @@
 package com.canonical.devpackspring.build;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,9 +41,10 @@ public class GradleRunnerTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, "format",
-					new String[] { "format" }, new PluginConfiguration(new PluginResource[0], null, null, null), null);
+					new PluginTasks(Map.of("format", List.of("format"))),
+					new PluginConfiguration(new PluginResource[0], null, null, null), null);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
-			GradleRunner.run(workingDir, desc, "format", terminalMessage);
+			GradleRunner.run(workingDir, desc, List.of("format"), terminalMessage);
 
 			assertThat(terminalMessage.getPrintAttributedMessages()
 				.stream()

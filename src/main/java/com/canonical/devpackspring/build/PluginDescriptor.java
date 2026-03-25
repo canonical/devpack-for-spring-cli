@@ -22,7 +22,7 @@ import org.jspecify.annotations.NonNull;
  * Describes gradle plugin configuration
  *
  */
-public record PluginDescriptor(String id, String version, String repository, String defaultTask, String[] tasks,
+public record PluginDescriptor(String id, String version, String repository, String defaultTask, PluginTasks tasks,
 		@NonNull PluginConfiguration configuration, String description) {
 	PluginResource[] resources() {
 		return configuration.resources();

@@ -48,16 +48,13 @@ public class PluginRunner {
 		return BuildSystem.unknown;
 	}
 
-	public boolean run(BuildSystem buildSystem, PluginDescriptor desc, String command, TerminalMessage message)
-			throws IOException {
-		switch (buildSystem) {
-			case gradle:
-				return GradleRunner.run(workDir, desc, command, message);
-			case maven:
-				return MavenRunner.run(workDir, desc, command, message);
-			default:
-				throw new IllegalArgumentException("Unknown build system - neither Maven or Gradle detected.\n");
-		}
+	public boolean run(BuildSystem buildSystem, PluginDescriptor desc, java.util.List<String> args,
+			TerminalMessage message) throws IOException {
+		return switch (buildSystem) {
+			case gradle -> GradleRunner.run(workDir, desc, args, message);
+			case maven -> MavenRunner.run(workDir, desc, args, message);
+			default -> throw new IllegalArgumentException("Unknown build system - neither Maven or Gradle detected.\n");
+		};
 	}
 
 }

@@ -5,13 +5,16 @@ checkStyle:
     repository: gradlePluginPortal()
     default-task: check
     tasks:
-      - check
+      check: check
   maven:
     id: org.apache.maven.plugins:maven-checkstyle-plugin
     version: 3.6.0
     default-task: check
     tasks:
-      - checkstyle:check
+      check: checkstyle:check
+      build-and-check:
+        - install
+        - checkstyle:check
     configuration:
       resources:
         - path: checkstyle.xml
@@ -53,12 +56,12 @@ rockcraft:
     repository: gradlePluginPortal()
     default-task: build-rock
     tasks:
-      - create-rock
-      - build-rock
-      - create-build-rock
-      - build-build-rock
-      - push-rock
-      - push-build-rock
+      create-rock: create-rock
+      build-rock: build-rock
+      create-build-rock: create-build-rock
+      build-build-rock: build-build-rock
+      push-rock: push-rock
+      push-build-rock: push-build-rock
     description: |
       This is a plugin description
     configuration:

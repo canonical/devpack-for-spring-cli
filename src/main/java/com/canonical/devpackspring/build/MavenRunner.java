@@ -24,7 +24,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
@@ -44,7 +43,7 @@ public abstract class MavenRunner {
 
 	private static final Logger logger = LoggerFactory.getLogger(MavenRunner.class);
 
-	public static boolean run(Path baseDir, PluginDescriptor plugin, String goal, TerminalMessage message)
+	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs, TerminalMessage message)
 			throws IOException {
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, plugin.resources());
 
@@ -55,16 +54,14 @@ public abstract class MavenRunner {
 
 		appendPlugin(baseDir, projectAdapter.getProjectPath(), plugin);
 
-		if (goal == null) {
-			goal = plugin.defaultTask();
+		if (goalArgs == null || goalArgs.isEmpty()) {
+			goalArgs = plugin.tasks().commands(plugin.defaultTask());
 		}
 
 		String pluginId = plugin.id();
 		ArrayList<String> args = new ArrayList<>();
 		args.add(command);
-		StringTokenizer tk = new StringTokenizer(goal, " ");
-		while (tk.hasMoreTokens()) {
-			String arg = tk.nextToken();
+		for (String arg : goalArgs) {
 			if (arg.startsWith(":")) {
 				arg = pluginId + arg;
 			}

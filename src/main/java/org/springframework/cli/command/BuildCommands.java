@@ -102,8 +102,7 @@ public class BuildCommands {
 
 		boolean needCommandSelect = (desc == null);
 		if (desc != null && command != null) {
-			final String cmd = command;
-			needCommandSelect = Arrays.stream(desc.tasks()).filter(x -> x.equals(cmd)).findAny().isEmpty();
+			needCommandSelect = !desc.tasks().aliases().contains(command);
 		}
 
 		if (desc == null) {
@@ -136,7 +135,9 @@ public class BuildCommands {
 		}
 
 		if (needCommandSelect) {
-			List<SelectItem> tasks = Arrays.stream(desc.tasks())
+			List<SelectItem> tasks = desc.tasks()
+				.aliases()
+				.stream()
 				.map(x -> (SelectItem) new DefaultSelectItem(x, x, true, false))
 				.toList();
 
@@ -155,7 +156,12 @@ public class BuildCommands {
 			command = wizard.run().getContext().get(TASK_PARAMETER_ID);
 		}
 
-		if (!runner.run(buildSystem, desc, command, terminalMessage)) {
+		List<String> actualArguments = desc.tasks().commands((command != null) ? command : desc.defaultTask());
+		if (actualArguments == null || actualArguments.isEmpty() && command != null) {
+			actualArguments = Arrays.asList(command.split(" "));
+		}
+
+		if (!runner.run(buildSystem, desc, actualArguments, terminalMessage)) {
 			StringBuilder message = new StringBuilder();
 			message.append("Failed to run plugin ");
 			message.append(desc.id());
@@ -185,11 +191,10 @@ public class BuildCommands {
 	}
 
 	private @NotNull Stream<String[]> getPlugins(BuildSystem buildSystem) {
-		var rows = container.plugins(buildSystem).stream().sorted().map(x -> {
+		return container.plugins(buildSystem).stream().sorted().map(x -> {
 			var desc = container.get(x, buildSystem);
 			return new String[] { x, desc.id(), desc.description(), buildSystem.name() };
 		});
-		return rows;
 	}
 
 }

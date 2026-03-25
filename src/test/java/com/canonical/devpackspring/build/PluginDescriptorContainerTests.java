@@ -35,7 +35,7 @@ public class PluginDescriptorContainerTests {
 		assertThat(description.version()).isEqualTo("1.0.0");
 		assertThat(description.repository()).isEqualTo("gradlePluginPortal()");
 		assertThat(description.defaultTask()).isEqualTo("build-rock");
-		assertThat(description.tasks()).contains("create-rock", "build-rock", "create-build-rock");
+		assertThat(description.tasks().aliases()).contains("create-rock", "build-rock", "create-build-rock");
 
 		PluginResource[] resources = description.configuration().resources();
 		assertThat(resources.length).isEqualTo(1);
