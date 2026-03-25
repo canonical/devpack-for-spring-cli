@@ -66,7 +66,7 @@ public class PluginDescriptorContainer {
 				result.put(k, List.of(str));
 			}
 			else if (v instanceof List<?> list) {
-				result.put(k, list.stream().map(Object::toString).toList());
+				result.put(k, (List<String>) list);
 			}
 			else {
 				throw new IllegalArgumentException("Invalid task definition for " + k);
