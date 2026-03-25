@@ -41,6 +41,10 @@ public class ShadowProjectAdapter {
 		Files.createDirectories(curProject.resolve("build"));
 		Files.createDirectories(curProject.resolve("target"));
 		Files.createDirectories(projectPath);
+		var gitignore = projectPath.resolve(".gitignore");
+		if (!Files.exists(gitignore)) {
+			Files.writeString(projectPath.resolve(".gitignore"), curProject.toFile().getName());
+		}
 		File[] files = curProject.toFile().listFiles();
 		if (files == null) {
 			return;
