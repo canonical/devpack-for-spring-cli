@@ -23,13 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SpringCliPromptProviderTests {
 
 	@Test
-	void getPromptInitial() {
-		final SpringCliPromptProvider prompt = new SpringCliPromptProvider();
-		// check that prompt has more than one line
-		assertThat(prompt.getPrompt().toString().indexOf('\n')).isNotEqualTo(-1);
-	}
-
-	@Test
 	void getPromptSecond() {
 		final SpringCliPromptProvider prompt = new SpringCliPromptProvider();
 		prompt.getPrompt(); // first invocation

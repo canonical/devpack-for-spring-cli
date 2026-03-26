@@ -17,7 +17,6 @@
 package org.springframework.cli.config;
 
 import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
 import org.springframework.shell.jline.PromptProvider;
@@ -31,30 +30,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringCliPromptProvider implements PromptProvider {
 
-	private static final String BANNER_TEXT = """
-			DEVPACK-FOR-SPRING INTERACTIVE MODE
-			    type "help" to see the list of available commands
-			""";
-
 	private static final AttributedString PROMPT = new AttributedString("devpack-for-spring:>",
 			AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
 
-	private static final AttributedString BANNER_AND_PROMPT = new AttributedStringBuilder()
-		.append(BANNER_TEXT, AttributedStyle.DEFAULT)
-		.append(PROMPT)
-		.toAttributedString();
-
-	private boolean firstPrompt = true;
-
 	@Override
 	public AttributedString getPrompt() {
-		if (firstPrompt) {
-			firstPrompt = false;
-			return BANNER_AND_PROMPT;
-		}
-		else {
-			return PROMPT;
-		}
+		return PROMPT;
 	}
 
 }
