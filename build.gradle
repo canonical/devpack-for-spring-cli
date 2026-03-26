@@ -38,8 +38,10 @@ if (useChecks) {
 description = 'Devpack for Spring Cli'
 group = 'com.canonical'
 
-tasks.withType(JavaCompile).configureEach {
-    options.release = 21
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
 }
 
 repositories {

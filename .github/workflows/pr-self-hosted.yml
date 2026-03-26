@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
           cache: gradle
       - run: sudo apt-get -y --update install maven openjdk-17-jdk-headless
       - name: Setup LXD
