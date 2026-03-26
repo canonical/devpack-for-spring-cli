@@ -53,7 +53,7 @@ public final class Refactoring {
 		}
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
-				throwable -> logger.error(throwable.getMessage(), throwable));
+				throwable -> logger.debug(throwable.getMessage(), throwable));
 
 		Parser parser = GradleParser.builder()
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
@@ -72,7 +72,7 @@ public final class Refactoring {
 
 	private static void applyRecipe(Path buildFile, Recipe recipe) throws IOException {
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
-				throwable -> logger.error(throwable.getMessage(), throwable));
+				throwable -> logger.debug(throwable.getMessage(), throwable));
 
 		Parser parser = GradleParser.builder()
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
