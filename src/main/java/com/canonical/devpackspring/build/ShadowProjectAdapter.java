@@ -41,9 +41,9 @@ public class ShadowProjectAdapter {
 		Files.createDirectories(curProject.resolve("build"));
 		Files.createDirectories(curProject.resolve("target"));
 		Files.createDirectories(projectPath);
-		var gitignore = projectPath.resolve(".gitignore");
+		var gitignore = curProject.resolve(LOCAL).resolve(".gitignore");
 		if (!Files.exists(gitignore)) {
-			Files.writeString(projectPath.resolve(".gitignore"), curProject.toFile().getName());
+			Files.writeString(gitignore, curProject.toFile().getName());
 		}
 		File[] files = curProject.toFile().listFiles();
 		if (files == null) {
@@ -51,7 +51,7 @@ public class ShadowProjectAdapter {
 		}
 		for (File f : files) {
 			switch (f.getName()) {
-				case "build.gradle.kts", "build.gradle", "pom.xml" -> {
+				case "build.gradle.kts", "build.gradle", "pom.xml", ".gradle", ".devpack-for-spring" -> {
 				}
 				default -> {
 					try {
