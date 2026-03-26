@@ -18,11 +18,9 @@ package org.springframework.cli.config;
 
 import java.time.Duration;
 
-import io.netty.resolver.DefaultAddressResolverGroup;
 import org.jline.terminal.Terminal;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.reactive.function.client.ReactorNettyHttpClientMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.util.SpringCliTerminal;
@@ -42,6 +40,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties({ SpringCliProperties.class })
 public class SpringCliConfiguration {
+
+	/**
+	 * Workaround Intellij IDEA debugger issue
+	 * @return WebClient.Builder
+	 */
+	@Bean
+	public WebClient.Builder webClientBuilder() {
+		return WebClient.builder();
+	}
 
 	@Bean
 	public CommandNotFoundMessageProvider commandNotFoundMessageProvider() {
@@ -64,14 +71,6 @@ public class SpringCliConfiguration {
 		ReactorResourceFactory factory = new ReactorResourceFactory();
 		factory.setShutdownQuietPeriod(Duration.ZERO);
 		return factory;
-	}
-
-	@Bean
-	ReactorNettyHttpClientMapper reactorNettyHttpClientMapper() {
-		// workaround for native/graal issue
-		// https://github.com/spring-projects-experimental/spring-native/issues/1319
-		// There's also issue #4304 on https://github.com/oracle/graal
-		return httpClient -> httpClient.resolver(DefaultAddressResolverGroup.INSTANCE);
 	}
 
 	@Bean
