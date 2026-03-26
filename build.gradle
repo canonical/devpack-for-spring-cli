@@ -14,16 +14,10 @@ plugins {
 	id 'org.springframework.boot' version '4.0.4'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
-	id 'org.graalvm.buildtools.native' version '0.11.5' apply false
 	id 'io.spring.javaformat' version '0.0.47' apply false
 }
 
-def useNative = project.hasProperty('cliNative') && cliNative.toBoolean()
 def useChecks = project.hasProperty('cliChecks') ? cliChecks.toBoolean() : true
-
-if (useNative) {
-	apply plugin: 'org.graalvm.buildtools.native'
-}
 
 if (useChecks) {
 	apply plugin: 'io.spring.javaformat'
@@ -199,34 +193,3 @@ springBoot {
 	mainClass = 'org.springframework.cli.DevpackForSpringCliApplication'
 }
 
-if (useNative) {
-	graalvmNative {
-		binaries {
-			main {
-				imageName = 'devpack-for-spring-cli'
-                sharedLibrary = false
-            }
-		}
-		metadataRepository {
-			enabled = true
-		}
-	}
-	// disable aot generated stuff when we have native plugin
-	// which enables aot related things
-	tasks.named('checkFormatAot') {
-		enabled = false
-	}
-
-	tasks.named('checkFormatAotTest') {
-		enabled = false
-	}
-
-    tasks.named('checkstyleAotTest') {
-        enabled = false
-    }
-
-    tasks.named('checkstyleAot') {
-        enabled = false
-    }
-
-}
