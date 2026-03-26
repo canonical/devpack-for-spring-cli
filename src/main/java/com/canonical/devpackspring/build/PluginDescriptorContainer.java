@@ -23,21 +23,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
 import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("unchecked")
 public class PluginDescriptorContainer {
 
+	private static final Log LOG = LogFactory.getLog(PluginDescriptorContainer.class);
+
 	private final Map<String, PluginDescriptor> pluginMap = new HashMap<>();
 
 	public PluginDescriptorContainer(Reader source) {
 		Yaml yaml = new Yaml();
 		Map<String, Map<String, Object>> yamlData = yaml.load(source);
-		for (String key : yamlData.keySet()) {
-			Map<String, Object> root = yamlData.get(key);
-			addPlugin(key, root, BuildSystem.gradle);
-			addPlugin(key, root, BuildSystem.maven);
+		try {
+			for (String key : yamlData.keySet()) {
+				Map<String, Object> root = yamlData.get(key);
+				addPlugin(key, root, BuildSystem.gradle);
+				addPlugin(key, root, BuildSystem.maven);
+			}
+		}
+		catch (Exception ex) {
+			LOG.error(yaml.dump(yamlData));
+			LOG.error("Failed to parse plugin configuration", ex);
 		}
 	}
 

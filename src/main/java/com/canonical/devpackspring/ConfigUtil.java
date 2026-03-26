@@ -22,10 +22,15 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Opens configuration stream
  */
 public abstract class ConfigUtil {
+
+	private static final Log LOG = LogFactory.getLog(ConfigUtil.class);
 
 	/**
 	 * Opens configuration file stream
@@ -39,6 +44,7 @@ public abstract class ConfigUtil {
 			.resolve(".devpack-for-spring")
 			.resolve(fileName);
 		if (Files.exists(currentConfigPath)) {
+			LOG.info("Reading configuration from " + currentConfigPath);
 			return new FileInputStream(currentConfigPath.toFile());
 		}
 
@@ -47,6 +53,7 @@ public abstract class ConfigUtil {
 			.resolve("devpack-for-spring")
 			.resolve(fileName);
 		if (Files.exists(configPath)) {
+			LOG.info("Reading configuration from " + configPath);
 			return new FileInputStream(configPath.toFile());
 		}
 
@@ -55,9 +62,15 @@ public abstract class ConfigUtil {
 			pluginConfigurationFile = System.getProperty(environment);
 		}
 		if (pluginConfigurationFile != null) {
-			return new FileInputStream(pluginConfigurationFile);
+			if (Files.exists(Path.of(pluginConfigurationFile))) {
+				LOG.info("Reading configuration from " + pluginConfigurationFile);
+				return new FileInputStream(pluginConfigurationFile);
+			}
+			else {
+				LOG.warn("Configuration file " + environment + "=" + pluginConfigurationFile + " does not exist.");
+			}
 		}
-
+		LOG.info("Reading default configuration " + fileName);
 		return ConfigUtil.class.getResourceAsStream(String.format("/com/canonical/devpackspring/%s", fileName));
 	}
 
