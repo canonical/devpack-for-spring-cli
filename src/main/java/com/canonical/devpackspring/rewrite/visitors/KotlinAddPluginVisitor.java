@@ -37,6 +37,8 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private final String pluginTemplateKotlin = "plugins {\n\tid(\"%s\") version \"%s\"\n}\n";
 
+	private final String builtInTemplateKotlin = "plugins {\n\tid(\"%s\")\n}\n";
+
 	private final AddPluginVisitor visitor;
 
 	private final SourceFile templateSource;
@@ -48,10 +50,10 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 
 		// Use dummy file name to force the use of kotlin parser
+		var pluginDefinition = (pluginVersion == null) ? String.format(builtInTemplateKotlin, pluginName)
+				: String.format(pluginTemplateKotlin, pluginName, pluginVersion);
 		templateSource = parser
-			.parseInputs(
-					Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"),
-							String.format(pluginTemplateKotlin, pluginName, pluginVersion))),
+			.parseInputs(Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"), pluginDefinition)),
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Kotlin"));

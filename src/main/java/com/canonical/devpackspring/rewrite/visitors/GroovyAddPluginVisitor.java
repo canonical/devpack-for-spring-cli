@@ -37,6 +37,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private final String pluginTemplateGroovy = "plugins {\n\tid '%s' version '%s'\n}\n";
 
+	private final String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
+
 	private final AddPluginVisitor visitor;
 
 	private final SourceFile templateSource;
@@ -46,10 +48,10 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
+		var pluginDefinition = (pluginVersion == null) ? String.format(builtInTemplateGroovy, pluginName)
+				: String.format(pluginTemplateGroovy, pluginName, pluginVersion);
 		templateSource = parser
-			.parseInputs(
-					Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle"),
-							String.format(pluginTemplateGroovy, pluginName, pluginVersion))),
+			.parseInputs(Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle"), pluginDefinition)),
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
