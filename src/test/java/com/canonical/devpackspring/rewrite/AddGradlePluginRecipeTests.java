@@ -23,6 +23,35 @@ import org.openrewrite.test.RewriteTest;
 public class AddGradlePluginRecipeTests implements RewriteTest {
 
 	@Test
+	void testGroovyAddBuiltInPlugin() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false)), Assertions.buildGradle("""
+				group = 'com.example'
+				version = '1.0'
+				""", """
+				plugins {
+					id 'java'
+				}
+				group = 'com.example'
+				version = '1.0'"""));
+
+	}
+
+	@Test
+	void testKotlinAddBuiltInPlugin() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true)), Assertions.buildGradleKts("""
+				group = "com.example"
+				version = "1.0"
+				""", """
+				plugins {
+					id("java")
+				}
+				group = "com.example"
+				version = "1.0"
+				"""));
+
+	}
+
+	@Test
 	void testGroovyAddPluginNoPluginBlock() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false)),
 				Assertions.buildGradle("""
