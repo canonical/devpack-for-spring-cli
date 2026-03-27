@@ -12,13 +12,18 @@ buildscript {
 
 plugins {
 	id 'org.springframework.boot' version '4.0.5'
-	id 'org.springframework.boot.aot' version '4.0.5'
+	id 'org.springframework.boot.aot' version '4.0.5' apply false
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
 	id 'io.spring.javaformat' version '0.0.47' apply false
 }
 
 def useChecks = project.hasProperty('cliChecks') ? cliChecks.toBoolean() : true
+def useAot = project.hasProperty('aot') ? aot.toBoolean() : false
+
+if (useAot) {
+	apply plugin: 'org.springframework.boot.aot'
+}
 
 if (useChecks) {
 	apply plugin: 'io.spring.javaformat'
@@ -196,3 +201,23 @@ springBoot {
 	mainClass = 'org.springframework.cli.DevpackForSpringCliApplication'
 }
 
+if (useAot) {
+	// disable aot generated stuff
+	// which enables aot related things
+	tasks.named('checkFormatAot') {
+		enabled = false
+	}
+
+	tasks.named('checkFormatAotTest') {
+		enabled = false
+	}
+
+	tasks.named('checkstyleAotTest') {
+		enabled = false
+	}
+
+	tasks.named('checkstyleAot') {
+		enabled = false
+	}
+
+}

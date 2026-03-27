@@ -19,12 +19,14 @@ package org.springframework.cli;
 import java.util.Arrays;
 
 import org.springframework.boot.Banner;
+import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cli.config.SpringCliRuntimeHints;
 import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.shell.CommandNotFound;
 import org.springframework.shell.command.annotation.CommandScan;
 
 /**
@@ -67,9 +69,12 @@ public class DevpackForSpringCliApplication {
 		try {
 			builder.build().run(args);
 		}
-		catch (Throwable tx) {
+		catch (RuntimeException tx) {
 			if (debug) {
 				tx.printStackTrace();
+			}
+			if (!(tx instanceof CommandNotFound || tx instanceof ExitCodeGenerator)) {
+				throw tx;
 			}
 		}
 	}
