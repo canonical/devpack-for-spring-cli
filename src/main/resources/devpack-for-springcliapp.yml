@@ -1,7 +1,6 @@
 spring:
   main:
     web-application-type: none
-    banner-mode: off
   shell:
     interactive:
       enabled: true
@@ -19,8 +18,8 @@ devpack-for-spring:
 
 ## disable/enable console logging
 logging:
-  pattern:
-    console:
+  console:
+
 ## log debug from a cli
   # file:
   #   name: shell.log
