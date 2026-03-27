@@ -92,6 +92,11 @@ public class PluginDescriptorContainer {
 			return new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null);
 		}
 		Map<String, String> maven = (Map<String, String>) configuration.get("maven");
+		if (maven == null) {
+			return new PluginConfiguration(resources, new MavenConfiguration(null, null, null),
+					(String) configuration.get("gradleKotlin"), (String) configuration.get("gradleGroovy"));
+
+		}
 		return new PluginConfiguration(resources,
 				new MavenConfiguration(maven.get("configuration"), maven.get("dependencies"), maven.get("executions")),
 				(String) configuration.get("gradleKotlin"), (String) configuration.get("gradleGroovy"));
