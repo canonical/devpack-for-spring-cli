@@ -73,9 +73,13 @@ public class DevpackForSpringCliApplication {
 			if (debug) {
 				tx.printStackTrace();
 			}
-			if (!(tx instanceof CommandNotFound || tx instanceof ExitCodeGenerator)) {
-				throw tx;
+			if (tx instanceof CommandNotFound) {
+				System.exit(-1);
 			}
+			if (tx instanceof ExitCodeGenerator exitCode) {
+				System.exit(exitCode.getExitCode());
+			}
+			throw tx;
 		}
 	}
 
