@@ -2,11 +2,9 @@ format-me:
   gradle:
     id: io.spring.javaformat
     version: 0.0.41
-    class-name: io.spring.javaformat.gradle.SpringJavaFormatPlugin
     default-task: format
     description: Formats source code
     tasks:
       format: format
     repository: gradlePluginPortal()
-    classpath: "io.spring.javaformat:io.spring.javaformat.gradle.plugin:0.0.43"
 

@@ -1,4 +1,11 @@
 checkStyle:
+  resources:
+    - path: checkstyle.xml
+      content: |
+        <?xml version="1.0"?>
+        <!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+        <module name="Checker">
+        </module>
   gradle:
     id: checkstyle
     version: 1.0.0
@@ -16,13 +23,6 @@ checkStyle:
         - install
         - checkstyle:check
     configuration:
-      resources:
-        - path: checkstyle.xml
-          content: |
-            <?xml version="1.0"?>
-            <!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
-            <module name="Checker">
-            </module>
       maven:
         configuration: |
           <configuration>
@@ -47,6 +47,10 @@ checkStyle:
           </execution>
           </executions>
 rockcraft:
+  resources:
+    - path: .config/config.xml
+      content: |
+        <resource/>
   gradle:
     id: io.github.rockcrafters.rockcraft
     version: 1.0.0
@@ -65,10 +69,6 @@ rockcraft:
     description: |
       This is a plugin description
     configuration:
-      resources:
-        - path: .config/config.xml
-          content: |
-            <resource/>
       maven:
         configuration: |
           <maven-element-config/>
