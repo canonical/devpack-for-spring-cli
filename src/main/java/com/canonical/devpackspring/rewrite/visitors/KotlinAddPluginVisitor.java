@@ -17,7 +17,6 @@
 package com.canonical.devpackspring.rewrite.visitors;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
@@ -50,10 +49,10 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 
 		// Use dummy file name to force the use of kotlin parser
-		var pluginDefinition = (pluginVersion == null) ? String.format(builtInTemplateKotlin, pluginName)
-				: String.format(pluginTemplateKotlin, pluginName, pluginVersion);
+		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
+				: String.format(builtInTemplateKotlin, pluginName);
 		templateSource = parser
-			.parseInputs(Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"), pluginDefinition)),
+			.parseInputs(List.of(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"), pluginDefinition)),
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Kotlin"));

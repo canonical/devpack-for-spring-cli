@@ -17,7 +17,6 @@
 package com.canonical.devpackspring.rewrite.visitors;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
@@ -48,10 +47,10 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
-		var pluginDefinition = (pluginVersion == null) ? String.format(builtInTemplateGroovy, pluginName)
-				: String.format(pluginTemplateGroovy, pluginName, pluginVersion);
+		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
+				: String.format(builtInTemplateGroovy, pluginName);
 		templateSource = parser
-			.parseInputs(Arrays.asList(Parser.Input.fromString(Paths.get("/tmp/build.gradle"), pluginDefinition)),
+			.parseInputs(List.of(Parser.Input.fromString(Paths.get("/tmp/build.gradle"), pluginDefinition)),
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
