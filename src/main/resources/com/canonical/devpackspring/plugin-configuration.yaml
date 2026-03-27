@@ -15,6 +15,10 @@ format:
     tasks:
       apply: :apply
 rockcraft:
+  resources:
+    - path: .config/config.xml
+      content: |
+        <resource/>
   gradle:
     id: io.github.rockcrafters.rockcraft
     version: 1.2.3
@@ -31,10 +35,6 @@ rockcraft:
       push-rock: push-rock
       push-build-rock: push-build-rock
     configuration:
-      resources:
-        - path: .config/config.xml
-          content: | 
-            <resource/>
       maven:
           configuration: |
             <maven-element-config/>

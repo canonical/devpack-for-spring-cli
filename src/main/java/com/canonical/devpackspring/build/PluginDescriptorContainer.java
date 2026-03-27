@@ -41,8 +41,9 @@ public class PluginDescriptorContainer {
 		try {
 			for (String key : yamlData.keySet()) {
 				Map<String, Object> root = yamlData.get(key);
-				addPlugin(key, root, BuildSystem.gradle);
-				addPlugin(key, root, BuildSystem.maven);
+				PluginResource[] resources = readResources((ArrayList<Map<String, String>>) root.get("resources"));
+				addPlugin(key, root, BuildSystem.gradle, resources);
+				addPlugin(key, root, BuildSystem.maven, resources);
 			}
 		}
 		catch (Exception ex) {
@@ -51,10 +52,10 @@ public class PluginDescriptorContainer {
 		}
 	}
 
-	private void addPlugin(String key, Map<String, Object> root, BuildSystem buildSystem) {
+	private void addPlugin(String key, Map<String, Object> root, BuildSystem buildSystem, PluginResource[] resources) {
 		Map<String, Object> description = (Map<String, Object>) root.get(buildSystem.name());
 		if (description != null) {
-			PluginConfiguration config = readPluginConfiguration(
+			PluginConfiguration config = readPluginConfiguration(resources,
 					(Map<String, Object>) description.get("configuration"));
 			PluginTasks pluginTasks = readTasks((Map<String, Object>) description.get("tasks"));
 			pluginMap.put(getKey(key, buildSystem),
@@ -85,12 +86,13 @@ public class PluginDescriptorContainer {
 		return new PluginTasks(result);
 	}
 
-	private @NonNull PluginConfiguration readPluginConfiguration(Map<String, Object> configuration) {
+	private @NonNull PluginConfiguration readPluginConfiguration(PluginResource[] resources,
+			Map<String, Object> configuration) {
 		if (configuration == null) {
 			return new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null);
 		}
 		Map<String, String> maven = (Map<String, String>) configuration.get("maven");
-		return new PluginConfiguration(readResources((ArrayList<Map<String, String>>) configuration.get("resources")),
+		return new PluginConfiguration(resources,
 				new MavenConfiguration(maven.get("configuration"), maven.get("dependencies"), maven.get("executions")),
 				(String) configuration.get("gradleKotlin"), (String) configuration.get("gradleGroovy"));
 	}
