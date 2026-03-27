@@ -21,6 +21,8 @@ import org.jline.terminal.Terminal;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.ansi.AnsiColor;
+import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.shell.command.CommandExceptionResolver;
@@ -44,7 +46,8 @@ public class SpringCliExceptionResolver implements CommandExceptionResolver, App
 			e.printStackTrace(getTerminal().writer());
 			return CommandHandlingResult.of("", 1);
 		}
-		return CommandHandlingResult.of(String.format("%s\n", e.getMessage()), 1);
+		return CommandHandlingResult.of(AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s\n", e.getMessage())
+				+ AnsiOutput.encode(AnsiColor.DEFAULT), 1);
 	}
 
 	private Terminal getTerminal() {
