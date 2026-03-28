@@ -33,13 +33,31 @@ public abstract class ConfigUtil {
 	private static final Log LOG = LogFactory.getLog(ConfigUtil.class);
 
 	/**
-	 * Opens configuration file stream
+	 * Opens configuration file stream from: 1. System Property 2. Environment Variable 3.
+	 * Current directory .devpack-for-spring/conffile 4. User home
+	 * .config/devpack-for-spring/conffile 5. Embedded resource
+	 * /com/canonical/devpackspring/conffile
 	 * @param environment - environment variable specifying path to the file
 	 * @param fileName - configuration file name
 	 * @return configuration file InputStream
 	 * @throws FileNotFoundException - configuration file not found
 	 */
 	public static InputStream openConfigurationFile(String environment, String fileName) throws FileNotFoundException {
+
+		String pluginConfigurationFile = System.getProperty(environment);
+		if (pluginConfigurationFile == null) {
+			pluginConfigurationFile = System.getenv(environment);
+		}
+		if (pluginConfigurationFile != null) {
+			if (Files.exists(Path.of(pluginConfigurationFile))) {
+				LOG.info("Reading configuration from " + pluginConfigurationFile);
+				return new FileInputStream(pluginConfigurationFile);
+			}
+			else {
+				LOG.warn("Configuration file " + environment + "=" + pluginConfigurationFile + " does not exist.");
+			}
+		}
+
 		Path currentConfigPath = Path.of(System.getProperty("user.dir"))
 			.resolve(".devpack-for-spring")
 			.resolve(fileName);
@@ -57,19 +75,6 @@ public abstract class ConfigUtil {
 			return new FileInputStream(configPath.toFile());
 		}
 
-		String pluginConfigurationFile = System.getenv(environment);
-		if (pluginConfigurationFile == null) {
-			pluginConfigurationFile = System.getProperty(environment);
-		}
-		if (pluginConfigurationFile != null) {
-			if (Files.exists(Path.of(pluginConfigurationFile))) {
-				LOG.info("Reading configuration from " + pluginConfigurationFile);
-				return new FileInputStream(pluginConfigurationFile);
-			}
-			else {
-				LOG.warn("Configuration file " + environment + "=" + pluginConfigurationFile + " does not exist.");
-			}
-		}
 		LOG.info("Reading default configuration " + fileName);
 		return ConfigUtil.class.getResourceAsStream(String.format("/com/canonical/devpackspring/%s", fileName));
 	}

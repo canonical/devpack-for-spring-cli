@@ -330,4 +330,92 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				"""));
 	}
 
+	@Test
+	void testGroovyDependenciesMerge() {
+		String config = """
+				dependencies {
+				    implementation 'org.springframework.boot:spring-boot-starter:3.5.0'
+				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+				}
+				""";
+		G.CompilationUnit cu = parseGroovyConfig(config);
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+				dependencies {
+				    implementation 'org.springframework.boot:spring-boot-starter:3.3.0'
+				    runtimeOnly 'org.postgresql:postgresql:42.7.0'
+				}
+				""", """
+				dependencies {
+				    implementation 'org.springframework.boot:spring-boot-starter:3.5.0'
+				    runtimeOnly 'org.postgresql:postgresql:42.7.0'
+				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+				}
+				"""));
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+				dependencies {
+				}
+				""", """
+				dependencies {
+				    implementation 'org.springframework.boot:spring-boot-starter:3.5.0'
+				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+				}
+				"""));
+	}
+
+	@Test
+	void testGroovyDependenciesMergeNewLines() {
+		String config = """
+				dependencies {
+				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+				}
+				""";
+		G.CompilationUnit cu = parseGroovyConfig(config);
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+				dependencies { implementation 'org.springframework.boot:spring-boot-starter:3.3.0' }
+				""", """
+				dependencies {
+				implementation 'org.springframework.boot:spring-boot-starter:3.3.0'
+				testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0' }
+				"""));
+	}
+
+	@Test
+	void testKotlinDependenciesMergeNewLines() {
+		String config = """
+				dependencies {
+				    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+				}
+				""";
+		K.CompilationUnit cu = parseKotlinConfig(config);
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
+				dependencies { implementation("org.springframework.boot:spring-boot-starter:3.3.0") }
+				""", """
+				dependencies {
+				 implementation("org.springframework.boot:spring-boot-starter:3.3.0")
+				 testImplementation("org.junit.jupiter:junit-jupiter:5.11.0") }"""));
+	}
+
+	@Test
+	void testKotlinDependenciesMerge() {
+		String config = """
+				dependencies {
+				    implementation("org.springframework.boot:spring-boot-starter:3.5.0")
+				    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+				}
+				""";
+		K.CompilationUnit cu = parseKotlinConfig(config);
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
+				dependencies {
+				    implementation("org.springframework.boot:spring-boot-starter:3.3.0")
+				    runtimeOnly("org.postgresql:postgresql:42.7.0")
+				}
+				""", """
+				dependencies {
+				    implementation("org.springframework.boot:spring-boot-starter:3.5.0")
+				    runtimeOnly("org.postgresql:postgresql:42.7.0")
+				    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+				}
+				"""));
+	}
+
 }

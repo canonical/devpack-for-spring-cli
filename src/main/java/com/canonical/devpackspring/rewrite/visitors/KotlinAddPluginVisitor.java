@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -31,8 +33,11 @@ import org.openrewrite.java.tree.Statement;
 import org.openrewrite.kotlin.KotlinIsoVisitor;
 import org.openrewrite.kotlin.KotlinParser;
 import org.openrewrite.kotlin.tree.K;
+import org.openrewrite.tree.ParseError;
 
 public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
+
+	private static final Log LOG = LogFactory.getLog(KotlinAddPluginVisitor.class);
 
 	private final String pluginTemplateKotlin = "plugins {\n\tid(\"%s\") version \"%s\"\n}\n";
 
@@ -56,7 +61,10 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Kotlin"));
-
+		if (templateSource instanceof ParseError error) {
+			LOG.error("Unable to parse: " + pluginDefinition);
+			throw new RuntimeException("Parser Error:" + error.printAll());
+		}
 		List<Statement> statements = ((K.CompilationUnit) templateSource).getStatements();
 		J.Block block = (J.Block) statements.get(0);
 		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);

@@ -28,7 +28,6 @@ jobs:
           rm -rf /home/runner/.local/state/rockcraft/log/*
           sudo snap install rockcraft --classic
       - run: |
-          export LOGGING_LEVEL_COM_CANONICAL_DEVPACKSPRING_PROCESSUTIL=DEBUG
           ./gradlew build -PexcludeTags=boot,maven-modification,maven-dependency --no-daemon --stacktrace
       - name: Store reports
         if: failure()

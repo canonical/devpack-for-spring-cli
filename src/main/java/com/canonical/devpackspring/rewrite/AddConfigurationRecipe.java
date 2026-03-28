@@ -127,6 +127,16 @@ public class AddConfigurationRecipe extends Recipe {
 		for (int i = 0; i < targetStatements.size(); i++) {
 			Statement targetStmt = targetStatements.get(i);
 			if (matches(targetStmt, configStmt)) {
+				// Special case: merge dependencies{} blocks instead of replacing
+				if (isDependenciesBlock(targetStmt)) {
+					Statement merged = DependencyMergeUtil.mergeDependenciesBlock(targetStmt, configStmt, targetCu,
+							configCu);
+					if (merged != null) {
+						targetStatements.set(i, merged);
+						return true;
+					}
+					return false;
+				}
 				// avoid modifying if the trimmed outputs are strictly identical
 				org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(
 						new org.openrewrite.Cursor(null, targetCu), targetStmt);
@@ -140,6 +150,10 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 		targetStatements.add(configStmt.withPrefix(Space.format("\n")));
 		return true;
+	}
+
+	private boolean isDependenciesBlock(Statement stmt) {
+		return stmt instanceof J.MethodInvocation m && "dependencies".equals(m.getSimpleName());
 	}
 
 	private boolean matches(Statement targetStmt, Statement configStmt) {
