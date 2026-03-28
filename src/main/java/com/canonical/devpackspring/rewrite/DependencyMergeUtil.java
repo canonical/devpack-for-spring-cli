@@ -111,7 +111,13 @@ public abstract class DependencyMergeUtil {
 		if (m.getArguments().size() == 1) {
 			org.openrewrite.java.tree.Expression arg = m.getArguments().getFirst();
 			if (arg instanceof J.Lambda lambda && lambda.getBody() instanceof J.Block block) {
-				J.Block newBlock = block.withStatements(newStatements);
+				J.Block newBlock = block.withStatements(newStatements.stream().map(stmt -> {
+					String ws = stmt.getPrefix().getWhitespace();
+					if (!ws.contains("\n")) {
+						stmt = stmt.withPrefix(stmt.getPrefix().withWhitespace("\n" + ws));
+					}
+					return stmt;
+				}).toList());
 				J.Lambda newLambda = lambda.withBody(newBlock);
 				return m.withArguments(List.of(newLambda));
 			}
