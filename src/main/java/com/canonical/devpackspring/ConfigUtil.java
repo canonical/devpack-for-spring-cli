@@ -33,12 +33,10 @@ public abstract class ConfigUtil {
 	private static final Log LOG = LogFactory.getLog(ConfigUtil.class);
 
 	/**
-	 * Opens configuration file stream from:
-	 *  1. System Property
-	 *  2. Environment Variable
-	 *  3. Current directory .devpack-for-spring/conffile
-	 *  4. User home .config/devpack-for-spring/conffile
-	 *  5. Embedded resource /com/canonical/devpackspring/conffile
+	 * Opens configuration file stream from: 1. System Property 2. Environment Variable 3.
+	 * Current directory .devpack-for-spring/conffile 4. User home
+	 * .config/devpack-for-spring/conffile 5. Embedded resource
+	 * /com/canonical/devpackspring/conffile
 	 * @param environment - environment variable specifying path to the file
 	 * @param fileName - configuration file name
 	 * @return configuration file InputStream
