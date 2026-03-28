@@ -158,4 +158,23 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						"""));
 	}
 
+	@Test
+	void testKotlinAppendDefaultPlugin() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("checkstyle", null, true)),
+				Assertions.buildGradleKts("""
+						plugins {
+						    kotlin("jvm") version "1.9.22"
+						}
+						group = "com.example"
+						version = "1.0"
+						""", """
+						plugins {
+						    kotlin("jvm") version "1.9.22"
+						    id("checkstyle")
+						}
+						group = "com.example"
+						version = "1.0"
+						"""));
+	}
+
 }
