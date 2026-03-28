@@ -221,3 +221,7 @@ if (useAot) {
 	}
 
 }
+
+bootJar {
+	requiresUnpack '**/kotlin-compiler-embeddable-*.jar'
+}
