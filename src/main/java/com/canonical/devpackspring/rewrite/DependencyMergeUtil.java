@@ -43,14 +43,14 @@ public abstract class DependencyMergeUtil {
 			return null; // nothing to merge, skip it
 		}
 
-		HashSet<String> deps = new HashSet<String>();
-		HashMap<String, Statement> target = new HashMap<String, Statement>();
-		HashMap<String, Statement> source = new HashMap<String, Statement>();
+		HashSet<String> deps = new HashSet<>();
+		HashMap<String, Statement> target = new HashMap<>();
+		HashMap<String, Statement> source = new HashMap<>();
 		targetDeps.forEach(x -> updateDependencies(x, deps, target));
 		configDeps.forEach(x -> updateDependencies(x, deps, source));
 
-		List<Statement> mergedDeps = new ArrayList<Statement>();
-		var sortedList = new ArrayList<String>(deps);
+		List<Statement> mergedDeps = new ArrayList<>();
+		var sortedList = new ArrayList<>(deps);
 		Collections.sort(sortedList);
 		for (var key : sortedList) {
 			Statement stm = source.get(key);
@@ -94,7 +94,7 @@ public abstract class DependencyMergeUtil {
 
 	private static List<Statement> getDependenciesStatements(J.MethodInvocation m) {
 		if (m.getArguments().size() == 1) {
-			org.openrewrite.java.tree.Expression arg = m.getArguments().get(0);
+			org.openrewrite.java.tree.Expression arg = m.getArguments().getFirst();
 			if (arg instanceof J.Lambda lambda && lambda.getBody() instanceof J.Block block) {
 				return block.getStatements().stream().map(stmt -> {
 					if (stmt instanceof J.Return ret) {
