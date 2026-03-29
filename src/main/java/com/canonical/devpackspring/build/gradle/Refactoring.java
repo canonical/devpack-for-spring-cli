@@ -19,7 +19,7 @@ package com.canonical.devpackspring.build.gradle;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.AddConfigurationRecipe;
@@ -29,6 +29,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
+import org.openrewrite.config.CompositeRecipe;
 import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.kotlin.KotlinParser;
@@ -42,32 +43,28 @@ public final class Refactoring {
 	private Refactoring() {
 	}
 
-	public static void appendPlugin(Path buildFile, String id, String version, boolean kotlin) throws IOException {
-		Recipe recipe = new AddGradlePluginRecipe(id, version, kotlin);
-		applyRecipe(buildFile, recipe);
-	}
-
-	public static void appendConfiguration(Path buildFile, String configuration) throws IOException {
-		if (configuration == null) {
-			return;
-		}
+	public static void configurePlugin(Path buildFile, String id, String version, String configuration) throws IOException  {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
-		InMemoryExecutionContext context = new InMemoryExecutionContext(
-				throwable -> logger.debug(throwable.getMessage(), throwable));
+		ArrayList<Recipe> recipes = new ArrayList<>();
+		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
 
-		Parser parser = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-			.build();
+		if (configuration != null) {
+			Parser parser = GradleParser.builder()
+					.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+					.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+					.build();
 
-		Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
-		SourceFile configSourceFile = parser
-			.parseInputs(Arrays.asList(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+			Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
+			InMemoryExecutionContext context = new InMemoryExecutionContext(
+					throwable -> logger.debug(throwable.getMessage(), throwable));
 
-		Recipe recipe = new AddConfigurationRecipe(configSourceFile, kotlin);
-		applyRecipe(buildFile, recipe);
+			SourceFile configSourceFile = parser
+					.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
+					.findFirst()
+					.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+			recipes.add(new AddConfigurationRecipe(configSourceFile, kotlin));
+		}
+		applyRecipe(buildFile, new CompositeRecipe(recipes));
 	}
 
 	private static void applyRecipe(Path buildFile, Recipe recipe) throws IOException {
