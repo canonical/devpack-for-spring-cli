@@ -38,7 +38,7 @@ public class MavenRunnerTests {
 				new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null),
 				null);
 
-		assertThatThrownBy(() -> MavenRunner.run(projectPath, desc, List.of("foo"), null))
+		assertThatThrownBy(() -> MavenRunner.run(workingDir, desc, List.of("foo"), null))
 			.hasMessageContaining("Plugin org.springframework.boot:spring-boot-maven-plugin is already configured.");
 	}
 
