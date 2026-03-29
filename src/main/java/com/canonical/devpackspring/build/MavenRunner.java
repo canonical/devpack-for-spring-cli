@@ -101,7 +101,7 @@ public abstract class MavenRunner {
 
 		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
 		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
-		if (run.getDataTable(org.openrewrite.table.SourcesFileResults.class.getName()) != null) {
+		if (run.getDataTable(org.openrewrite.table.SearchResults.class.getName()) != null) {
 			throw new PluginAlreadyConfiguredException("Plugin " + desc.id() + " is already configured.");
 		}
 
