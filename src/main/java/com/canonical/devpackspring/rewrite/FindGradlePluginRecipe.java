@@ -69,7 +69,9 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 					}
 				}
 				var ret = super.visitMethodInvocation(method, executionContext);
-				getCursor().getRoot().pollMessage("in_plugin_block");
+				if (PluginMethodNames.METHOD_PLUGINS.equals(method.getSimpleName())) {
+					getCursor().getRoot().pollMessage("in_plugin_block");
+				}
 				return ret;
 			}
 		};
