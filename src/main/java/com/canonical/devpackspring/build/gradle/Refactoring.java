@@ -60,11 +60,9 @@ public final class Refactoring {
 				.build();
 
 			Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
-			InMemoryExecutionContext context = new InMemoryExecutionContext(
-					throwable -> logger.debug(throwable.getMessage(), throwable));
-
 			SourceFile configSourceFile = parser
-				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
+				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"),
+						new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
 			recipes.add(new AddConfigurationRecipe(configSourceFile, kotlin));
