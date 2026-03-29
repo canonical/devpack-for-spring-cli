@@ -41,6 +41,7 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 
 	@Override
 	public AtomicBoolean getInitialValue(ExecutionContext ctx) {
+		found.set(false);
 		return found;
 	}
 
