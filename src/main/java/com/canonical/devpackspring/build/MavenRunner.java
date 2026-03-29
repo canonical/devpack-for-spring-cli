@@ -27,13 +27,17 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
+import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.AddPlugin;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.search.FindPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +98,13 @@ public abstract class MavenRunner {
 				desc.configuration().mavenSnippet().configuration(), desc.configuration().mavenSnippet().dependencies(),
 				desc.configuration().mavenSnippet().executions(), null);
 		var files = parseMaven(targetProject, context);
+
+		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
+		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
+		if (run.getDataTable(org.openrewrite.table.SourcesFileResults.class.getName()) != null) {
+			throw new PluginAlreadyConfiguredException("Plugin " + desc.id() + " is already configured.");
+		}
+
 		RecipeUtil.applyRecipe(targetProject, recipe, files, context);
 	}
 
