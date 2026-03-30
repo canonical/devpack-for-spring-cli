@@ -72,7 +72,7 @@ public class AddConfigurationRecipe extends Recipe {
 						List<Statement> newStatements = new ArrayList<>(buildStatements);
 						boolean anyChanged = false;
 						for (Statement configStmt : configStatements) {
-							if (addOrReplace(newStatements, configStmt, c, configCu)) {
+							if (addStatement(newStatements, configStmt, c, configCu)) {
 								anyChanged = true;
 							}
 						}
@@ -106,7 +106,7 @@ public class AddConfigurationRecipe extends Recipe {
 						List<Statement> newStatements = new ArrayList<>(c.getStatements());
 						boolean anyChanged = false;
 						for (Statement configStmt : configCu.getStatements()) {
-							if (addOrReplace(newStatements, configStmt, c, configCu)) {
+							if (addStatement(newStatements, configStmt, c, configCu)) {
 								anyChanged = true;
 							}
 						}
@@ -118,7 +118,7 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 	}
 
-	private boolean addOrReplace(List<Statement> targetStatements, Statement configStmt, SourceFile targetCu,
+	private boolean addStatement(List<Statement> targetStatements, Statement configStmt, SourceFile targetCu,
 			SourceFile configCu) {
 		org.openrewrite.Cursor configCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, configCu),
 				configStmt);
@@ -126,88 +126,15 @@ public class AddConfigurationRecipe extends Recipe {
 
 		for (int i = 0; i < targetStatements.size(); i++) {
 			Statement targetStmt = targetStatements.get(i);
-			if (matches(targetStmt, configStmt)) {
-				// Special case: merge dependencies{} blocks instead of replacing
-				if (isDependenciesBlock(targetStmt)) {
-					Statement merged = DependencyMergeUtil.mergeDependenciesBlock(targetStmt, configStmt, targetCu,
-							configCu);
-					if (merged != null) {
-						targetStatements.set(i, merged);
-						return true;
-					}
-					return false;
-				}
-				// avoid modifying if the trimmed outputs are strictly identical
-				org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(
-						new org.openrewrite.Cursor(null, targetCu), targetStmt);
-				String targetText = targetStmt.printTrimmed(targetCursor).trim();
-				if (targetText.equals(configText)) {
-					return false;
-				}
-				targetStatements.set(i, configStmt.withPrefix(targetStmt.getPrefix()));
-				return true;
+			org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, targetCu),
+					targetStmt);
+			String targetText = targetStmt.printTrimmed(targetCursor).trim();
+			if (targetText.equals(configText)) {
+				return false;
 			}
 		}
 		targetStatements.add(configStmt.withPrefix(Space.format("\n")));
 		return true;
-	}
-
-	private boolean isDependenciesBlock(Statement stmt) {
-		return stmt instanceof J.MethodInvocation m && "dependencies".equals(m.getSimpleName());
-	}
-
-	private boolean matches(Statement targetStmt, Statement configStmt) {
-		// handle project.ext.set -> we want to override only properties with the same
-		// name
-		if (targetStmt instanceof J.MethodInvocation targetMethod
-				&& configStmt instanceof J.MethodInvocation configMethod) {
-			if (isProjectExtSet(targetMethod) && isProjectExtSet(configMethod)) {
-				String targetArg = getFirstArgumentString(targetMethod);
-				String configArg = getFirstArgumentString(configMethod);
-				return targetArg != null && targetArg.equals(configArg);
-			}
-		}
-
-		String targetName = getName(targetStmt);
-		String configName = getName(configStmt);
-		return targetName != null && targetName.equals(configName);
-	}
-
-	private boolean isProjectExtSet(J.MethodInvocation m) {
-		if ("set".equals(m.getSimpleName()) && m.getSelect() instanceof J.FieldAccess fieldAccess) {
-			if (fieldAccess.getTarget() instanceof J.Identifier identifier
-					&& "project".equals(identifier.getSimpleName())) {
-				String extName = fieldAccess.getSimpleName();
-				return "ext".equals(extName) || "extra".equals(extName);
-			}
-		}
-		return false;
-	}
-
-	private String getFirstArgumentString(J.MethodInvocation m) {
-		if (!m.getArguments().isEmpty()) {
-			org.openrewrite.java.tree.Expression arg = m.getArguments().get(0);
-			if (arg instanceof J.Literal literal) {
-				return String.valueOf(literal.getValue());
-			}
-		}
-		return null;
-	}
-
-	private String getName(Statement stmt) {
-		return switch (stmt) {
-			case J.MethodInvocation methodInvocation -> methodInvocation.getSimpleName();
-			case J.Assignment assignment -> switch (assignment.getVariable()) {
-				case J.Identifier identifier -> identifier.getSimpleName();
-				case J.FieldAccess fieldAccess -> fieldAccess.getSimpleName();
-				default -> assignment.toString();
-			};
-			case J.VariableDeclarations varDecls ->
-				!varDecls.getVariables().isEmpty() ? varDecls.getVariables().getFirst().getSimpleName() : null;
-			case J.MethodDeclaration methodDecl -> methodDecl.getSimpleName();
-			case J.ClassDeclaration classDecl -> classDecl.getSimpleName();
-			default -> null;
-		};
 	}
 
 }
