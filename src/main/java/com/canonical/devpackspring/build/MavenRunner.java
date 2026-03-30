@@ -126,6 +126,9 @@ public abstract class MavenRunner {
 		catch (InterruptedException ex) {
 			return false;
 		}
+		finally {
+			p.destroy();
+		}
 	}
 
 }
