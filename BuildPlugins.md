@@ -33,7 +33,7 @@ list-plugins
 
 Plugin definitions are stored in `plugin-configuration.yaml`. The file is loaded from the first location found, in order:
 
-1. **System property or environment variable** — `SPRING_CLI_BUILD_COMMANDS_PLUGIN_CONFIGURATION=/path/to/file.yaml`
+1. **System property or environment variable** — `SPRING_CLI_BUILD_COMMANDS_PLUGIN_CONFIGURATION=/path/to/file.yaml` or `-DSPRING_CLI_BUILD_COMMANDS_PLUGIN_CONFIGURATION=/path/to/file.yaml`
 2. **Project-local** — `.devpack-for-spring/plugin-configuration.yaml` (relative to current directory)
 3. **User-global** — `~/.config/devpack-for-spring/plugin-configuration.yaml`
 4. **Built-in default** — embedded resource shipped with devpack-for-spring-cli
@@ -240,8 +240,8 @@ When `plugin` command is executed:
 
 1. The build system is detected from the project files
 2. The plugin is looked up in the configuration for the detected build system
-3. For Gradle projects, a **shadow project** is created and the build file is modified using OpenRewrite:
-   - `AddGradlePluginRecipe` adds the plugin declaration to the `plugins { }` block
-   - `AddConfigurationRecipe` merges configuration snippets into the build file (replacing existing blocks or appending new ones; `dependencies { }` blocks are merged rather than replaced)
-4. For Maven projects, the plugin XML is injected into `pom.xml`
-5. The requested task alias is resolved to actual build commands and executed
+3. The project is symlinked under `.devpack-for-spring` directory
+4. Resources, specified in the configuration are written to disk in this directory.
+5. If the project already has build system plugin cofigured, the error is thrown
+6. Otherwise, the build file is modified by OpenRewrite recipes: plugin is added to the list of plugins and configuration specified in the configuration block is appended to the build file.
+7. The requested task alias is resolved to actual build commands and executed
