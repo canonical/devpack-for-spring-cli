@@ -1,6 +1,6 @@
 # Configuring Build Plugins
 
-Devpack for Spring CLI supports declarative build plugin management for both Gradle and Maven projects. Plugins are defined in a YAML configuration file and can be run interactively or from the command line.
+Devpack for Spring CLI supports declarative build plugin management for both Gradle and Maven projects. Plugins are defined in a YAML configuration file and can be run interactively (with prompts) or non-interactively (fully specified arguments).
 
 ## CLI Commands
 
@@ -12,10 +12,10 @@ Runs a build plugin task in the current project:
 # Interactive (prompts for plugin and task selection)
 plugin
 
-# Fully specified
+# Fully specified: plugin name + task alias
 plugin rockcraft build-rock
 
-# With custom project path
+# Plugin name only (uses default task)
 plugin format
 ```
 
@@ -40,7 +40,7 @@ Plugin definitions are stored in `plugin-configuration.yaml`. The file is loaded
 
 ### YAML Schema
 
-Each top-level key is the **plugin name** (used in `--plugin <name>`). Under it, separate `gradle` and/or `maven` sections define the build-system-specific plugin, along with optional shared `resources`.
+Each top-level key is the **plugin name** (the first positional argument to the `plugin` command, e.g. `plugin rockcraft build-rock`). Under it, separate `gradle` and/or `maven` sections define the build-system-specific plugin, along with optional shared `resources`.
 
 ```yaml
 <plugin-name>:
@@ -108,7 +108,7 @@ tasks:
     - :create-rock
 ```
 
-Maven goals prefixed with `:` are passed as plugin-scoped goals (e.g., `rockcraft:create-rock`). Goals without the prefix are standard Maven lifecycle phases.
+Maven goals prefixed with `:` are resolved as plugin-scoped goals using the plugin's `artifactId` (e.g., `:create-rock` becomes `rockcraft-maven-plugin:create-rock`). Goals without the prefix are standard Maven lifecycle phases (e.g., `install`).
 
 ### Resources
 
@@ -236,12 +236,12 @@ rockcraft:
 
 ## How It Works
 
-When `plugin` command is executed:
+When the `plugin` command is executed:
 
-1. The build system is detected from the project files
+1. The build system is detected from the project files (`build.gradle`, `build.gradle.kts`, or `pom.xml`)
 2. The plugin is looked up in the configuration for the detected build system
-3. The project is symlinked under `.devpack-for-spring` directory
-4. Resources, specified in the configuration are written to disk in this directory.
-5. If the project already has build system plugin cofigured, the error is thrown
-6. Otherwise, the build file is modified by OpenRewrite recipes: plugin is added to the list of plugins and configuration specified in the configuration block is appended to the build file.
+3. The project is referenced under the `.devpack-for-spring` directory
+4. Resources specified in the configuration are written to disk relative to that directory
+5. If the project already has the build plugin configured, the command fails with an error
+6. Otherwise, the build file is modified by OpenRewrite recipes. For example, the Gradle plugin is added to the plugins block and any configuration snippets from the `configuration` section are appended to the build file
 7. The requested task alias is resolved to actual build commands and executed
