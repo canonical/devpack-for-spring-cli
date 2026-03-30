@@ -34,8 +34,6 @@ public abstract class GradleRunner {
 
 	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs, TerminalMessage message)
 			throws IOException {
-		OutputStream terminalStreamError = new TerminalOutputStream(message,
-				new AttributedStyle().foreground(AttributedStyle.RED));
 
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
@@ -50,15 +48,24 @@ public abstract class GradleRunner {
 			return true;
 		}
 		catch (RuntimeException ex) {
-			try (PrintStream ps = new PrintStream(terminalStreamError)) {
+			try (OutputStream terminalStreamError = new TerminalOutputStream(message,
+					new AttributedStyle().foreground(AttributedStyle.RED));
+					PrintStream ps = new PrintStream(terminalStreamError)) {
 				// skip runtime exception itself - it only prints
 				// that task execution failed
-				ps.print(ex.getCause().getMessage());
+				if (ex.getCause() != null) {
+					ps.print(ex.getCause().getMessage());
+				}
+				else {
+					ps.print(ex.getMessage());
+				}
 			}
 			return false;
 		}
 		catch (InterruptedException ex) {
-			try (PrintStream ps = new PrintStream(terminalStreamError)) {
+			try (OutputStream terminalStreamError = new TerminalOutputStream(message,
+					new AttributedStyle().foreground(AttributedStyle.RED));
+					PrintStream ps = new PrintStream(terminalStreamError)) {
 				ps.print(ex.getMessage());
 			}
 			return false;
