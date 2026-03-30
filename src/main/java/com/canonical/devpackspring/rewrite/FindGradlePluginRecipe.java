@@ -31,6 +31,7 @@ import org.openrewrite.java.tree.J;
 public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 
 	public static final String IN_PLUGIN_BLOCK = "in_plugin_block";
+
 	@Option(displayName = "Plugin", description = "Plugin ID", example = "io.kotest")
 	String plugin;
 
