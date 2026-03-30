@@ -16,6 +16,7 @@
 
 package com.canonical.devpackspring.rewrite;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,10 +25,11 @@ import org.openrewrite.java.tree.Statement;
 
 public abstract class StatementUtil {
 
-	public static List<Statement> append(List<Statement> existingStatements, List<Statement> templateStatements) {
-		existingStatements.addAll(Arrays
-			.asList(templateStatements.stream().map(x -> x.withPrefix(Space.format("\n"))).toArray(Statement[]::new)));
-		return existingStatements;
+	public static List<Statement> append(List<Statement> templateStatements, List<Statement> existingStatements) {
+		var ret = new ArrayList<>(templateStatements);
+		ret.addAll(Arrays
+			.asList(existingStatements.stream().map(x -> x.withPrefix(Space.format("\n"))).toArray(Statement[]::new)));
+		return ret;
 	}
 
 }
