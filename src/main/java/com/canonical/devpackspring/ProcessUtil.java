@@ -37,6 +37,14 @@ public abstract class ProcessUtil {
 		ProcessBuilder pb = new ProcessBuilder(args);
 		if (inheritIO) {
 			pb = pb.inheritIO();
+			int ret;
+			try {
+				ret = pb.start().waitFor();
+			}
+			catch (InterruptedException ex) {
+				ret = -1;
+			}
+			return ret;
 		}
 		return runProcess(message, pb);
 	}
@@ -50,7 +58,6 @@ public abstract class ProcessUtil {
 	 */
 	public static int runProcess(final TerminalMessage message, ProcessBuilder pb) throws IOException {
 		final Process p = pb.start();
-
 		Thread stdout = new Thread(() -> {
 			AttributedStyle style = new AttributedStyle().foregroundDefault();
 			try (BufferedReader r = p.inputReader()) {
