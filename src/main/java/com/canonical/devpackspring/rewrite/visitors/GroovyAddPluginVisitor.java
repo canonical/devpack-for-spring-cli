@@ -79,7 +79,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		if (!tree.getSourcePath().toString().endsWith("build.gradle")) {
 			return tree;
 		}
-		List<Statement> statements = StatementUtil.append(((G.CompilationUnit) templateSource).getStatements(),
+		List<Statement> statements = StatementUtil.prependTemplate(((G.CompilationUnit) templateSource).getStatements(),
 				tree.getStatements());
 		return tree.withStatements(statements);
 	}

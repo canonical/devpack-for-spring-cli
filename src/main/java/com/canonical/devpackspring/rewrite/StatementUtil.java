@@ -25,7 +25,7 @@ import org.openrewrite.java.tree.Statement;
 
 public abstract class StatementUtil {
 
-	public static List<Statement> append(List<Statement> templateStatements, List<Statement> existingStatements) {
+	public static List<Statement> prependTemplate(List<Statement> templateStatements, List<Statement> existingStatements) {
 		var ret = new ArrayList<>(templateStatements);
 		ret.addAll(Arrays
 			.asList(existingStatements.stream().map(x -> x.withPrefix(Space.format("\n"))).toArray(Statement[]::new)));
