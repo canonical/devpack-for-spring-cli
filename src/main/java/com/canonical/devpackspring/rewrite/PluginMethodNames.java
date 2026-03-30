@@ -16,7 +16,10 @@
 
 package com.canonical.devpackspring.rewrite;
 
-public abstract class PluginMethodNames {
+public final class PluginMethodNames {
+
+	private PluginMethodNames() {
+	}
 
 	public static final String METHOD_ID = "id";
 
