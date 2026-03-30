@@ -30,6 +30,7 @@ import org.openrewrite.java.tree.J;
 
 public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 
+	public static final String IN_PLUGIN_BLOCK = "in_plugin_block";
 	@Option(displayName = "Plugin", description = "Plugin ID", example = "io.kotest")
 	String plugin;
 
@@ -56,9 +57,9 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 			public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method,
 					ExecutionContext executionContext) {
 				if (PluginMethodNames.METHOD_PLUGINS.equals(method.getSimpleName())) {
-					getCursor().getRoot().putMessage("in_plugin_block", true);
+					getCursor().getRoot().putMessage(IN_PLUGIN_BLOCK, true);
 				}
-				if (Boolean.TRUE.equals(getCursor().getRoot().getMessage("in_plugin_block"))) {
+				if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(IN_PLUGIN_BLOCK))) {
 					if (PluginMethodNames.METHOD_ID.equals(method.getSimpleName())) {
 						Expression expr = method.getArguments().getFirst();
 						String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
@@ -70,7 +71,7 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 				}
 				var ret = super.visitMethodInvocation(method, executionContext);
 				if (PluginMethodNames.METHOD_PLUGINS.equals(method.getSimpleName())) {
-					getCursor().getRoot().pollMessage("in_plugin_block");
+					getCursor().getRoot().pollMessage(IN_PLUGIN_BLOCK);
 				}
 				return ret;
 			}
