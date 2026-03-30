@@ -16,7 +16,7 @@
 
 package com.canonical.devpackspring.rewrite.visitors;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
@@ -56,9 +56,10 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		// Use dummy file name to force the use of kotlin parser
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
 				: String.format(builtInTemplateKotlin, pluginName);
+		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
-			.parseInputs(List.of(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"), pluginDefinition)),
-					Paths.get("/tmp"), context)
+			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), pluginDefinition)),
+					tempDir, context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Kotlin"));
 		if (templateSource instanceof ParseError error) {
