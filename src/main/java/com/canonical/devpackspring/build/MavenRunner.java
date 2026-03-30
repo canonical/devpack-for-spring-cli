@@ -24,7 +24,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
 import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
@@ -88,12 +87,8 @@ public abstract class MavenRunner {
 		if (groupAndArtifact.length < 2) {
 			throw new RuntimeException("Maven plugin descriptor should be <groupId>:<artifactId> but was " + desc.id());
 		}
-		InMemoryExecutionContext context = new InMemoryExecutionContext(new Consumer<Throwable>() {
-			@Override
-			public void accept(Throwable throwable) {
-				logger.error(throwable.getMessage(), throwable);
-			}
-		});
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
 		Recipe recipe = new AddPlugin(groupAndArtifact[0], groupAndArtifact[1], desc.version(),
 				desc.configuration().mavenSnippet().configuration(), desc.configuration().mavenSnippet().dependencies(),
 				desc.configuration().mavenSnippet().executions(), null);
