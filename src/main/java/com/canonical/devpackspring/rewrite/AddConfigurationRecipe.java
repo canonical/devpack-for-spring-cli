@@ -17,6 +17,7 @@
 package com.canonical.devpackspring.rewrite;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,7 +55,7 @@ public class AddConfigurationRecipe extends Recipe {
 
 	@Override
 	public String getDescription() {
-		return "Adds or replaces top level entities in the target from a configuration block.";
+		return "Adds statements from the configuration settings.";
 	}
 
 	@Override
@@ -70,9 +71,10 @@ public class AddConfigurationRecipe extends Recipe {
 						List<Statement> buildStatements = getKStatements(c);
 
 						List<Statement> newStatements = new ArrayList<>(buildStatements);
+						var lookup = buildStatementLookup(newStatements, c);
 						boolean anyChanged = false;
 						for (Statement configStmt : configStatements) {
-							if (addStatement(newStatements, configStmt, c, configCu)) {
+							if (addStatement(lookup, newStatements, configStmt, configCu)) {
 								anyChanged = true;
 							}
 						}
@@ -104,9 +106,10 @@ public class AddConfigurationRecipe extends Recipe {
 					G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
 					if (configuration instanceof G.CompilationUnit configCu) {
 						List<Statement> newStatements = new ArrayList<>(c.getStatements());
+						var lookup = buildStatementLookup(newStatements, c);
 						boolean anyChanged = false;
 						for (Statement configStmt : configCu.getStatements()) {
-							if (addStatement(newStatements, configStmt, c, configCu)) {
+							if (addStatement(lookup, newStatements, configStmt, c)) {
 								anyChanged = true;
 							}
 						}
@@ -118,20 +121,24 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 	}
 
-	private boolean addStatement(List<Statement> targetStatements, Statement configStmt, SourceFile targetCu,
+	private HashSet<String> buildStatementLookup(List<Statement> targetStatements, SourceFile targetCu) {
+		HashSet<String> lookup = new HashSet<>();
+		for (Statement stm : targetStatements) {
+			org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, targetCu),
+					stm);
+			String targetText = stm.printTrimmed(targetCursor).trim();
+			lookup.add(targetText);
+		}
+		return lookup;
+	}
+
+	private boolean addStatement(HashSet<String> lookup, List<Statement> targetStatements, Statement configStmt,
 			SourceFile configCu) {
 		org.openrewrite.Cursor configCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, configCu),
 				configStmt);
 		String configText = configStmt.printTrimmed(configCursor).trim();
-
-		for (int i = 0; i < targetStatements.size(); i++) {
-			Statement targetStmt = targetStatements.get(i);
-			org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, targetCu),
-					targetStmt);
-			String targetText = targetStmt.printTrimmed(targetCursor).trim();
-			if (targetText.equals(configText)) {
-				return false;
-			}
+		if (lookup.contains(configText)) {
+			return false;
 		}
 		targetStatements.add(configStmt.withPrefix(Space.format("\n")));
 		return true;

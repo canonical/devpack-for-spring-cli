@@ -33,7 +33,7 @@ public class PluginDescriptorContainer {
 
 	private static final Log LOG = LogFactory.getLog(PluginDescriptorContainer.class);
 
-	private final Map<String, PluginDescriptor> pluginMap = new HashMap<>();
+	private final Map<PluginKey, PluginDescriptor> pluginMap = new HashMap<>();
 
 	public PluginDescriptorContainer(Reader source) {
 		Yaml yaml = new Yaml();
@@ -111,20 +111,12 @@ public class PluginDescriptorContainer {
 			.toArray(PluginResource[]::new);
 	}
 
-	private static @NonNull String getKey(String key, BuildSystem buildSystem) {
-		return key + "-" + buildSystem;
-	}
-
-	private static @NonNull String toName(String key, BuildSystem buildSystem) {
-		return key.substring(0, key.indexOf('-'));
+	private static @NonNull PluginKey getKey(String key, BuildSystem buildSystem) {
+		return new PluginKey(key, buildSystem);
 	}
 
 	public List<String> plugins(BuildSystem buildSystem) {
-		return pluginMap.keySet()
-			.stream()
-			.filter(x -> x.contains(buildSystem.name()))
-			.map(x -> toName(x, buildSystem))
-			.toList();
+		return pluginMap.keySet().stream().filter(x -> x.buildSystem() == buildSystem).map(PluginKey::name).toList();
 	}
 
 	public PluginDescriptor get(String name, BuildSystem buildSystem) {

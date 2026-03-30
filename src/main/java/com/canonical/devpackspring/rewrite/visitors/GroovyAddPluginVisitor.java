@@ -16,6 +16,7 @@
 
 package com.canonical.devpackspring.rewrite.visitors;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -49,8 +50,9 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
 				: String.format(builtInTemplateGroovy, pluginName);
+		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
-			.parseInputs(List.of(Parser.Input.fromString(Paths.get("/tmp/build.gradle"), pluginDefinition)),
+			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)),
 					Paths.get("/tmp"), context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
@@ -66,7 +68,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			ExecutionContext executionContext) {
-		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override
@@ -79,7 +81,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		if (!tree.getSourcePath().toString().endsWith("build.gradle")) {
 			return tree;
 		}
-		List<Statement> statements = StatementUtil.append(((G.CompilationUnit) templateSource).getStatements(),
+		List<Statement> statements = StatementUtil.prependTemplate(((G.CompilationUnit) templateSource).getStatements(),
 				tree.getStatements());
 		return tree.withStatements(statements);
 	}

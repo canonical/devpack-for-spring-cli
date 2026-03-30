@@ -16,7 +16,7 @@
 
 package com.canonical.devpackspring.rewrite.visitors;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
@@ -56,9 +56,10 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		// Use dummy file name to force the use of kotlin parser
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
 				: String.format(builtInTemplateKotlin, pluginName);
+		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
-			.parseInputs(List.of(Parser.Input.fromString(Paths.get("/tmp/build.gradle.kts"), pluginDefinition)),
-					Paths.get("/tmp"), context)
+			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), pluginDefinition)),
+					tempDir, context)
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Kotlin"));
 		if (templateSource instanceof ParseError error) {
@@ -76,7 +77,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			ExecutionContext executionContext) {
-		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		if (!tree.getSourcePath().toString().endsWith("build.gradle.kts")) {
 			return tree;
 		}
-		List<Statement> statements = StatementUtil.append(((K.CompilationUnit) templateSource).getStatements(),
+		List<Statement> statements = StatementUtil.prependTemplate(((K.CompilationUnit) templateSource).getStatements(),
 				tree.getStatements());
 		return tree.withStatements(statements);
 	}

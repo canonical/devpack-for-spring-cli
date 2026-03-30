@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -157,8 +156,8 @@ public class BuildCommands {
 		}
 
 		List<String> actualArguments = desc.tasks().commands((command != null) ? command : desc.defaultTask());
-		if (actualArguments == null || actualArguments.isEmpty() && command != null) {
-			actualArguments = Arrays.asList(command.split(" "));
+		if ((actualArguments == null || actualArguments.isEmpty())) {
+			throw new RuntimeException("Task alias " + command + " is not found, or has no commands.");
 		}
 
 		if (!runner.run(buildSystem, desc, actualArguments, terminalMessage)) {

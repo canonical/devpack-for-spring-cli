@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.canonical.devpackspring.ProcessUtil;
 import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
@@ -96,7 +97,8 @@ public abstract class MavenRunner {
 
 		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
 		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
-		if (run.getDataTable(org.openrewrite.table.SearchResults.class.getName()) != null) {
+		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class.getName());
+		if (!dataTableRows.isEmpty()) {
 			throw new PluginAlreadyConfiguredException("Plugin " + desc.id() + " is already configured.");
 		}
 
@@ -104,6 +106,9 @@ public abstract class MavenRunner {
 	}
 
 	private static List<SourceFile> parseMaven(Path baseDir, InMemoryExecutionContext context) {
+		if (baseDir == null || !Files.exists(baseDir) || !Files.isDirectory(baseDir)) {
+			throw new RuntimeException("Invalid project directory " + baseDir);
+		}
 		Parser p = MavenParser.builder().build();
 		List<Path> files = Arrays.stream(baseDir.toFile().listFiles(file -> "pom.xml".equals(file.getName())))
 			.map(File::toPath)
@@ -115,11 +120,14 @@ public abstract class MavenRunner {
 	private static boolean validWrapper(Path dir) throws IOException {
 		Process p = new ProcessBuilder().command("./mvnw", "-version").directory(dir.toFile()).start();
 		try {
-			int ret = p.waitFor();
-			return ret == 0;
+			p.waitFor(10, TimeUnit.SECONDS);
+			return p.exitValue() == 0;
 		}
 		catch (InterruptedException ex) {
 			return false;
+		}
+		finally {
+			p.destroy();
 		}
 	}
 
