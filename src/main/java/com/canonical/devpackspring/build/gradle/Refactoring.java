@@ -18,7 +18,6 @@ package com.canonical.devpackspring.build.gradle;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,9 +57,10 @@ public final class Refactoring {
 		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
 
 		if (configuration != null) {
-			Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
+			var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
+			Path dummyPath = tempDir.resolve(kotlin ? "build.gradle.kts" : "build.gradle");
 			SourceFile configSourceFile = parser
-				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"),
+				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), tempDir,
 						new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
