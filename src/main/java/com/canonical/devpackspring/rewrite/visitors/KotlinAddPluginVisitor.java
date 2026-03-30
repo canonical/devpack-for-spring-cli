@@ -76,7 +76,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			ExecutionContext executionContext) {
-		return visitor.vistMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override

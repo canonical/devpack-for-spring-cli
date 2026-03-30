@@ -48,8 +48,8 @@ public class AddPluginVisitor {
 		this.call = call;
 	}
 
-	public J.MethodInvocation vistMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor,
-			BiFunction<J.MethodInvocation, ExecutionContext, J.MethodInvocation> parent) {
+	public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext context, Cursor cursor,
+	                                                BiFunction<J.MethodInvocation, ExecutionContext, J.MethodInvocation> parent) {
 		J.MethodInvocation newCall = null;
 		switch (method.getSimpleName()) {
 			case PluginMethodNames.METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
