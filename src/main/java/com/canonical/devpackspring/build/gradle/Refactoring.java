@@ -49,16 +49,15 @@ public final class Refactoring {
 	public static void configurePlugin(Path buildFile, String id, String version, String configuration)
 			throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
+		Parser parser = GradleParser.builder()
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
 
 		ArrayList<Recipe> recipes = new ArrayList<>();
 		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
 
 		if (configuration != null) {
-			Parser parser = GradleParser.builder()
-				.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-				.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-				.build();
-
 			Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
 			SourceFile configSourceFile = parser
 				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"),
@@ -69,11 +68,6 @@ public final class Refactoring {
 		}
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
 				throwable -> logger.debug(throwable.getMessage(), throwable));
-
-		Parser parser = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-			.build();
 
 		List<SourceFile> sourceFiles = parser.parse(List.of(buildFile), buildFile.getParent(), context).toList();
 
