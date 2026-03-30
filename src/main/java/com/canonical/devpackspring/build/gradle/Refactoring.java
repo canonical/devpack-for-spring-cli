@@ -19,18 +19,22 @@ package com.canonical.devpackspring.build.gradle;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.AddConfigurationRecipe;
 import com.canonical.devpackspring.rewrite.AddGradlePluginRecipe;
+import com.canonical.devpackspring.rewrite.FindGradlePluginRecipe;
+import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
+import org.openrewrite.config.CompositeRecipe;
 import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyParser;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.kotlin.KotlinParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,45 +46,38 @@ public final class Refactoring {
 	private Refactoring() {
 	}
 
-	public static void appendPlugin(Path buildFile, String id, String version, boolean kotlin) throws IOException {
-		Recipe recipe = new AddGradlePluginRecipe(id, version, kotlin);
-		applyRecipe(buildFile, recipe);
-	}
-
-	public static void appendConfiguration(Path buildFile, String configuration) throws IOException {
-		if (configuration == null) {
-			return;
-		}
+	public static void configurePlugin(Path buildFile, String id, String version, String configuration)
+			throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
-		InMemoryExecutionContext context = new InMemoryExecutionContext(
-				throwable -> logger.debug(throwable.getMessage(), throwable));
-
 		Parser parser = GradleParser.builder()
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
 			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
 			.build();
 
-		Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
-		SourceFile configSourceFile = parser
-			.parseInputs(Arrays.asList(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"), context)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+		ArrayList<Recipe> recipes = new ArrayList<>();
+		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
 
-		Recipe recipe = new AddConfigurationRecipe(configSourceFile, kotlin);
-		applyRecipe(buildFile, recipe);
-	}
-
-	private static void applyRecipe(Path buildFile, Recipe recipe) throws IOException {
+		if (configuration != null) {
+			Path dummyPath = Paths.get(kotlin ? "/tmp/build.gradle.kts" : "/tmp/build.gradle");
+			SourceFile configSourceFile = parser
+				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), Paths.get("/tmp"),
+						new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+			recipes.add(new AddConfigurationRecipe(configSourceFile, kotlin));
+		}
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
 				throwable -> logger.debug(throwable.getMessage(), throwable));
-
-		Parser parser = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
-			.build();
 
 		List<SourceFile> sourceFiles = parser.parse(List.of(buildFile), buildFile.getParent(), context).toList();
-		RecipeUtil.applyRecipe(buildFile.getParent(), recipe, sourceFiles, context);
+
+		FindGradlePluginRecipe check = new FindGradlePluginRecipe(id);
+		check.run(new InMemoryLargeSourceSet(sourceFiles), context);
+		if (check.isFound()) {
+			throw new PluginAlreadyConfiguredException("Plugin " + id + " is already configured.");
+		}
+
+		RecipeUtil.applyRecipe(buildFile.getParent(), new CompositeRecipe(recipes), sourceFiles, context);
 	}
 
 }

@@ -27,6 +27,7 @@ import org.springframework.cli.support.IntegrationTestSupport;
 import org.springframework.cli.support.MockConfigurations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RefactoringTests {
 
@@ -39,10 +40,10 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.appendPlugin(buildFile, "foo", "bar", true);
+			Refactoring.configurePlugin(buildFile, "foo", "bar", null);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			Files.writeString(buildFile, "foobar");
-			Refactoring.appendPlugin(buildFile, "foo", "bar", true);
+			Refactoring.configurePlugin(buildFile, "foo", "bar", null);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 		});
 	}
@@ -53,12 +54,25 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.appendPlugin(buildFile, "foo", "${bar}", true);
+			Refactoring.configurePlugin(buildFile, "foo", "${bar}", null);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
-			Refactoring.appendPlugin(buildFile, "otherfoo", "bar", true);
+			Refactoring.configurePlugin(buildFile, "otherfoo", "bar", null);
 			assertThat(buildFile).content()
 				.contains("id(\"foo\") version \"${bar}\"", "id(\"otherfoo\") version \"bar\"");
 		});
+	}
+
+	@Test
+	public void testRefactoringDoesNotChangeExistingPlugin(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			Path buildFile = workingDir.resolve("build.gradle.kts");
+			assertThatThrownBy(() -> Refactoring.configurePlugin(buildFile, "org.springframework.boot", "${bar}", null))
+				.hasMessageContaining("Plugin org.springframework.boot is already configured.");
+
+		});
+
 	}
 
 }

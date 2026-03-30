@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import com.canonical.devpackspring.rewrite.PluginMethodNames;
 import org.jspecify.annotations.Nullable;
 import org.openrewrite.Cursor;
 import org.openrewrite.ExecutionContext;
@@ -38,12 +39,6 @@ public class AddPluginVisitor {
 
 	private static final String METHOD_NAME = "method_name";
 
-	private static final String METHOD_ID = "id";
-
-	private static final String METHOD_VERSION = "version";
-
-	private static final String METHOD_PLUGINS = "plugins";
-
 	public J.MethodInvocation call;
 
 	private final String pluginName;
@@ -57,8 +52,8 @@ public class AddPluginVisitor {
 			BiFunction<J.MethodInvocation, ExecutionContext, J.MethodInvocation> parent) {
 		J.MethodInvocation newCall = null;
 		switch (method.getSimpleName()) {
-			case METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
-			case METHOD_ID -> {
+			case PluginMethodNames.METHOD_PLUGINS -> cursor.getRoot().putMessage(HAS_PLUGIN_BLOCK, true);
+			case PluginMethodNames.METHOD_ID -> {
 				Expression expr = method.getArguments().getFirst();
 				String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
 						? literal.getValue().toString() : expr.toString();
@@ -70,7 +65,7 @@ public class AddPluginVisitor {
 					newCall = createMethodInvocation(method, cursor);
 				}
 			}
-			case METHOD_VERSION -> cursor.getRoot().putMessage(METHOD_NAME, UNKNOWN);
+			case PluginMethodNames.METHOD_VERSION -> cursor.getRoot().putMessage(METHOD_NAME, UNKNOWN);
 		}
 
 		var visitResult = parent.apply(method, context);
@@ -79,7 +74,7 @@ public class AddPluginVisitor {
 		}
 
 		switch (method.getSimpleName()) {
-			case METHOD_VERSION -> {
+			case PluginMethodNames.METHOD_VERSION -> {
 				var storedName = cursor.getRoot().pollMessage(METHOD_NAME);
 				if (this.pluginName.equals(storedName)) {
 					newCall = createMethodInvocation(method, cursor);
@@ -88,7 +83,7 @@ public class AddPluginVisitor {
 					}
 				}
 			}
-			case METHOD_PLUGINS -> {
+			case PluginMethodNames.METHOD_PLUGINS -> {
 				if (!Boolean.TRUE.equals(cursor.getRoot().getMessage(PLUGIN_ADDED))
 						&& method.getArguments().getFirst() instanceof J.Lambda lambda
 						&& lambda.getBody() instanceof J.Block block) {

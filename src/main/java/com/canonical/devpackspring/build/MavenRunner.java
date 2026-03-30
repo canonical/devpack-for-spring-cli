@@ -24,16 +24,19 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.canonical.devpackspring.ProcessUtil;
+import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.AddPlugin;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.search.FindPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,16 +87,19 @@ public abstract class MavenRunner {
 		if (groupAndArtifact.length < 2) {
 			throw new RuntimeException("Maven plugin descriptor should be <groupId>:<artifactId> but was " + desc.id());
 		}
-		InMemoryExecutionContext context = new InMemoryExecutionContext(new Consumer<Throwable>() {
-			@Override
-			public void accept(Throwable throwable) {
-				logger.error(throwable.getMessage(), throwable);
-			}
-		});
+		InMemoryExecutionContext context = new InMemoryExecutionContext(
+				throwable -> logger.error(throwable.getMessage(), throwable));
 		Recipe recipe = new AddPlugin(groupAndArtifact[0], groupAndArtifact[1], desc.version(),
 				desc.configuration().mavenSnippet().configuration(), desc.configuration().mavenSnippet().dependencies(),
 				desc.configuration().mavenSnippet().executions(), null);
 		var files = parseMaven(targetProject, context);
+
+		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
+		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
+		if (run.getDataTable(org.openrewrite.table.SearchResults.class.getName()) != null) {
+			throw new PluginAlreadyConfiguredException("Plugin " + desc.id() + " is already configured.");
+		}
+
 		RecipeUtil.applyRecipe(targetProject, recipe, files, context);
 	}
 
