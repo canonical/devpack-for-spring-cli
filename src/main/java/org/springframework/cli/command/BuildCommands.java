@@ -97,11 +97,15 @@ public class BuildCommands {
 		PluginDescriptor desc = null;
 		if (plugin != null) {
 			desc = container.get(plugin, buildSystem);
+			if (desc == null) {
+				throw new IllegalArgumentException(
+						"Unknown plugin " + plugin + " for build system " + buildSystem + "\n");
+			}
 		}
 
-		boolean needCommandSelect = (desc == null);
-		if (desc != null && command != null) {
-			needCommandSelect = !desc.tasks().aliases().contains(command);
+		if (command != null && !desc.tasks().aliases().contains(command)) {
+			throw new IllegalArgumentException(
+					command + " is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
 		}
 
 		if (desc == null) {
@@ -113,7 +117,7 @@ public class BuildCommands {
 				throw new IllegalArgumentException("No plugins defined for " + buildSystem + ".\n");
 			}
 
-			// @formatter: off
+			// @formatter:off
 			ComponentFlow wizard = componentFlowBuilder.clone()
 				.reset()
 				.withSingleItemSelector(PLUGIN_PARAMETER_ID)
@@ -127,37 +131,36 @@ public class BuildCommands {
 				.build();
 			plugin = wizard.run().getContext().get(PLUGIN_PARAMETER_ID);
 			desc = container.get(plugin, buildSystem);
-		}
+			if (desc == null) {
+				throw new IllegalArgumentException("No plugin defined for " + buildSystem + " named " + plugin + "\n");
+			}
 
-		if (desc == null) {
-			throw new IllegalArgumentException("No plugin defined for " + buildSystem + " named " + plugin + "\n");
-		}
-
-		if (needCommandSelect) {
 			List<SelectItem> tasks = desc.tasks()
-				.aliases()
-				.stream()
-				.map(x -> (SelectItem) new DefaultSelectItem(x, x, true, false))
-				.toList();
+					.aliases()
+					.stream()
+					.map(x -> (SelectItem) new DefaultSelectItem(x, x, true, false))
+					.toList();
 
-			// @formatter: off
-			ComponentFlow wizard = componentFlowBuilder.clone()
-				.reset()
-				.withSingleItemSelector(TASK_PARAMETER_ID)
-				.name(TASK_NAME)
-				.resultValue(command)
-				.resultMode(ResultMode.ACCEPT)
-				.selectItems(tasks)
-				.defaultSelect(desc.defaultTask())
-				.sort(Comparator.comparing(Nameable::getName))
-				.and()
-				.build();
+			// @formatter:off
+			wizard = componentFlowBuilder.clone()
+					.reset()
+					.withSingleItemSelector(TASK_PARAMETER_ID)
+					.name(TASK_NAME)
+					.resultValue(command)
+					.resultMode(ResultMode.ACCEPT)
+					.selectItems(tasks)
+					.defaultSelect(desc.defaultTask())
+					.sort(Comparator.comparing(Nameable::getName))
+					.and()
+					.build();
 			command = wizard.run().getContext().get(TASK_PARAMETER_ID);
+
 		}
 
-		List<String> actualArguments = desc.tasks().commands((command != null) ? command : desc.defaultTask());
+		var alias = (command != null) ? command : desc.defaultTask();
+		List<String> actualArguments = desc.tasks().commands(alias);
 		if ((actualArguments == null || actualArguments.isEmpty())) {
-			throw new RuntimeException("Task alias " + command + " is not found, or has no commands.");
+			throw new RuntimeException("Task alias " + alias + " is not found, or has no commands.");
 		}
 
 		if (!runner.run(buildSystem, desc, actualArguments, terminalMessage)) {
