@@ -37,7 +37,7 @@ public abstract class GradleRunner {
 
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
-		appendPlugin(baseDir, projectAdapter.getProjectPath(), desc);
+		appendPlugin(message, baseDir, projectAdapter.getProjectPath(), desc);
 
 		if (taskArgs == null || taskArgs.isEmpty()) {
 			taskArgs = desc.tasks().commands(desc.defaultTask());
@@ -72,14 +72,13 @@ public abstract class GradleRunner {
 		}
 	}
 
-	private static void appendPlugin(Path sourceProject, Path targetProject, PluginDescriptor desc) throws IOException {
+	private static void appendPlugin(TerminalMessage message, Path sourceProject, Path targetProject,
+			PluginDescriptor desc) throws IOException {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {
 				var buildFile = targetProject.resolve(file);
 				Files.copy(sourceProject.resolve(file), buildFile, StandardCopyOption.REPLACE_EXISTING);
-				boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
-				Refactoring.configurePlugin(buildFile, desc.id(), desc.version(),
-						kotlin ? desc.getGradleKotlinSnippet() : desc.getGradleGroovySnippet());
+				Refactoring.configurePlugin(message, desc, buildFile);
 				return;
 			}
 		}

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.canonical.devpackspring.ProcessUtil;
-import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -56,7 +55,7 @@ public abstract class MavenRunner {
 			command = "./mvnw";
 		}
 
-		appendPlugin(baseDir, projectAdapter.getProjectPath(), plugin);
+		appendPlugin(message, baseDir, projectAdapter.getProjectPath(), plugin);
 
 		if (goalArgs == null || goalArgs.isEmpty()) {
 			goalArgs = plugin.tasks().commands(plugin.defaultTask());
@@ -76,7 +75,8 @@ public abstract class MavenRunner {
 		return ProcessUtil.runProcess(message, pb) == 0;
 	}
 
-	private static void appendPlugin(Path sourceProject, Path targetProject, PluginDescriptor desc) throws IOException {
+	private static void appendPlugin(TerminalMessage message, Path sourceProject, Path targetProject,
+			PluginDescriptor desc) throws IOException {
 		var source = sourceProject.resolve("pom.xml");
 		if (!Files.exists(source)) {
 			return;
@@ -99,7 +99,8 @@ public abstract class MavenRunner {
 		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
 		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class.getName());
 		if (!dataTableRows.isEmpty()) {
-			throw new PluginAlreadyConfiguredException("Plugin " + desc.id() + " is already configured.");
+			RecipeUtil.pluginAlreadyConfigured(message, desc);
+			return;
 		}
 
 		RecipeUtil.applyRecipe(targetProject, recipe, files, context);
