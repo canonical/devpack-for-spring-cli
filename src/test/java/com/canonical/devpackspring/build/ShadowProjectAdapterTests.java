@@ -31,6 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.IntegrationTestSupport;
 import org.springframework.cli.support.MockConfigurations;
+import org.springframework.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,44 +73,6 @@ public class ShadowProjectAdapterTests {
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 	}
 
-	private static void moveRecursive(Path source, Path target) throws IOException {
-		Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-				// Relativize the path to create the same subfolder structure in the
-				// target
-				Path targetDir = target.resolve(source.relativize(dir));
-				try {
-					Files.createDirectories(targetDir);
-				}
-				catch (FileAlreadyExistsException ex) {
-					// Ignore if the directory already exists
-				}
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				// Move file to the corresponding location in target
-				Path targetFile = target.resolve(source.relativize(file));
-				Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				// Remove the source directory after its contents are moved
-				if (exc == null) {
-					Files.delete(dir);
-					return FileVisitResult.CONTINUE;
-				}
-				else {
-					throw exc;
-				}
-			}
-		});
-	}
-
 	@Test
 	void testMoveProject(final @TempDir Path workingDir, final @TempDir Path otherDir) throws IOException {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
@@ -128,9 +91,11 @@ public class ShadowProjectAdapterTests {
 		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 
+		// keep the same basename for the project
 		Path movedWorkingDir = otherDir.resolve(workingDir.getFileName());
 		Files.createDirectories(movedWorkingDir);
-		moveRecursive(workingDir, movedWorkingDir);
+		FileSystemUtils.copyRecursively(workingDir, movedWorkingDir);
+		FileSystemUtils.deleteRecursively(workingDir);
 
 		// ShadowProjectAdapter should correctly handle the move
 		// validate that nothing changes
