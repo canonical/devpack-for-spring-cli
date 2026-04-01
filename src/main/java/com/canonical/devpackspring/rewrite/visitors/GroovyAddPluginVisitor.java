@@ -45,7 +45,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	public GroovyAddPluginVisitor(String pluginName, String pluginVersion) {
 		Parser.Builder builder = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true));
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)

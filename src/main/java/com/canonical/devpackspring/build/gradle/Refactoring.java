@@ -55,8 +55,8 @@ public final class Refactoring {
 		String id = descriptor.id();
 		String version = descriptor.version();
 		Parser parser = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(false))
 			.build();
 
 		ArrayList<Recipe> recipes = new ArrayList<>();
