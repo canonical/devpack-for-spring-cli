@@ -38,20 +38,16 @@ public class ShadowProjectAdapterTests {
 		ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
 		// The project's content should be symlinked and provide subdirectories with files
-		assertThat(clonedPath).exists();
-		assertThat(clonedPath.resolve("gradle")).exists();
-		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
-		// root files should be present
-		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
-		// settings is a symbolic link
-		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is not copied
-		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
+		checkProjectFiles(clonedPath);
 
 		// ShadowProjectAdapter deletes all extra content before redoing the symlink
 		// validate that nothing changes
 		adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
+		checkProjectFiles(clonedPath);
+	}
+
+	private static void checkProjectFiles(Path clonedPath) {
 		assertThat(clonedPath).exists();
 		assertThat(clonedPath.resolve("gradle")).exists();
 		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
@@ -71,15 +67,7 @@ public class ShadowProjectAdapterTests {
 		ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
 		// The project's content should be symlinked and provide subdirectories with files
-		assertThat(clonedPath).exists();
-		assertThat(clonedPath.resolve("gradle")).exists();
-		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
-		// root files should be present
-		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
-		// settings is a symbolic link
-		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is not copied
-		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
+		checkProjectFiles(clonedPath);
 
 		// keep the same basename for the project
 		Path movedWorkingDir = otherDir.resolve(workingDir.getFileName());
@@ -91,15 +79,7 @@ public class ShadowProjectAdapterTests {
 		// validate that nothing changes
 		adapter = new ShadowProjectAdapter(movedWorkingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
-		assertThat(clonedPath).exists();
-		assertThat(clonedPath.resolve("gradle")).exists();
-		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
-		// root files should be present
-		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
-		// settings is a symbolic link
-		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is not copied
-		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
+		checkProjectFiles(clonedPath);
 	}
 
 	@Test
