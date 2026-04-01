@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import org.springframework.util.FileSystemUtils;
 
@@ -49,25 +48,33 @@ public class ShadowProjectAdapter {
 		if (files == null) {
 			return;
 		}
+		var toDelete = projectPath.toFile().listFiles();
+		if (toDelete != null) {
+			for (File x : toDelete) {
+				if (Files.isSymbolicLink(x.toPath())) { // delete top level symbolic links
+					Files.deleteIfExists(x.toPath());
+				}
+				else {
+					FileSystemUtils.deleteRecursively(x); // recursively delete newly
+															// created files
+				}
+			}
+		}
+
 		for (File f : files) {
 			switch (f.getName()) {
 				case "build.gradle.kts", "build.gradle", "pom.xml", ".gradle", ".devpack-for-spring" -> {
 				}
 				default -> {
 					try {
+						// recreate symbolic links (if the project was moved)
 						Files.createSymbolicLink(projectPath.resolve(f.getName()), f.toPath());
 					}
 					catch (FileAlreadyExistsException ex) {
-						// ignore the already created top-level symlinks
+						throw new RuntimeException("Unable to create symlink " + ex.getMessage(), ex);
 					}
 				}
 			}
-		}
-		var toDelete = projectPath.toFile().listFiles();
-		if (toDelete != null) {
-			Arrays.stream(toDelete)
-				.filter(x -> !Files.isSymbolicLink(x.toPath()))
-				.forEach(FileSystemUtils::deleteRecursively);
 		}
 
 		for (PluginResource res : resources) {
