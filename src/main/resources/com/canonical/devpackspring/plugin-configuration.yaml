@@ -579,8 +579,8 @@ checkstyleGoogle:
         }
     tasks:
       checkstyle:
-        - checkStyleMain
-        - checkStyleTest
+        - checkstyleMain
+        - checkstyleTest
       checkstyleMain:
         - checkstyleMain
       checkstyleTest:
