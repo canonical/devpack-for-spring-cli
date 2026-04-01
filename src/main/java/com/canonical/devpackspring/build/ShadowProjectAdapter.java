@@ -49,6 +49,19 @@ public class ShadowProjectAdapter {
 		if (files == null) {
 			return;
 		}
+		var toDelete = projectPath.toFile().listFiles();
+		if (toDelete != null) {
+			Arrays.stream(toDelete).forEach(x -> {
+				if (Files.isSymbolicLink(x.toPath())) { // delete top level symbolic links
+					x.delete();
+				}
+				else {
+					FileSystemUtils.deleteRecursively(x); // recursively delete newly created files
+				}
+
+			});
+		}
+
 		for (File f : files) {
 			switch (f.getName()) {
 				case "build.gradle.kts", "build.gradle", "pom.xml", ".gradle", ".devpack-for-spring" -> {
@@ -56,8 +69,6 @@ public class ShadowProjectAdapter {
 				default -> {
 					try {
 						// recreate symbolic links (if the project was moved)
-						var where = projectPath.resolve(f.getName());
-						Files.deleteIfExists(where);
 						Files.createSymbolicLink(projectPath.resolve(f.getName()), f.toPath());
 					}
 					catch (FileAlreadyExistsException ex) {
@@ -65,12 +76,6 @@ public class ShadowProjectAdapter {
 					}
 				}
 			}
-		}
-		var toDelete = projectPath.toFile().listFiles();
-		if (toDelete != null) {
-			Arrays.stream(toDelete)
-				.filter(x -> !Files.isSymbolicLink(x.toPath()))
-				.forEach(FileSystemUtils::deleteRecursively);
 		}
 
 		for (PluginResource res : resources) {
