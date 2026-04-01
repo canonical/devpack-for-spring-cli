@@ -46,7 +46,7 @@ public class ShadowProjectAdapterTests {
 		Path clonedPath;
 		ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
-		// The project should be symlinked and provide subdirectories with files
+		// The project's content should be symlinked and provide subdirectories with files
 		assertThat(clonedPath).exists();
 		assertThat(clonedPath.resolve("gradle")).exists();
 		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
@@ -54,7 +54,7 @@ public class ShadowProjectAdapterTests {
 		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
 		// settings is a symbolic link
 		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is a regular file
+		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 
 		// ShadowProjectAdapter deletes all extra content before redoing the symlink
@@ -68,7 +68,7 @@ public class ShadowProjectAdapterTests {
 		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
 		// settings is a symbolic link
 		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is a regular file
+		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 	}
 
@@ -117,7 +117,7 @@ public class ShadowProjectAdapterTests {
 		Path clonedPath;
 		ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
-		// The project should be symlinked and provide subdirectories with files
+		// The project's content should be symlinked and provide subdirectories with files
 		assertThat(clonedPath).exists();
 		assertThat(clonedPath.resolve("gradle")).exists();
 		assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
@@ -125,7 +125,7 @@ public class ShadowProjectAdapterTests {
 		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
 		// settings is a symbolic link
 		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is a regular file
+		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 
 		moveRecursive(workingDir, otherDir);
@@ -141,7 +141,7 @@ public class ShadowProjectAdapterTests {
 		assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
 		// settings is a symbolic link
 		assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
-		// build is a regular file
+		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 	}
 
