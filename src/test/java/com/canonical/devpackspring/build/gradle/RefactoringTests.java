@@ -17,6 +17,7 @@
 package com.canonical.devpackspring.build.gradle;
 
 import java.nio.file.Path;
+import java.util.Collections;
 
 import com.canonical.devpackspring.build.PluginConfiguration;
 import com.canonical.devpackspring.build.PluginDescriptor;
@@ -42,8 +43,8 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null, new PluginTasks(null),
-					new PluginConfiguration(null, null, null, null), null);
+			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
@@ -60,14 +61,14 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null, new PluginTasks(null),
-					new PluginConfiguration(null, null, null, null), null);
+			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), foo, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
 
-			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null, new PluginTasks(null),
-					new PluginConfiguration(null, null, null, null), null);
+			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), otherfoo, buildFile);
 			assertThat(buildFile).content()

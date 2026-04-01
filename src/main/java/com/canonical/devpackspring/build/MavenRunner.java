@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.canonical.devpackspring.ProcessUtil;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
@@ -46,8 +47,8 @@ public abstract class MavenRunner {
 
 	private static final Logger logger = LoggerFactory.getLogger(MavenRunner.class);
 
-	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs, TerminalMessage message)
-			throws IOException {
+	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
+			@NonNull TerminalMessage message) throws IOException {
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, plugin.resources());
 
 		String command = "mvn";
@@ -75,7 +76,7 @@ public abstract class MavenRunner {
 		return ProcessUtil.runProcess(message, pb) == 0;
 	}
 
-	private static void appendPlugin(TerminalMessage message, Path sourceProject, Path targetProject,
+	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
 			PluginDescriptor desc) throws IOException {
 		var source = sourceProject.resolve("pom.xml");
 		if (!Files.exists(source)) {

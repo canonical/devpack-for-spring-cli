@@ -27,13 +27,14 @@ import java.util.List;
 import com.canonical.devpackspring.build.gradle.GradleAdapter;
 import com.canonical.devpackspring.build.gradle.Refactoring;
 import org.jline.utils.AttributedStyle;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.cli.util.TerminalMessage;
 
 public abstract class GradleRunner {
 
-	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs, TerminalMessage message)
-			throws IOException {
+	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
+			@NonNull TerminalMessage message) throws IOException {
 
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
@@ -72,7 +73,7 @@ public abstract class GradleRunner {
 		}
 	}
 
-	private static void appendPlugin(TerminalMessage message, Path sourceProject, Path targetProject,
+	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
 			PluginDescriptor desc) throws IOException {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {

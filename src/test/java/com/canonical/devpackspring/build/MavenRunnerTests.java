@@ -17,6 +17,7 @@
 package com.canonical.devpackspring.build;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class MavenRunnerTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 
 		PluginDescriptor desc = new PluginDescriptor("org.springframework.boot:spring-boot-maven-plugin", null, null,
-				null, new PluginTasks(null),
+				null, new PluginTasks(Collections.emptyMap()),
 				new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null),
 				null);
 
