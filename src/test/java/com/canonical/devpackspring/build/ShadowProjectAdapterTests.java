@@ -40,9 +40,31 @@ public class ShadowProjectAdapterTests {
 			Path clonedPath;
 			ShadowProjectAdapter adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
 			clonedPath = adapter.getProjectPath();
+			// The project should be symlinked and provide subdirectories with files
+			assertThat(clonedPath).exists();
 			assertThat(clonedPath.resolve("gradle")).exists();
 			assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
+			// root files should be present
+			assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
+			// settings is a symbolic link
+			assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
+			// build is a regular file
+			assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
+
+			// ShadowProjectAdapter deletes all extra content before redoing the symlink
+			// validate that nothing changes
+			adapter = new ShadowProjectAdapter(workingDir, new PluginResource[0]);
+			clonedPath = adapter.getProjectPath();
 			assertThat(clonedPath).exists();
+			assertThat(clonedPath.resolve("gradle")).exists();
+			assertThat(clonedPath.resolve("gradle/wrapper/gradle-wrapper.properties")).exists();
+			// root files should be present
+			assertThat(clonedPath.resolve("settings.gradle.kts")).exists();
+			// settings is a symbolic link
+			assertThat(clonedPath.resolve("settings.gradle.kts")).isSymbolicLink();
+			// build is a regular file
+			assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
+
 		});
 
 	}
