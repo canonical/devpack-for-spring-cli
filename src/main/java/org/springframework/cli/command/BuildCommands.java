@@ -102,14 +102,6 @@ public class BuildCommands {
 						"Unknown plugin " + plugin + " for build system " + buildSystem + "\n");
 			}
 		}
-		else {
-			throw new IllegalArgumentException("Plugin name must be provided\n");
-		}
-
-		if (command != null && !desc.tasks().aliases().contains(command)) {
-			throw new IllegalArgumentException(
-					command + " is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
-		}
 
 		if (desc == null) {
 			List<SelectItem> items = container.plugins(buildSystem)
@@ -160,11 +152,17 @@ public class BuildCommands {
 
 		}
 
+		if (command != null && !desc.tasks().aliases().contains(command)) {
+			throw new IllegalArgumentException(
+					command + " is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
+		}
+
 		var alias = (command != null) ? command : desc.defaultTask();
-		List<String> actualArguments = desc.tasks().commands(alias);
-		if (alias == null && desc.defaultTask() == null) {
+		if (alias == null) {
 			throw new RuntimeException(plugin + ": No task specified and default task is not defined.");
 		}
+
+		List<String> actualArguments = desc.tasks().commands(alias);
 		if ((actualArguments == null || actualArguments.isEmpty())) {
 			throw new RuntimeException(plugin + ": Task " + alias + " is not found, or has no commands.");
 		}
