@@ -72,7 +72,7 @@ public class ShadowProjectAdapter {
 						Files.createSymbolicLink(projectPath.resolve(f.getName()), f.toPath());
 					}
 					catch (FileAlreadyExistsException ex) {
-						// ignore the already created top-level symlinks
+						throw new RuntimeException("Unable to create symlink " + ex.getMessage(), ex);
 					}
 				}
 			}
