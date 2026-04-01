@@ -51,15 +51,14 @@ public class ShadowProjectAdapter {
 		}
 		var toDelete = projectPath.toFile().listFiles();
 		if (toDelete != null) {
-			Arrays.stream(toDelete).forEach(x -> {
+			for (File x : toDelete) {
 				if (Files.isSymbolicLink(x.toPath())) { // delete top level symbolic links
-					x.delete();
+					Files.deleteIfExists(x.toPath());
 				}
 				else {
 					FileSystemUtils.deleteRecursively(x); // recursively delete newly created files
 				}
-
-			});
+			}
 		}
 
 		for (File f : files) {
