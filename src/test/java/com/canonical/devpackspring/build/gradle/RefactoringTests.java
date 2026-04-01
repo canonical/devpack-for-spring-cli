@@ -44,7 +44,7 @@ public class RefactoringTests {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null, new PluginTasks(null),
 					new PluginConfiguration(null, null, null, null), null);
-			Refactoring.configurePlugin(null, desc, buildFile);
+			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			Refactoring.configurePlugin(terminalMessage, desc, buildFile);
@@ -63,13 +63,13 @@ public class RefactoringTests {
 			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null, new PluginTasks(null),
 					new PluginConfiguration(null, null, null, null), null);
 
-			Refactoring.configurePlugin(null, foo, buildFile);
+			Refactoring.configurePlugin(new StubTerminalMessage(), foo, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
 
 			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null, new PluginTasks(null),
 					new PluginConfiguration(null, null, null, null), null);
 
-			Refactoring.configurePlugin(null, otherfoo, buildFile);
+			Refactoring.configurePlugin(new StubTerminalMessage(), otherfoo, buildFile);
 			assertThat(buildFile).content()
 				.contains("id(\"foo\") version \"${bar}\"", "id(\"otherfoo\") version \"bar\"");
 		});

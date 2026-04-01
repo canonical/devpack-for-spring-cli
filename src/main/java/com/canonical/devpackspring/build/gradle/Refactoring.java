@@ -26,6 +26,7 @@ import com.canonical.devpackspring.rewrite.AddConfigurationRecipe;
 import com.canonical.devpackspring.rewrite.AddGradlePluginRecipe;
 import com.canonical.devpackspring.rewrite.FindGradlePluginRecipe;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
@@ -47,8 +48,8 @@ public final class Refactoring {
 	private Refactoring() {
 	}
 
-	public static void configurePlugin(TerminalMessage message, PluginDescriptor descriptor, Path buildFile)
-			throws IOException {
+	public static void configurePlugin(@NonNull TerminalMessage message, @NonNull PluginDescriptor descriptor,
+			@NonNull Path buildFile) throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
 		String configuration = kotlin ? descriptor.configuration().gradleKotlinSnippet()
 				: descriptor.configuration().gradleGroovySnippet();
