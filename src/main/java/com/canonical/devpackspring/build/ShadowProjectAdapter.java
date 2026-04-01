@@ -55,6 +55,9 @@ public class ShadowProjectAdapter {
 				}
 				default -> {
 					try {
+						// recreate symbolic links (if the project was moved)
+						var where = projectPath.resolve(f.getName());
+						Files.deleteIfExists(where);
 						Files.createSymbolicLink(projectPath.resolve(f.getName()), f.toPath());
 					}
 					catch (FileAlreadyExistsException ex) {
