@@ -159,8 +159,11 @@ public class BuildCommands {
 
 		var alias = (command != null) ? command : desc.defaultTask();
 		List<String> actualArguments = desc.tasks().commands(alias);
+		if (alias == null && desc.defaultTask() == null) {
+			throw new RuntimeException(plugin + ": No task specified and default task is not defined.");
+		}
 		if ((actualArguments == null || actualArguments.isEmpty())) {
-			throw new RuntimeException("Task alias " + alias + " is not found, or has no commands.");
+			throw new RuntimeException(plugin + ": Task " + alias + " is not found, or has no commands.");
 		}
 
 		if (!runner.run(buildSystem, desc, actualArguments, terminalMessage)) {
