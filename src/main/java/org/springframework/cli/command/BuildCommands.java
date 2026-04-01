@@ -102,6 +102,9 @@ public class BuildCommands {
 						"Unknown plugin " + plugin + " for build system " + buildSystem + "\n");
 			}
 		}
+		else {
+			throw new IllegalArgumentException("Plugin name must be provided\n");
+		}
 
 		if (command != null && !desc.tasks().aliases().contains(command)) {
 			throw new IllegalArgumentException(
