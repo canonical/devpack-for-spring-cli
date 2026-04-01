@@ -128,11 +128,13 @@ public class ShadowProjectAdapterTests {
 		// build is not copied
 		assertThat(clonedPath.resolve("build.gradle.kts")).doesNotExist();
 
-		moveRecursive(workingDir, otherDir);
+		Path movedWorkingDir = otherDir.resolve(workingDir.getFileName());
+		Files.createDirectories(movedWorkingDir);
+		moveRecursive(workingDir, movedWorkingDir);
 
 		// ShadowProjectAdapter should correctly handle the move
 		// validate that nothing changes
-		adapter = new ShadowProjectAdapter(otherDir, new PluginResource[0]);
+		adapter = new ShadowProjectAdapter(movedWorkingDir, new PluginResource[0]);
 		clonedPath = adapter.getProjectPath();
 		assertThat(clonedPath).exists();
 		assertThat(clonedPath.resolve("gradle")).exists();
