@@ -56,7 +56,8 @@ public class ShadowProjectAdapter {
 					Files.deleteIfExists(x.toPath());
 				}
 				else {
-					FileSystemUtils.deleteRecursively(x); // recursively delete newly created files
+					FileSystemUtils.deleteRecursively(x); // recursively delete newly
+															// created files
 				}
 			}
 		}

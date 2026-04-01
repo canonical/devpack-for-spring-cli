@@ -23,17 +23,12 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.IntegrationTestSupport;
-import org.springframework.cli.support.MockConfigurations;
 import org.springframework.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ShadowProjectAdapterTests {
-
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
 
 	@Test
 	void testCloneProject(final @TempDir Path workingDir) throws IOException {
