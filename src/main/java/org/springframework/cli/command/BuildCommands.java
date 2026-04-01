@@ -163,7 +163,7 @@ public class BuildCommands {
 		}
 
 		List<String> actualArguments = desc.tasks().commands(alias);
-		if ((actualArguments == null || actualArguments.isEmpty())) {
+		if (actualArguments.isEmpty()) {
 			throw new RuntimeException(plugin + ": Task " + alias + " is not found, or has no commands.");
 		}
 
