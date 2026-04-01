@@ -49,7 +49,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	public KotlinAddPluginVisitor(String pluginName, String pluginVersion) {
 		Parser.Builder builder = GradleParser.builder()
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true));
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(false));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 

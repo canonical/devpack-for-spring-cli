@@ -17,14 +17,17 @@
 package com.canonical.devpackspring.build;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.cli.support.IntegrationTestSupport;
+import org.springframework.cli.util.StubTerminalMessage;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class MavenRunnerTests {
 
@@ -34,12 +37,14 @@ public class MavenRunnerTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 
 		PluginDescriptor desc = new PluginDescriptor("org.springframework.boot:spring-boot-maven-plugin", null, null,
-				null, new PluginTasks(null),
+				null, new PluginTasks(Collections.emptyMap()),
 				new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null),
 				null);
 
-		assertThatThrownBy(() -> MavenRunner.run(workingDir, desc, List.of("foo"), null))
-			.hasMessageContaining("Plugin org.springframework.boot:spring-boot-maven-plugin is already configured.");
+		StubTerminalMessage terminalMessage = new StubTerminalMessage();
+		assertThatNoException().isThrownBy(() -> MavenRunner.run(workingDir, desc, List.of("foo"), terminalMessage));
+		assertThat(terminalMessage.getPrintAttributedMessages())
+			.contains("Plugin " + desc.id() + " is already configured. Using project configuration.");
 	}
 
 }

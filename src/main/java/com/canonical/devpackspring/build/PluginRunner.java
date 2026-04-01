@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.cli.util.TerminalMessage;
 
 public class PluginRunner {
@@ -49,7 +51,7 @@ public class PluginRunner {
 	}
 
 	public boolean run(BuildSystem buildSystem, PluginDescriptor desc, java.util.List<String> args,
-			TerminalMessage message) throws IOException {
+			@NonNull TerminalMessage message) throws IOException {
 		return switch (buildSystem) {
 			case gradle -> GradleRunner.run(workDir, desc, args, message);
 			case maven -> MavenRunner.run(workDir, desc, args, message);

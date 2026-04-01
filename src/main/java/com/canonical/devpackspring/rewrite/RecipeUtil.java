@@ -21,12 +21,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.canonical.devpackspring.build.PluginDescriptor;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.RecipeRun;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
+
+import org.springframework.cli.util.TerminalMessage;
 
 public abstract class RecipeUtil {
 
@@ -39,6 +44,12 @@ public abstract class RecipeUtil {
 			Files.writeString(baseDir.resolve(after.getSourcePath()), result.getAfter().printAll());
 		}
 		return !results.isEmpty();
+	}
+
+	public static void pluginAlreadyConfigured(TerminalMessage message, PluginDescriptor desc) {
+		message
+			.print(new AttributedString("Plugin " + desc.id() + " is already configured. Using project configuration.",
+					AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)));
 	}
 
 }

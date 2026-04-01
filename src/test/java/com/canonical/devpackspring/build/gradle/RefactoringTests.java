@@ -16,18 +16,21 @@
 
 package com.canonical.devpackspring.build.gradle;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
+import com.canonical.devpackspring.build.PluginConfiguration;
+import com.canonical.devpackspring.build.PluginDescriptor;
+import com.canonical.devpackspring.build.PluginTasks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.IntegrationTestSupport;
 import org.springframework.cli.support.MockConfigurations;
+import org.springframework.cli.util.StubTerminalMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RefactoringTests {
 
@@ -40,11 +43,15 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.configurePlugin(buildFile, "foo", "bar", null);
+			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
-			Files.writeString(buildFile, "foobar");
-			Refactoring.configurePlugin(buildFile, "foo", "bar", null);
-			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
+			StubTerminalMessage terminalMessage = new StubTerminalMessage();
+			Refactoring.configurePlugin(terminalMessage, desc, buildFile);
+			assertThat(terminalMessage.getPrintAttributedMessages())
+				.contains("Plugin " + desc.id() + " is already configured. Using project configuration.");
+
 		});
 	}
 
@@ -54,25 +61,19 @@ public class RefactoringTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
-			Refactoring.configurePlugin(buildFile, "foo", "${bar}", null);
+			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+
+			Refactoring.configurePlugin(new StubTerminalMessage(), foo, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
-			Refactoring.configurePlugin(buildFile, "otherfoo", "bar", null);
+
+			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+
+			Refactoring.configurePlugin(new StubTerminalMessage(), otherfoo, buildFile);
 			assertThat(buildFile).content()
 				.contains("id(\"foo\") version \"${bar}\"", "id(\"otherfoo\") version \"bar\"");
 		});
-	}
-
-	@Test
-	public void testRefactoringDoesNotChangeExistingPlugin(final @TempDir Path workingDir) {
-		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
-		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
-			Path buildFile = workingDir.resolve("build.gradle.kts");
-			assertThatThrownBy(() -> Refactoring.configurePlugin(buildFile, "org.springframework.boot", "${bar}", null))
-				.hasMessageContaining("Plugin org.springframework.boot is already configured.");
-
-		});
-
 	}
 
 }

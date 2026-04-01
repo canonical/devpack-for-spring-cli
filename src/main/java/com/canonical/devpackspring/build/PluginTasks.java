@@ -21,13 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public record PluginTasks(Map<String, List<String>> tasksMap) {
+import org.jspecify.annotations.NonNull;
+
+public record PluginTasks(@NonNull Map<String, List<String>> tasksMap) {
 
 	public Set<String> aliases() {
 		return tasksMap.keySet();
 	}
 
-	public List<String> commands(String alias) {
+	public @NonNull List<String> commands(String alias) {
 		return tasksMap.getOrDefault(alias, Collections.emptyList());
 	}
 }

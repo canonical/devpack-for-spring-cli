@@ -27,17 +27,18 @@ import java.util.List;
 import com.canonical.devpackspring.build.gradle.GradleAdapter;
 import com.canonical.devpackspring.build.gradle.Refactoring;
 import org.jline.utils.AttributedStyle;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.cli.util.TerminalMessage;
 
 public abstract class GradleRunner {
 
-	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs, TerminalMessage message)
-			throws IOException {
+	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
+			@NonNull TerminalMessage message) throws IOException {
 
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
-		appendPlugin(baseDir, projectAdapter.getProjectPath(), desc);
+		appendPlugin(message, baseDir, projectAdapter.getProjectPath(), desc);
 
 		if (taskArgs == null || taskArgs.isEmpty()) {
 			taskArgs = desc.tasks().commands(desc.defaultTask());
@@ -72,14 +73,13 @@ public abstract class GradleRunner {
 		}
 	}
 
-	private static void appendPlugin(Path sourceProject, Path targetProject, PluginDescriptor desc) throws IOException {
+	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
+			PluginDescriptor desc) throws IOException {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {
 				var buildFile = targetProject.resolve(file);
 				Files.copy(sourceProject.resolve(file), buildFile, StandardCopyOption.REPLACE_EXISTING);
-				boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
-				Refactoring.configurePlugin(buildFile, desc.id(), desc.version(),
-						kotlin ? desc.getGradleKotlinSnippet() : desc.getGradleGroovySnippet());
+				Refactoring.configurePlugin(message, desc, buildFile);
 				return;
 			}
 		}

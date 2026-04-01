@@ -21,11 +21,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.canonical.devpackspring.build.PluginDescriptor;
 import com.canonical.devpackspring.rewrite.AddConfigurationRecipe;
 import com.canonical.devpackspring.rewrite.AddGradlePluginRecipe;
 import com.canonical.devpackspring.rewrite.FindGradlePluginRecipe;
-import com.canonical.devpackspring.rewrite.PluginAlreadyConfiguredException;
 import com.canonical.devpackspring.rewrite.RecipeUtil;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
@@ -38,6 +39,8 @@ import org.openrewrite.kotlin.KotlinParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cli.util.TerminalMessage;
+
 public final class Refactoring {
 
 	private static final Logger logger = LoggerFactory.getLogger(Refactoring.class);
@@ -45,12 +48,16 @@ public final class Refactoring {
 	private Refactoring() {
 	}
 
-	public static void configurePlugin(Path buildFile, String id, String version, String configuration)
-			throws IOException {
+	public static void configurePlugin(@NonNull TerminalMessage message, @NonNull PluginDescriptor descriptor,
+			@NonNull Path buildFile) throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
+		String configuration = kotlin ? descriptor.configuration().gradleKotlinSnippet()
+				: descriptor.configuration().gradleGroovySnippet();
+		String id = descriptor.id();
+		String version = descriptor.version();
 		Parser parser = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
-			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(false))
 			.build();
 
 		ArrayList<Recipe> recipes = new ArrayList<>();
@@ -74,7 +81,8 @@ public final class Refactoring {
 		FindGradlePluginRecipe check = new FindGradlePluginRecipe(id);
 		check.run(new InMemoryLargeSourceSet(sourceFiles), context);
 		if (check.isFound()) {
-			throw new PluginAlreadyConfiguredException("Plugin " + id + " is already configured.");
+			RecipeUtil.pluginAlreadyConfigured(message, descriptor);
+			return;
 		}
 
 		RecipeUtil.applyRecipe(buildFile.getParent(), new CompositeRecipe(recipes), sourceFiles, context);
