@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -29,7 +31,17 @@ public class ConfigUtilTests {
 
 	@TempDir
 	private Path tempDir;
+	private String userDir;
 
+	@BeforeEach
+	public void setUp() {
+		userDir = System.getProperty("user.dir");
+	}
+
+	@AfterEach
+	public void tearDown() {
+		System.setProperty("user.dir", userDir);
+	}
 	@Test
 	public void testEmbeddedConfig() throws IOException {
 		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml")).isNotNull();
