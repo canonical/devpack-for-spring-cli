@@ -31,6 +31,7 @@ public class ConfigUtilTests {
 
 	@TempDir
 	private Path tempDir;
+
 	private String userDir;
 
 	@BeforeEach
@@ -42,6 +43,7 @@ public class ConfigUtilTests {
 	public void tearDown() {
 		System.setProperty("user.dir", userDir);
 	}
+
 	@Test
 	public void testEmbeddedConfig() throws IOException {
 		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml")).isNotNull();
