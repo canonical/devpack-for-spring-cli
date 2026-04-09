@@ -83,6 +83,15 @@ public abstract class GradleRunner {
 				return;
 			}
 		}
+		for (var file : new String[] { "settings.gradle", "settings.gradle.kts" }) {
+			if (Files.exists(sourceProject.resolve(file))) {
+				var newName = file.replace("settings", "build");
+				var buildFile = targetProject.resolve(newName);
+				Files.writeString(buildFile, "");
+				Refactoring.configurePlugin(message, desc, buildFile);
+				return;
+			}
+		}
 		throw new RuntimeException(
 				String.format("Neither build.gradle nor build.gradle.kts were found in %s", sourceProject));
 	}
