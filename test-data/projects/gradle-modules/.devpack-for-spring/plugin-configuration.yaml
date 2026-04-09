@@ -6,7 +6,7 @@ greeting:
     configuration:
       gradleKotlin: |
         val config = org.example.greeting.GreetingConfig()
-        config.doIt():
+        config.doIt()
     tasks:
       help:
         - help
