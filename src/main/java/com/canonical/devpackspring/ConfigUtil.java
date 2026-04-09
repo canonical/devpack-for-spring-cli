@@ -58,12 +58,14 @@ public abstract class ConfigUtil {
 			}
 		}
 
-		Path currentConfigPath = Path.of(System.getProperty("user.dir"))
-			.resolve(".devpack-for-spring")
-			.resolve(fileName);
-		if (Files.exists(currentConfigPath)) {
-			LOG.info("Reading configuration from " + currentConfigPath);
-			return new FileInputStream(currentConfigPath.toFile());
+		Path current = Path.of(System.getProperty("user.dir"));
+		while (current != null && Files.exists(current)) {
+			Path currentConfigPath = current.resolve(".devpack-for-spring").resolve(fileName);
+			if (Files.exists(currentConfigPath)) {
+				LOG.info("Reading configuration from " + currentConfigPath);
+				return new FileInputStream(currentConfigPath.toFile());
+			}
+			current = current.getParent();
 		}
 
 		Path configPath = Path.of(System.getProperty("user.home"))
