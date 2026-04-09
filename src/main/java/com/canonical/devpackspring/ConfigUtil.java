@@ -59,7 +59,7 @@ public abstract class ConfigUtil {
 		}
 
 		Path current = Path.of(System.getProperty("user.dir"));
-		while (current != null && Files.exists(current)) {
+		while (current != null) {
 			Path currentConfigPath = current.resolve(".devpack-for-spring").resolve(fileName);
 			if (Files.exists(currentConfigPath)) {
 				LOG.info("Reading configuration from " + currentConfigPath);
