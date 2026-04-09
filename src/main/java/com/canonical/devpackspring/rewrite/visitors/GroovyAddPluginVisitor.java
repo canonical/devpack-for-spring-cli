@@ -39,6 +39,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private final String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
 
+	private final String withSubprojectsTemplate = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
+
 	private final AddPluginVisitor visitor;
 
 	private final SourceFile templateSource;
@@ -50,6 +52,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
 				: String.format(builtInTemplateGroovy, pluginName);
+		pluginDefinition += String.format(withSubprojectsTemplate, pluginName);
 		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)),

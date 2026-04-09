@@ -43,6 +43,8 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private final String builtInTemplateKotlin = "plugins {\n\tid(\"%s\")\n}\n";
 
+	private final String subprojectsTemplateKotlin = "subprojects {\n" + "    apply(plugin = \"%s\")\n" + "}";
+
 	private final AddPluginVisitor visitor;
 
 	private final SourceFile templateSource;
@@ -56,6 +58,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		// Use dummy file name to force the use of kotlin parser
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
 				: String.format(builtInTemplateKotlin, pluginName);
+		pluginDefinition += String.format(subprojectsTemplateKotlin, pluginName);
 		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), pluginDefinition)),

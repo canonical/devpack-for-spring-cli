@@ -54,4 +54,23 @@ public class GradleRunnerTests {
 
 	}
 
+	@Test
+	public void runFormatPluginModuleProject(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-modules");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, "format",
+					new PluginTasks(Map.of("format", List.of("format"))),
+					new PluginConfiguration(new PluginResource[0], null, null, null), null);
+			StubTerminalMessage terminalMessage = new StubTerminalMessage();
+			GradleRunner.run(workingDir, desc, List.of("format"), terminalMessage);
+
+			assertThat(terminalMessage.getPrintAttributedMessages()
+				.stream()
+				.filter(x -> x.contains("BUILD SUCCESSFUL"))
+				.findFirst()).isNotEmpty();
+		});
+
+	}
+
 }
