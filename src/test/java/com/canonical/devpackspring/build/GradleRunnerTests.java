@@ -64,11 +64,14 @@ public class GradleRunnerTests {
 					new PluginConfiguration(new PluginResource[0], null, null, null), null);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			GradleRunner.run(workingDir, desc, List.of("format"), terminalMessage);
-
-			assertThat(terminalMessage.getPrintAttributedMessages()
-				.stream()
-				.filter(x -> x.contains("BUILD SUCCESSFUL"))
-				.findFirst()).isNotEmpty();
+			StringBuilder content = new StringBuilder();
+			terminalMessage.getPrintAttributedMessages().forEach(content::append);
+			if (terminalMessage.getPrintAttributedMessages().stream().noneMatch(x -> x.contains("BUILD SUCCESSFUL"))) {
+				assertThat(content.toString()).isEqualTo("");
+			}
+			assertThat(
+					terminalMessage.getPrintAttributedMessages().stream().anyMatch(x -> x.contains("BUILD SUCCESSFUL")))
+				.isTrue();
 		});
 
 	}
