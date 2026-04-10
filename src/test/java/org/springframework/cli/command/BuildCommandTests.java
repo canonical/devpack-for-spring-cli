@@ -67,7 +67,7 @@ public class BuildCommandTests {
 		String content = Files.readString(configFile);
 		assertThat(content).isNotEmpty();
 
-		assertThatThrownBy(() -> commands.initPluginConfiguration(workingDir))
+		assertThatThrownBy(() -> commands.initPluginConfiguration(workingDir)).isInstanceOf(IllegalStateException.class)
 			.hasMessageContaining("already initialized");
 
 	}
