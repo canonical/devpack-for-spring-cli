@@ -84,14 +84,14 @@ public class RefactoringTests {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null, kotlinSnippet, null), null);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, kotlinSnippet, null),
+					null);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 
 			assertThat(buildFile).content().contains("id(\"foo\") version \"1.0.0\"");
 			assertThat(buildFile).content().contains("subprojects {");
-			assertThat(buildFile).content().contains("plugins.withId('foo'){");
+			assertThat(buildFile).content().contains("plugins.withId(\"foo\"){");
 		});
 	}
 
