@@ -64,6 +64,7 @@ public final class Refactoring {
 		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
 
 		if (configuration != null) {
+			configuration = String.format("%s\nsubprojects {\n%s\n}", configuration, configuration);
 			var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 			Path dummyPath = tempDir.resolve(kotlin ? "build.gradle.kts" : "build.gradle");
 			SourceFile configSourceFile = parser
