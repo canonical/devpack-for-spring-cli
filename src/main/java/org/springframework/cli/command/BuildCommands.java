@@ -19,6 +19,7 @@ package org.springframework.cli.command;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -193,15 +194,17 @@ public class BuildCommands {
 		Path configDir = projectPath.resolve(".devpack-for-spring");
 		Files.createDirectories(configDir);
 		Path target = configDir.resolve("plugin-configuration.yaml");
-		if (Files.exists(target)) {
-			throw new RuntimeException("Plugin configuration is already initialized.");
-		}
 		String resourcePath = String.format("/com/canonical/devpackspring/%s", "plugin-configuration.yaml");
-		try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
-			if (in == null) {
-				throw new IOException("Embedded plugin configuration resource not found: " + resourcePath);
+		try {
+			try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+				if (in == null) {
+					throw new IOException("Embedded plugin configuration resource not found: " + resourcePath);
+				}
+				Files.copy(in, target);
 			}
-			Files.write(target, in.readAllBytes());
+		}
+		catch (FileAlreadyExistsException ex) {
+			throw new RuntimeException("Plugin configuration is already initialized.");
 		}
 		terminalMessage.print("Created " + target);
 	}
