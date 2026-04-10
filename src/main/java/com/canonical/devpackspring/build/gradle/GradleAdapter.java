@@ -76,6 +76,7 @@ public class GradleAdapter {
 	public int run(String... args) throws IOException, InterruptedException {
 		ArrayList<String> argList = new ArrayList<>();
 		argList.add(gradleHome.resolve("bin/gradle").toString());
+		argList.add("-Dorg.gradle.vfs.watch=false");
 		argList.addAll(Arrays.asList(args));
 
 		ProcessBuilder pb = new ProcessBuilder(argList).directory(projectDir.toFile());
