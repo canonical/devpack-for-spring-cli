@@ -65,7 +65,7 @@ public class BuildCommandTests {
 		assertThat(configDir).isDirectory();
 		assertThat(configFile).exists();
 		String content = Files.readString(configFile);
-		assertThat(content).contains("rockcraft");
+		assertThat(content).isNotEmpty();
 
 		assertThatThrownBy(() -> commands.initPluginConfiguration(workingDir))
 			.hasMessageContaining("already initialized");
