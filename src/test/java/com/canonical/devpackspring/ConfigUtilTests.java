@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -30,9 +32,21 @@ public class ConfigUtilTests {
 	@TempDir
 	private Path tempDir;
 
+	private String userDir;
+
+	@BeforeEach
+	public void setUp() {
+		userDir = System.getProperty("user.dir");
+	}
+
+	@AfterEach
+	public void tearDown() {
+		System.setProperty("user.dir", userDir);
+	}
+
 	@Test
 	public void testEmbeddedConfig() throws IOException {
-		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml")).isNotNull();
+		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml")).isNotNull().actual().close();
 		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml1")).isNull();
 	}
 
@@ -42,7 +56,7 @@ public class ConfigUtilTests {
 		Path where = tempDir.resolve(".config").resolve("devpack-for-spring");
 		Files.createDirectories(where);
 		Files.writeString(where.resolve("foo.yaml"), "test");
-		assertThat(ConfigUtil.openConfigurationFile("foo", "foo.yaml")).isNotNull();
+		assertThat(ConfigUtil.openConfigurationFile("foo", "foo.yaml")).isNotNull().actual().close();
 	}
 
 	@Test
@@ -51,7 +65,42 @@ public class ConfigUtilTests {
 		Files.writeString(where, "test");
 		System.setProperty("foo", where.toString());
 
-		assertThat(ConfigUtil.openConfigurationFile("foo", "foo.yaml")).isNotNull();
+		assertThat(ConfigUtil.openConfigurationFile("foo", "foo.yaml")).isNotNull().actual().close();
+	}
+
+	@Test
+	public void testCurrentDirConfig() throws IOException {
+		Path configDir = tempDir.resolve(".devpack-for-spring");
+		Files.createDirectories(configDir);
+		Files.writeString(configDir.resolve("bar.yaml"), "test");
+		System.setProperty("user.dir", tempDir.toString());
+
+		assertThat(ConfigUtil.openConfigurationFile("bar", "bar.yaml")).isNotNull().actual().close();
+	}
+
+	@Test
+	public void testParentDirConfig() throws IOException {
+		// Place the config file two levels above the "current" working directory.
+		Path parentConfigDir = tempDir.resolve(".devpack-for-spring");
+		Files.createDirectories(parentConfigDir);
+		Files.writeString(parentConfigDir.resolve("baz.yaml"), "test");
+
+		Path deepWorkDir = tempDir.resolve("sub").resolve("child");
+		Files.createDirectories(deepWorkDir);
+		System.setProperty("user.dir", deepWorkDir.toString());
+
+		assertThat(ConfigUtil.openConfigurationFile("baz", "baz.yaml")).isNotNull().actual().close();
+	}
+
+	@Test
+	public void testNoDirConfig() throws IOException {
+		// No .devpack-for-spring directory anywhere in the temp tree; falls through
+		// to the embedded resource (plugin-configuration.yaml exists on classpath).
+		System.setProperty("user.dir", tempDir.toString());
+
+		assertThat(ConfigUtil.openConfigurationFile("nonexistent-env", "plugin-configuration.yaml")).isNotNull()
+			.actual()
+			.close();
 	}
 
 }

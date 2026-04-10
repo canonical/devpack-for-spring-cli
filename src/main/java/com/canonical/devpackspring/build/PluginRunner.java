@@ -28,7 +28,8 @@ public class PluginRunner {
 
 	private Path workDir;
 
-	private static final String[] GRADLE_FILES = new String[] { "build.gradle", "build.gradle.kts" };
+	private static final String[] GRADLE_FILES = new String[] { "build.gradle", "build.gradle.kts", "settings.gradle",
+			"settings.gradle.kts" };
 
 	private static final String[] MAVEN_FILES = new String[] { "pom.xml" };
 

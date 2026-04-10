@@ -31,6 +31,9 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 				plugins {
 					id 'java'
 				}
+				subprojects {
+				    apply plugin: 'java'
+				}
 				group = 'com.example'
 				version = '1.0'"""));
 
@@ -44,6 +47,9 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 				""", """
 				plugins {
 					id("java")
+				}
+				subprojects {
+				    apply(plugin = "java")
 				}
 				group = "com.example"
 				version = "1.0"
@@ -60,6 +66,9 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						""", """
 						plugins {
 							id 'org.springframework.boot' version '3.4.3'
+						}
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
 						}
 						group = 'com.example'
 						version = '1.0'"""));
@@ -113,6 +122,9 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						""", """
 						plugins {
 							id("org.springframework.boot") version "3.4.3"
+						}
+						subprojects {
+						    apply(plugin = "org.springframework.boot")
 						}
 						group = "com.example"
 						version = "1.0"
