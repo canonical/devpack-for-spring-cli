@@ -204,7 +204,7 @@ public class BuildCommands {
 			}
 		}
 		catch (FileAlreadyExistsException ex) {
-			throw new RuntimeException("Plugin configuration is already initialized.");
+			throw new IllegalStateException("Plugin configuration is already initialized.");
 		}
 		terminalMessage.print("Created " + target);
 	}
