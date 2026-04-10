@@ -32,6 +32,7 @@ import org.springframework.shell.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BuildCommandTests {
 
@@ -52,6 +53,23 @@ public class BuildCommandTests {
 		String plugins = ret.render(80);
 		assertThat(plugins).contains("rockcraft");
 		assertThat(plugins).contains("io.github.rockcrafters.rockcraft");
+	}
+
+	@Test
+	public void testPluginInit(final @TempDir Path workingDir) throws IOException {
+		StubTerminalMessage terminalMessage = new StubTerminalMessage();
+		BuildCommands commands = new BuildCommands(terminalMessage, null);
+		commands.initPluginConfiguration(workingDir);
+		Path configDir = workingDir.resolve(".devpack-for-spring");
+		Path configFile = configDir.resolve("plugin-configuration.yaml");
+		assertThat(configDir).isDirectory();
+		assertThat(configFile).exists();
+		String content = Files.readString(configFile);
+		assertThat(content).contains("rockcraft");
+
+		assertThatThrownBy(() -> commands.initPluginConfiguration(workingDir))
+			.hasMessageContaining("already initialized");
+
 	}
 
 	@Test

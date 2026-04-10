@@ -19,6 +19,7 @@ package org.springframework.cli.command;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -182,6 +183,24 @@ public class BuildCommands {
 			message.append("\n");
 			throw new RuntimeException(message.toString());
 		}
+	}
+
+	@Command(command = "plugin-init", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
+	public void initPluginConfiguration(@Option(description = "project path") Path projectPath) throws IOException {
+		if (projectPath == null) {
+			projectPath = workingDir;
+		}
+		Path configDir = projectPath.resolve(".devpack-for-spring");
+		Files.createDirectories(configDir);
+		Path target = configDir.resolve("plugin-configuration.yaml");
+		if (Files.exists(target)) {
+			throw new RuntimeException("Plugin configuration is already initialized.");
+		}
+		try (InputStream in = getClass().getResourceAsStream(String.format("/com/canonical/devpackspring/%s", "plugin-configuration.yaml"))) {
+			assert in != null;
+			Files.write(target, in.readAllBytes());
+		}
+		terminalMessage.print("Created " + target);
 	}
 
 	@Command(command = "list-plugins", description = "List supported build plugins")

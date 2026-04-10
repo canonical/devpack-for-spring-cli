@@ -29,6 +29,16 @@ Lists all available plugins:
 list-plugins
 ```
 
+### `plugin-init`
+
+Initializes a local plugin configuration file in the current directory:
+
+```shell
+plugin-init
+```
+
+This command creates the `.devpack-for-spring/` directory (if it does not already exist) and copies the built-in `plugin-configuration.yaml` into it. After running `plugin-init`, you can edit `.devpack-for-spring/plugin-configuration.yaml` to customize plugin versions, add new plugins, or override defaults. The local file takes precedence over the built-in defaults (see **Configuration File** below).
+
 ## Configuration File
 
 Plugin definitions are stored in `plugin-configuration.yaml`. The file is loaded from the first location found, in order:
