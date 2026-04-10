@@ -196,8 +196,11 @@ public class BuildCommands {
 		if (Files.exists(target)) {
 			throw new RuntimeException("Plugin configuration is already initialized.");
 		}
-		try (InputStream in = getClass().getResourceAsStream(String.format("/com/canonical/devpackspring/%s", "plugin-configuration.yaml"))) {
-			assert in != null;
+		String resourcePath = String.format("/com/canonical/devpackspring/%s", "plugin-configuration.yaml");
+		try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+			if (in == null) {
+				throw new IOException("Embedded plugin configuration resource not found: " + resourcePath);
+			}
 			Files.write(target, in.readAllBytes());
 		}
 		terminalMessage.print("Created " + target);
