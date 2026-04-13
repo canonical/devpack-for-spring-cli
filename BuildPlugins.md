@@ -252,6 +252,6 @@ When the `plugin` command is executed:
 2. The plugin is looked up in the configuration for the detected build system
 3. The project is referenced under the `.devpack-for-spring` directory
 4. Resources specified in the configuration are written to disk relative to that directory
-5. If the project already has the build plugin configured, the command fails with an error
-6. Otherwise, the build file is modified by OpenRewrite recipes. For example, the Gradle plugin is added to the plugins block and any configuration snippets from the `configuration` section are appended to the build file
-7. The requested task alias is resolved to actual build commands and executed
+5. If the project already has the build plugin configured, the command uses existing configuration
+6. Otherwise, the project build file is modified by OpenRewrite recipes. For example, the Gradle plugin is added to the plugins block and any configuration snippets from the `configuration` section are appended to the build file
+7. The requested task alias is resolved to actual build commands and executed from the project root
