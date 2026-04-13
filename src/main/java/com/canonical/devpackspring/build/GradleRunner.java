@@ -34,7 +34,7 @@ import org.springframework.cli.util.TerminalMessage;
 public abstract class GradleRunner {
 
 	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
-	                          @NonNull TerminalMessage message) throws IOException {
+			@NonNull TerminalMessage message) throws IOException {
 		Path projectDir = locateProjectDir(baseDir);
 		return runInternal(projectDir, desc, taskArgs, message);
 	}
