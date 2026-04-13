@@ -50,6 +50,12 @@ public abstract class MavenRunner {
 	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
 			@NonNull TerminalMessage message) throws IOException {
 		Path projectDir = locateProjectDir(baseDir);
+		return runInternal(projectDir, plugin, goalArgs, message);
+	}
+
+	private static boolean runInternal(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
+			@NonNull TerminalMessage message) throws IOException {
+		Path projectDir = locateProjectDir(baseDir);
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(projectDir, plugin.resources());
 
 		String command = "mvn";
@@ -129,7 +135,7 @@ public abstract class MavenRunner {
 			}
 			current = current.getParent();
 		}
-		return topmost != null ? topmost : baseDir;
+		return (topmost != null) ? topmost : baseDir;
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {
