@@ -16,6 +16,8 @@
 
 package com.canonical.devpackspring.build;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +47,29 @@ public class MavenRunnerTests {
 		assertThatNoException().isThrownBy(() -> MavenRunner.run(workingDir, desc, List.of("foo"), terminalMessage));
 		assertThat(terminalMessage.getPrintAttributedMessages())
 			.contains("Plugin " + desc.id() + " is already configured. Using project configuration.");
+	}
+
+	@Test
+	public void locateProjectDirFallsBackWhenNoPomXml(final @TempDir Path workingDir) {
+		assertThat(MavenRunner.locateProjectDir(workingDir)).isEqualTo(workingDir);
+	}
+
+	@Test
+	public void locateProjectDirReturnsSingleModuleRoot(final @TempDir Path workingDir) throws IOException {
+		Files.createFile(workingDir.resolve("pom.xml"));
+		assertThat(MavenRunner.locateProjectDir(workingDir)).isEqualTo(workingDir.toAbsolutePath().normalize());
+	}
+
+	@Test
+	public void locateProjectDirWalksUpToTopmostPomXml(final @TempDir Path workingDir) throws IOException {
+		// root pom.xml
+		Files.createFile(workingDir.resolve("pom.xml"));
+		// submodule with its own pom.xml
+		Path submodule = workingDir.resolve("submodule");
+		Files.createDirectory(submodule);
+		Files.createFile(submodule.resolve("pom.xml"));
+		// locating from the submodule should return the root
+		assertThat(MavenRunner.locateProjectDir(submodule)).isEqualTo(workingDir.toAbsolutePath().normalize());
 	}
 
 }
