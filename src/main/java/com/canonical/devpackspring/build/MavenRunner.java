@@ -49,10 +49,17 @@ public abstract class MavenRunner {
 
 	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
 			@NonNull TerminalMessage message) throws IOException {
-		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, plugin.resources());
+		Path projectDir = locateProjectDir(baseDir);
+		return runInternal(projectDir, plugin, goalArgs, message);
+	}
+
+	private static boolean runInternal(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
+			@NonNull TerminalMessage message) throws IOException {
+		Path projectDir = locateProjectDir(baseDir);
+		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(projectDir, plugin.resources());
 
 		String command = "mvn";
-		if (Files.exists(baseDir.resolve("mvnw")) && validWrapper(baseDir)) {
+		if (Files.exists(projectDir.resolve("mvnw")) && validWrapper(projectDir)) {
 			command = "./mvnw";
 		}
 
@@ -117,6 +124,18 @@ public abstract class MavenRunner {
 			.toList();
 
 		return p.parse(files, baseDir, context).toList();
+	}
+
+	static Path locateProjectDir(Path baseDir) {
+		Path current = baseDir.toAbsolutePath().normalize();
+		Path topmost = null;
+		while (current != null) {
+			if (Files.exists(current.resolve("pom.xml"))) {
+				topmost = current;
+			}
+			current = current.getParent();
+		}
+		return (topmost != null) ? topmost : baseDir;
 	}
 
 	private static boolean validWrapper(Path dir) throws IOException {

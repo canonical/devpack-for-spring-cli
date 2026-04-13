@@ -16,6 +16,8 @@
 
 package com.canonical.devpackspring.build;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,28 @@ public class GradleRunnerTests {
 				.isTrue();
 		});
 
+	}
+
+	@Test
+	public void locateProjectDirFindsSettingsGradleInBaseDir(final @TempDir Path workingDir) throws IOException {
+		Files.createFile(workingDir.resolve("settings.gradle"));
+		assertThat(GradleRunner.locateProjectDir(workingDir)).isEqualTo(workingDir.toAbsolutePath().normalize());
+	}
+
+	@Test
+	public void locateProjectDirWalksUpToFindSettingsGradleKts(final @TempDir Path workingDir) throws IOException {
+		Files.createFile(workingDir.resolve("settings.gradle.kts"));
+		Path submodule = workingDir.resolve("app");
+		Files.createDirectory(submodule);
+		assertThat(GradleRunner.locateProjectDir(submodule)).isEqualTo(workingDir.toAbsolutePath().normalize());
+	}
+
+	@Test
+	public void locateProjectDirFallsBackToBaseDirWhenNoSettingsFound(final @TempDir Path workingDir)
+			throws IOException {
+		Path submodule = workingDir.resolve("app");
+		Files.createDirectory(submodule);
+		assertThat(GradleRunner.locateProjectDir(submodule)).isEqualTo(submodule.toAbsolutePath().normalize());
 	}
 
 }
