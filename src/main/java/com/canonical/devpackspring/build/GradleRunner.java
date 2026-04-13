@@ -36,9 +36,11 @@ public abstract class GradleRunner {
 	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
 			@NonNull TerminalMessage message) throws IOException {
 
-		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(baseDir, desc.resources());
+		Path projectDir = locateProjectDir(baseDir);
+
+		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(projectDir, desc.resources());
 		GradleAdapter adapter = new GradleAdapter(message, projectAdapter.getProjectPath());
-		appendPlugin(message, baseDir, projectAdapter.getProjectPath(), desc);
+		appendPlugin(message, projectDir, projectAdapter.getProjectPath(), desc);
 
 		if (taskArgs == null || taskArgs.isEmpty()) {
 			taskArgs = desc.tasks().commands(desc.defaultTask());
@@ -71,6 +73,18 @@ public abstract class GradleRunner {
 			}
 			return false;
 		}
+	}
+
+	static Path locateProjectDir(Path baseDir) {
+		Path current = baseDir.toAbsolutePath().normalize();
+		while (current != null) {
+			if (Files.exists(current.resolve("settings.gradle"))
+					|| Files.exists(current.resolve("settings.gradle.kts"))) {
+				return current;
+			}
+			current = current.getParent();
+		}
+		return baseDir;
 	}
 
 	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
