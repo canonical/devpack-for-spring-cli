@@ -157,4 +157,20 @@ public class BuildCommandTests {
 		});
 	}
 
+	@Test
+	public void testRunGradlePluginWithParsingError(final @TempDir Path workingDir) throws IOException {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		// Corrupt the build file
+		Files.writeString(workingDir.resolve("build.gradle.kts"), "plugins {\n    id(\"foo\")\n"); // Missing
+																									// closing
+																									// brace
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			assertThat(context).hasSingleBean(BuildCommands.class);
+			BuildCommands commands = context.getBean(BuildCommands.class);
+			assertThatThrownBy(() -> commands.run("rockcraft", "create-rock", workingDir))
+				.isInstanceOf(RuntimeException.class);
+		});
+	}
+
 }
