@@ -36,6 +36,7 @@ import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.kotlin.KotlinParser;
+import org.openrewrite.tree.ParseError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,12 @@ public final class Refactoring {
 				throwable -> logger.debug(throwable.getMessage(), throwable));
 
 		List<SourceFile> sourceFiles = parser.parse(List.of(buildFile), buildFile.getParent(), context).toList();
-
+		if (sourceFiles.isEmpty()) {
+			throw new IllegalStateException("Unable to parse " + buildFile);
+		}
+		if (sourceFiles.getFirst() instanceof ParseError error) {
+			throw error.toException();
+		}
 		FindGradlePluginRecipe check = new FindGradlePluginRecipe(id);
 		check.run(new InMemoryLargeSourceSet(sourceFiles), context);
 		if (check.isFound()) {
