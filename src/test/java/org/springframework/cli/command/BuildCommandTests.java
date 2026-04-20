@@ -163,13 +163,14 @@ public class BuildCommandTests {
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
 		// Corrupt the build file
 		Files.writeString(workingDir.resolve("build.gradle"), "plugins {\n    id(\"foo\")\n"); // Missing
-																									// closing
-																									// brace
+																								// closing
+																								// brace
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			assertThatThrownBy(() -> commands.run("rockcraft", "create-rock", workingDir))
-				.isInstanceOf(IllegalStateException.class).hasMessageContaining("parsing failed");
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("parsing failed");
 		});
 	}
 
