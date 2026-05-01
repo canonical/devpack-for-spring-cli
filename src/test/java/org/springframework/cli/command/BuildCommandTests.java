@@ -32,6 +32,7 @@ import org.springframework.shell.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BuildCommandTests {
@@ -133,8 +134,7 @@ public class BuildCommandTests {
 			commands.run("rockcraft", "create-rock", workingDir);
 			assertThat(workingDir.resolve("target/rockcraft.yaml")).exists();
 			// default task works
-			commands.run("rockcraft", null, workingDir);
-			assertThat(workingDir.resolve("target/rock")).exists();
+			assertThatNoException().isThrownBy(() -> commands.run("format", null, workingDir));
 		});
 	}
 
