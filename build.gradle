@@ -70,6 +70,9 @@ configurations.all {
 		if (requested.group == 'org.jetbrains.kotlin' && requested.name == 'kotlin-compiler-embeddable') {
 			useTarget("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.20")
 		}
+        if (requested.group == 'org.apache.commons' && requested.name == 'commons-compress') {
+			useTarget("org.apache.commons:commons-compress:1.28.0")
+		}
 	}
 }
 
