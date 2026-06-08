@@ -30,11 +30,14 @@ import org.springframework.cli.util.StubTerminalMessage;
 import org.springframework.shell.component.flow.ComponentFlow;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class SetupCommandsTests {
@@ -50,7 +53,7 @@ public class SetupCommandsTests {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			setupCommands.setup(new String[] { "foo", "bar" });
+			setupCommands.setup(new String[] { "foo", "bar" }, false);
 			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
 					"Not installed bar - the software item is not defined.");
 
@@ -69,7 +72,7 @@ public class SetupCommandsTests {
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
 			.willReturn(0);
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall });
+		setupCommands.setup(new String[] { toInstall }, false);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 	}
 
@@ -92,7 +95,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall });
+		setupCommands.setup(new String[] { toInstall }, false);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install package %s.", toInstall));
 	}
 
@@ -109,7 +112,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall });
+		setupCommands.setup(new String[] { toInstall }, false);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 	}
 
@@ -128,8 +131,87 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall });
+		setupCommands.setup(new String[] { toInstall }, false);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install snap %s.", toInstall));
+	}
+
+	@Test
+	public void testAptUninstall() throws IOException {
+		String aptPackage = "openjdk-17-jdk";
+		String snapPackage = "docker";
+		String aptInstallPattern = "dpkg -s " + aptPackage;
+
+		// Report only openjdk-17-jdk as installed
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(aptInstallPattern))).willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptInstallPattern))))
+			.willReturn(1);
+
+		// Expect the remove calls to succeed
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage)))
+			.willReturn(0);
+
+		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
+
+		setupCommands.setup(new String[] {}, true);
+
+		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage));
+		// we do not uninstall anything else, e.g. docker
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"),
+				eq(snapPackage));
+	}
+
+	@Test
+	public void testSnapUninstall() throws IOException {
+		String aptPackage = "openjdk-17-jdk";
+		String snapPackage = "docker";
+		String snapInstallPattern = "snap info " + snapPackage;
+
+		// Report only openjdk-17-jdk as installed
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(snapInstallPattern)))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(snapInstallPattern))))
+			.willReturn(1);
+
+		// Expect the remove calls to succeed
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"), eq(snapPackage)))
+			.willReturn(0);
+
+		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
+
+		setupCommands.setup(new String[] {}, true);
+
+		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"), eq(snapPackage));
+		// we do not uninstall anything else, e.g. apt packages
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
+				eq("-y"), eq(aptPackage));
+
+	}
+
+	@Test
+	public void testUninstallSkippedWhenNotInstalled() throws IOException {
+		// When uninstall=true but the package is not currently installed,
+		// remove() should return early without invoking any process.
+		String toRemove = "openjdk-17-jdk";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		// Report the package as NOT installed
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] {}, true);
+
+		// The apt-get remove command must never be issued
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
+				eq("-y"), eq(toRemove));
+		// The snap remove command must never be issued
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"),
+				eq(toRemove));
 	}
 
 }

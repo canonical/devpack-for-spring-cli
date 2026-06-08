@@ -61,11 +61,12 @@ public class SetupCommands {
 	}
 
 	@Command(command = "setup", description = "Setup development environment")
-	public void setup(@Option(description = "Software to install") String[] add) {
+	public void setup(@Option(description = "Software to install") String[] add,
+			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null) {
-				headlessSetup(add, model);
+				headlessSetup(add, model, uninstall);
 				return;
 			}
 
@@ -105,7 +106,7 @@ public class SetupCommands {
 					if (entrySet.contains(entry.item())) {
 						entry.install(terminalMessage);
 					}
-					else {
+					else if (uninstall) {
 						entry.remove(terminalMessage);
 					}
 				}
@@ -117,13 +118,16 @@ public class SetupCommands {
 
 	}
 
-	private void headlessSetup(String[] add, SetupModel model) throws IOException {
+	private void headlessSetup(String[] add, SetupModel model, boolean uninstall) throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
 					entry.install(this.terminalMessage);
 					toAdd.remove(entry.item());
+				}
+				else if (uninstall) {
+					entry.remove(this.terminalMessage);
 				}
 			}
 		}
