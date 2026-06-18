@@ -167,9 +167,10 @@ public class SetupCommandsTests {
 				assertThat(expectedPath).exists();
 				String content = Files.readString(expectedPath);
 				assertThat(content).contains("openjdk-17").contains("openjdk-21");
-
-				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, Path.of("foo.yaml"));
-				assertThat(Path.of("foo.yaml")).exists();
+				File installFile = File.createTempFile("install", ".tmp");
+				installFile.deleteOnExit();
+				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, installFile.toPath());
+				assertThat(installFile).exists();
 
 			});
 		}
