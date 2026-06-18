@@ -18,6 +18,7 @@ package com.canonical.devpackspring;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 public abstract class ConfigUtil {
 
 	private static final Log LOG = LogFactory.getLog(ConfigUtil.class);
+
+	private static final String INSTALLED_CONFIG = "installed_config.yaml";
 
 	/**
 	 * Opens configuration file stream from: 1. System Property 2. Environment Variable 3.
@@ -79,6 +82,18 @@ public abstract class ConfigUtil {
 
 		LOG.info("Reading default configuration " + fileName);
 		return ConfigUtil.class.getResourceAsStream(String.format("/com/canonical/devpackspring/%s", fileName));
+	}
+
+	public static void writeInstallConfig(Path filePath, String content) throws IOException {
+		Path configPath = (filePath != null) ? filePath
+				: Path.of(System.getProperty("user.home"))
+					.resolve(".config")
+					.resolve("devpack-for-spring")
+					.resolve(INSTALLED_CONFIG);
+		if (configPath.getParent() != null) {
+			Files.createDirectories(configPath.getParent());
+		}
+		Files.writeString(configPath, content);
 	}
 
 }

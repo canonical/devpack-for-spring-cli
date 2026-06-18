@@ -16,10 +16,14 @@
 
 package org.springframework.cli.command;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.canonical.devpackspring.IProcessUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -51,15 +55,24 @@ public class SetupCommandsTests {
 	@Mock
 	private IProcessUtil mockProcessUtil;
 
+	private Path tempPath;
+
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
+
+	@BeforeEach
+	public void setUp() throws IOException {
+		var temp = File.createTempFile("install", "yaml");
+		temp.deleteOnExit();
+		tempPath = temp.toPath();
+	}
 
 	@Test
 	public void testSetupCommand() {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo", "bar" }, false))
+			assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo", "bar" }, null, tempPath, false))
 				.isInstanceOf(RuntimeException.class)
 				.hasCauseInstanceOf(IOException.class)
 				.hasMessageContaining("Missing software item definitions");
@@ -81,7 +94,7 @@ public class SetupCommandsTests {
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
 			.willReturn(0);
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 	}
 
@@ -104,7 +117,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install package %s.", toInstall));
 	}
 
@@ -121,8 +134,11 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, false);
+		File installFile = File.createTempFile("install", ".tmp");
+		installFile.deleteOnExit();
+		setupCommands.setup(new String[] { toInstall }, null, installFile.toPath(), false);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+		assertThat(Files.readString(installFile.toPath())).isEqualTo("[docker]\n");
 	}
 
 	@Test
@@ -140,7 +156,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install snap %s.", toInstall));
 	}
 
@@ -162,7 +178,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
 
-		setupCommands.setup(new String[] {}, true);
+		setupCommands.setup(new String[] {}, null, tempPath, true);
 
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
 				eq(aptPackage));
@@ -189,7 +205,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
 
-		setupCommands.setup(new String[] {}, true);
+		setupCommands.setup(new String[] {}, null, tempPath, true);
 
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"), eq(snapPackage));
 		// we do not uninstall anything else, e.g. apt packages
@@ -213,7 +229,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] {}, true);
+		setupCommands.setup(new String[] {}, null, tempPath, true);
 
 		// The apt-get remove command must never be issued
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
@@ -250,7 +266,7 @@ public class SetupCommandsTests {
 
 		StubTerminalMessage tm = new StubTerminalMessage();
 		SetupCommands setupCommands = new SetupCommands(tm, mockBuilder, mockProcessUtil);
-		setupCommands.setup(null, false);
+		setupCommands.setup(null, null, tempPath, false);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 		// no package should have been removed
@@ -285,7 +301,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
 		// null add → wizard path
-		setupCommands.setup(null, false);
+		setupCommands.setup(null, null, tempPath, false);
 
 		// openjdk-17-jdk was installed and not selected → must be removed
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
@@ -316,7 +332,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
 		// null add, uninstall true → wizard path
-		setupCommands.setup(null, true);
+		setupCommands.setup(null, null, tempPath, true);
 
 		// openjdk-17-jdk was installed and not selected → must be removed because
 		// uninstall defaults to true
@@ -364,6 +380,62 @@ public class SetupCommandsTests {
 		};
 		holder.builder = Mockito.mock(ComponentFlow.Builder.class, builderAnswer);
 		return holder.builder;
+	}
+
+	@Test
+	public void testAddAndFileOptionsAreExclusive() {
+		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+			StubTerminalMessage stub = new StubTerminalMessage();
+			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
+			org.assertj.core.api.Assertions
+				.assertThatThrownBy(
+						() -> setupCommands.setup(new String[] { "foo" }, Path.of("config.yaml"), tempPath, false))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage("Options --add and --file options are mutually exclusive.");
+		});
+	}
+
+	@Test
+	public void testSetupSavesInstalledConfig(@org.junit.jupiter.api.io.TempDir Path tempDir) {
+		String originalUserHome = System.getProperty("user.home");
+		try {
+			System.setProperty("user.home", tempDir.toString());
+			this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+				StubTerminalMessage stub = new StubTerminalMessage();
+				SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
+				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, null, false);
+
+				Path expectedPath = tempDir.resolve(".config")
+					.resolve("devpack-for-spring")
+					.resolve("installed_config.yaml");
+
+				assertThat(expectedPath).exists();
+				String content = Files.readString(expectedPath);
+				assertThat(content).contains("openjdk-17").contains("openjdk-21");
+				File installFile = File.createTempFile("install", ".tmp");
+				installFile.deleteOnExit();
+				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, installFile.toPath(), false);
+				assertThat(installFile).exists();
+
+			});
+		}
+		finally {
+			System.setProperty("user.home", originalUserHome);
+		}
+	}
+
+	@Test
+	public void testSetupWithFileOption(@org.junit.jupiter.api.io.TempDir Path tempDir) throws IOException {
+		Path configPath = tempDir.resolve("installed_config.yaml");
+		java.nio.file.Files.writeString(configPath, "- foo\n- bar\n");
+
+		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+			StubTerminalMessage stub = new StubTerminalMessage();
+			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
+			setupCommands.setup(null, configPath, tempPath, false);
+			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
+					"Not installed bar - the software item is not defined.");
+		});
 	}
 
 }
