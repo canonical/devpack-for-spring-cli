@@ -317,7 +317,8 @@ public class SetupCommandsTests {
 		// null add, uninstall true → wizard path
 		setupCommands.setup(null, true);
 
-		// openjdk-17-jdk was installed and not selected → must be removed because uninstall defaults to true
+		// openjdk-17-jdk was installed and not selected → must be removed because
+		// uninstall defaults to true
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
 				eq(aptPackage));
 
