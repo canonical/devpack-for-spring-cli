@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -127,19 +128,27 @@ public class SetupCommands {
 
 	private void headlessSetup(String[] add, SetupModel model, boolean uninstall) throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
+		ArrayList<Operation> operators = new ArrayList<>();
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
-					entry.install(this.terminalMessage);
+					operators.add(() -> entry.install(this.terminalMessage));
 					toAdd.remove(entry.item());
 				}
 				else if (uninstall) {
-					entry.remove(this.terminalMessage);
+					operators.add(() -> entry.remove(this.terminalMessage));
 				}
 			}
 		}
 		for (var notInstalled : toAdd) {
 			terminalMessage.print(String.format("Not installed %s - the software item is not defined.", notInstalled));
+		}
+		if (!toAdd.isEmpty()) {
+			throw new IOException("Missing software item definitions");
+		}
+		// install and uninstall
+		for (var operator : operators) {
+			operator.run();
 		}
 	}
 
@@ -147,4 +156,7 @@ public class SetupCommands {
 		return ConfigUtil.openConfigurationFile(SETUP_CONFIGURATION, "setup-configuration.yaml");
 	}
 
+	private interface Operation {
+		void run() throws IOException;
+	}
 }
