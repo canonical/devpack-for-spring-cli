@@ -157,6 +157,9 @@ public class SetupCommands {
 	}
 
 	private interface Operation {
+
 		void run() throws IOException;
+
 	}
+
 }
