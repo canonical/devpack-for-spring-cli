@@ -66,6 +66,7 @@ public class SetupCommands {
 
 	private void saveInstalledSoftware(Path fileName, String[] software) throws IOException {
 		var yaml = new Yaml();
+		Arrays.sort(software);
 		ConfigUtil.writeInstallConfig(fileName, yaml.dump(software));
 	}
 
@@ -119,6 +120,7 @@ public class SetupCommands {
 			}
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
+			ArrayList<String> installed = new ArrayList<>();
 			for (SetupCategory cat : model.getCategories()) {
 				HashSet<String> entrySet = new HashSet<>();
 				if (cat.isAllowMultiSelect()) {
@@ -129,9 +131,9 @@ public class SetupCommands {
 					String selectedEntry = result.getContext().get(cat.getName());
 					entrySet.add(selectedEntry);
 				}
-				saveInstalledSoftware(saveSetupList, entrySet.toArray(String[]::new));
 				for (var entry : cat.getSetupEntries()) {
 					if (entrySet.contains(entry.item())) {
+						installed.add(entry.item());
 						entry.install(terminalMessage);
 					}
 					else {
@@ -139,6 +141,7 @@ public class SetupCommands {
 					}
 				}
 			}
+			saveInstalledSoftware(saveSetupList, installed.toArray(String[]::new));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
