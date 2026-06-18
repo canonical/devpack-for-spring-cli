@@ -173,7 +173,7 @@ public class SetupCommandsTests {
 		String snapPackage = "docker";
 		String snapInstallPattern = "snap info " + snapPackage;
 
-		// Report only openjdk-17-jdk as installed
+		// Report only docker as installed
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(snapInstallPattern)))
 			.willReturn(0);
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(snapInstallPattern))))
@@ -197,7 +197,7 @@ public class SetupCommandsTests {
 	@Test
 	public void testUninstallSkippedWhenNotInstalled() throws IOException {
 		// When uninstall=true but the package is not currently installed,
-		// remove() should return early without invoking any process.
+		// remove() should return early without invoking any removal process.
 		String toRemove = "openjdk-17-jdk";
 
 		StubTerminalMessage tm = new StubTerminalMessage();
@@ -248,25 +248,22 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, mockBuilder, mockProcessUtil);
 		setupCommands.setup(null, false);
 
-		assertThat(tm.getPrintMessages())
-			.contains(String.format("%s was successfully installed.", description));
+		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 		// no package should have been removed
-		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"),
-				eq("remove"), eq("-y"), any());
-		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"),
-				eq("remove"), any());
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
+				eq("-y"), any());
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"), any());
 	}
 
 	@Test
 	public void testWizardConfirmationUninstall() throws IOException {
 		String aptPackage = "openjdk-17-jdk";
 		String aptCheckPattern = "dpkg -s " + aptPackage;
-		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(aptCheckPattern)))
-			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(aptCheckPattern))).willReturn(0);
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptCheckPattern))))
 			.willReturn(1);
-		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
-				eq("-y"), eq(aptPackage)))
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage)))
 			.willReturn(0);
 		ComponentContext<?> mockContext = Mockito.mock(ComponentContext.class);
 		Mockito.doReturn(List.of()).when(mockContext).get("java");
@@ -287,8 +284,8 @@ public class SetupCommandsTests {
 		setupCommands.setup(null, false);
 
 		// openjdk-17-jdk was installed and not selected → must be removed
-		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"),
-				eq("remove"), eq("-y"), eq(aptPackage));
+		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage));
 	}
 
 	private static void setupMultiselect(ComponentContext<?> mockContext) {
@@ -299,7 +296,9 @@ public class SetupCommandsTests {
 
 	private ComponentFlow.Builder createMockBuilder(ComponentFlow mockFlow) {
 		class BuilderHolder {
+
 			ComponentFlow.Builder builder;
+
 		}
 		final BuilderHolder holder = new BuilderHolder();
 		Answer<Object> builderAnswer = new Answer<Object>() {

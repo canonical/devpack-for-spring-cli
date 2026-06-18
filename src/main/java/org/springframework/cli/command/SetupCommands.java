@@ -90,9 +90,9 @@ public class SetupCommands {
 				}
 			}
 			builder = builder.withConfirmationInput("uninstall")
-					.name("Remove unselected software?")
-					.defaultValue(false)
-					.and();
+				.name("Remove unselected software?")
+				.defaultValue(false)
+				.and();
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
 			uninstall = result.getContext().get("uninstall");
