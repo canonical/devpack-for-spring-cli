@@ -83,20 +83,21 @@ public class SetupCommands {
 	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
 			@Option(longNames = "file", description = "Path to the software list file") Path configPath,
 			@Option(longNames = "save",
-					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") Path saveSetupList) {
+					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") Path saveSetupList,
+			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null && configPath != null) {
 				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
 			}
 			if (add != null) {
-				headlessSetup(add, model);
+				headlessSetup(add, model, uninstall);
 				saveInstalledSoftware(saveSetupList, add);
 				return;
 			}
 
 			if (configPath != null) {
-				headlessSetup(loadSoftwareList(configPath), model);
+				headlessSetup(loadSoftwareList(configPath), model, uninstall);
 				return;
 			}
 
@@ -119,8 +120,15 @@ public class SetupCommands {
 						.and();
 				}
 			}
+			if (!uninstall) {
+				builder = builder.withConfirmationInput("uninstall")
+					.name("Remove unselected software?")
+					.defaultValue(false)
+					.and();
+			}
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
+			uninstall = uninstall || Boolean.TRUE.equals(result.getContext().get("uninstall"));
 			ArrayList<String> installed = new ArrayList<>();
 			for (SetupCategory cat : model.getCategories()) {
 				HashSet<String> entrySet = new HashSet<>();
@@ -137,7 +145,7 @@ public class SetupCommands {
 						installed.add(entry.item());
 						entry.install(terminalMessage);
 					}
-					else {
+					else if (uninstall) {
 						entry.remove(terminalMessage);
 					}
 				}
@@ -150,23 +158,40 @@ public class SetupCommands {
 
 	}
 
-	private void headlessSetup(String[] add, SetupModel model) throws IOException {
+	private void headlessSetup(String[] add, SetupModel model, boolean uninstall) throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
+		ArrayList<Operation> operators = new ArrayList<>();
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
-					entry.install(this.terminalMessage);
+					operators.add(() -> entry.install(this.terminalMessage));
 					toAdd.remove(entry.item());
+				}
+				else if (uninstall) {
+					operators.add(() -> entry.remove(this.terminalMessage));
 				}
 			}
 		}
 		for (var notInstalled : toAdd) {
 			terminalMessage.print(String.format("Not installed %s - the software item is not defined.", notInstalled));
 		}
+		if (!toAdd.isEmpty()) {
+			throw new IOException("Missing software item definitions");
+		}
+		// install and uninstall
+		for (var operator : operators) {
+			operator.run();
+		}
 	}
 
 	private InputStream getSetupConfiguration() throws FileNotFoundException {
 		return ConfigUtil.openConfigurationFile(SETUP_CONFIGURATION, "setup-configuration.yaml");
+	}
+
+	private interface Operation {
+
+		void run() throws IOException;
+
 	}
 
 }
