@@ -20,6 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -31,6 +34,7 @@ import com.canonical.devpackspring.setup.SetupCategory;
 import com.canonical.devpackspring.setup.SetupEntry;
 import com.canonical.devpackspring.setup.SetupEntryFactory;
 import com.canonical.devpackspring.setup.SetupModel;
+import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.TerminalMessage;
@@ -60,12 +64,39 @@ public class SetupCommands {
 		this.processUtil = processUtil;
 	}
 
+	private void saveInstalledSoftware(Path fileName, String[] software) throws IOException {
+		var yaml = new Yaml();
+		Arrays.sort(software);
+		ConfigUtil.writeInstallConfig(fileName, yaml.dump(software));
+	}
+
+	private String[] loadSoftwareList(Path configPath) throws IOException {
+		var yaml = new Yaml(new org.yaml.snakeyaml.constructor.SafeConstructor(new org.yaml.snakeyaml.LoaderOptions()));
+		Object loaded = yaml.load(Files.readString(configPath));
+		if (!(loaded instanceof List<?> list)) {
+			throw new IOException("Invalid software list format in " + configPath);
+		}
+		return list.stream().map(String::valueOf).toArray(String[]::new);
+	}
+
 	@Command(command = "setup", description = "Setup development environment")
-	public void setup(@Option(description = "Software to install") String[] add) {
+	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
+			@Option(longNames = "file", description = "Path to the software list file") Path configPath,
+			@Option(longNames = "save",
+					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") Path saveSetupList) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
+			if (add != null && configPath != null) {
+				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
+			}
 			if (add != null) {
 				headlessSetup(add, model);
+				saveInstalledSoftware(saveSetupList, add);
+				return;
+			}
+
+			if (configPath != null) {
+				headlessSetup(loadSoftwareList(configPath), model);
 				return;
 			}
 
@@ -90,6 +121,7 @@ public class SetupCommands {
 			}
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
+			ArrayList<String> installed = new ArrayList<>();
 			for (SetupCategory cat : model.getCategories()) {
 				HashSet<String> entrySet = new HashSet<>();
 				if (cat.isAllowMultiSelect()) {
@@ -100,9 +132,9 @@ public class SetupCommands {
 					String selectedEntry = result.getContext().get(cat.getName());
 					entrySet.add(selectedEntry);
 				}
-
 				for (var entry : cat.getSetupEntries()) {
 					if (entrySet.contains(entry.item())) {
+						installed.add(entry.item());
 						entry.install(terminalMessage);
 					}
 					else {
@@ -110,6 +142,7 @@ public class SetupCommands {
 					}
 				}
 			}
+			saveInstalledSoftware(saveSetupList, installed.toArray(String[]::new));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
