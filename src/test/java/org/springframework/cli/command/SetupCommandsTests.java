@@ -288,6 +288,43 @@ public class SetupCommandsTests {
 				eq(aptPackage));
 	}
 
+	@Test
+	public void testWizardWithUninstallOption() throws IOException {
+		String aptPackage = "openjdk-17-jdk";
+		String aptCheckPattern = "dpkg -s " + aptPackage;
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(aptCheckPattern))).willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptCheckPattern))))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage)))
+			.willReturn(0);
+		ComponentContext<?> mockContext = Mockito.mock(ComponentContext.class);
+		Mockito.doReturn(List.of()).when(mockContext).get("java");
+		setupMultiselect(mockContext);
+
+		// no confirmation dialog should be shown - return null for uninstall key
+		Mockito.doReturn(null).when(mockContext).get("uninstall");
+
+		ComponentFlow.ComponentFlowResult mockResult = Mockito.mock(ComponentFlow.ComponentFlowResult.class);
+		Mockito.doReturn(mockContext).when(mockResult).getContext();
+
+		ComponentFlow mockFlow = Mockito.mock(ComponentFlow.class);
+		given(mockFlow.run()).willReturn(mockResult);
+
+		ComponentFlow.Builder mockBuilder = createMockBuilder(mockFlow);
+
+		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
+		// null add, uninstall true → wizard path
+		setupCommands.setup(null, true);
+
+		// openjdk-17-jdk was installed and not selected → must be removed because uninstall defaults to true
+		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
+				eq(aptPackage));
+
+		// Check that withConfirmationInput is not called on the builder
+		verify(mockBuilder, never()).withConfirmationInput(any());
+	}
+
 	private static void setupMultiselect(ComponentContext<?> mockContext) {
 		Mockito.doReturn(List.of()).when(mockContext).get("docker");
 		Mockito.doReturn(List.of()).when(mockContext).get("ide");
