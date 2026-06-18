@@ -79,9 +79,9 @@ public class SetupCommands {
 	}
 
 	@Command(command = "setup", description = "Setup development environment")
-	public void setup(@Option(description = "Software to install") String[] add,
-			@Option(description = "Path to the software list file") Path configPath,
-			@Option(description = "Path to save the installed software list") Path saveSetupList) {
+	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
+			@Option(longNames = "file", description = "Path to the software list file") Path configPath,
+			@Option(longNames = "save", description = "Path to save the installed software list") Path saveSetupList) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null && configPath != null) {
