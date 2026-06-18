@@ -70,9 +70,12 @@ public class SetupCommands {
 	}
 
 	private String[] loadSoftwareList(Path configPath) throws IOException {
-		var yaml = new Yaml();
-		ArrayList<String> data = yaml.load(Files.readString(configPath));
-		return data.toArray(String[]::new);
+		var yaml = new Yaml(new org.yaml.snakeyaml.constructor.SafeConstructor(new org.yaml.snakeyaml.LoaderOptions()));
+		Object loaded = yaml.load(Files.readString(configPath));
+		if (!(loaded instanceof List<?> list)) {
+			throw new IOException("Invalid software list format in " + configPath);
+		}
+		return list.stream().map(String::valueOf).toArray(String[]::new);
 	}
 
 	@Command(command = "setup", description = "Setup development environment")
