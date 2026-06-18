@@ -17,16 +17,21 @@
 package org.springframework.cli.command;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.canonical.devpackspring.IProcessUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.MockConfigurations;
 import org.springframework.cli.util.StubTerminalMessage;
+import org.springframework.shell.component.context.ComponentContext;
 import org.springframework.shell.component.flow.ComponentFlow;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -212,6 +217,115 @@ public class SetupCommandsTests {
 		// The snap remove command must never be issued
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"),
 				eq(toRemove));
+	}
+
+	@Test
+	public void testWizardMultiSelectInstall() throws IOException {
+		String toInstall = "openjdk-17-jdk";
+		String description = "OpenJDK 17";
+
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(0);
+
+		ComponentContext<?> mockContext = Mockito.mock(ComponentContext.class);
+		Mockito.doReturn(List.of(toInstall)).when(mockContext).get("java");
+		setupMultiselect(mockContext);
+		// do not uninstall
+		Mockito.doReturn(Boolean.FALSE).when(mockContext).get("uninstall");
+
+		ComponentFlow.ComponentFlowResult mockResult = Mockito.mock(ComponentFlow.ComponentFlowResult.class);
+		Mockito.doReturn(mockContext).when(mockResult).getContext();
+
+		ComponentFlow mockFlow = Mockito.mock(ComponentFlow.class);
+		given(mockFlow.run()).willReturn(mockResult);
+
+		ComponentFlow.Builder mockBuilder = createMockBuilder(mockFlow);
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		SetupCommands setupCommands = new SetupCommands(tm, mockBuilder, mockProcessUtil);
+		setupCommands.setup(null, false);
+
+		assertThat(tm.getPrintMessages())
+			.contains(String.format("%s was successfully installed.", description));
+		// no package should have been removed
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"),
+				eq("remove"), eq("-y"), any());
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"),
+				eq("remove"), any());
+	}
+
+	@Test
+	public void testWizardConfirmationUninstall() throws IOException {
+		String aptPackage = "openjdk-17-jdk";
+		String aptCheckPattern = "dpkg -s " + aptPackage;
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains(aptCheckPattern)))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptCheckPattern))))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
+				eq("-y"), eq(aptPackage)))
+			.willReturn(0);
+		ComponentContext<?> mockContext = Mockito.mock(ComponentContext.class);
+		Mockito.doReturn(List.of()).when(mockContext).get("java");
+		setupMultiselect(mockContext);
+
+		Mockito.doReturn(true).when(mockContext).get("uninstall"); // remove unselected
+
+		ComponentFlow.ComponentFlowResult mockResult = Mockito.mock(ComponentFlow.ComponentFlowResult.class);
+		Mockito.doReturn(mockContext).when(mockResult).getContext();
+
+		ComponentFlow mockFlow = Mockito.mock(ComponentFlow.class);
+		given(mockFlow.run()).willReturn(mockResult);
+
+		ComponentFlow.Builder mockBuilder = createMockBuilder(mockFlow);
+
+		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
+		// null add → wizard path
+		setupCommands.setup(null, false);
+
+		// openjdk-17-jdk was installed and not selected → must be removed
+		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"),
+				eq("remove"), eq("-y"), eq(aptPackage));
+	}
+
+	private static void setupMultiselect(ComponentContext<?> mockContext) {
+		Mockito.doReturn(List.of()).when(mockContext).get("docker");
+		Mockito.doReturn(List.of()).when(mockContext).get("ide");
+		Mockito.doReturn(List.of()).when(mockContext).get("misc");
+	}
+
+	private ComponentFlow.Builder createMockBuilder(ComponentFlow mockFlow) {
+		class BuilderHolder {
+			ComponentFlow.Builder builder;
+		}
+		final BuilderHolder holder = new BuilderHolder();
+		Answer<Object> builderAnswer = new Answer<Object>() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Class<?> returnType = invocation.getMethod().getReturnType();
+				if (invocation.getMethod().getName().equals("toString")) {
+					return "MockBuilder";
+				}
+				if (returnType.isInstance(invocation.getMock())) {
+					return invocation.getMock();
+				}
+				if (returnType.isAssignableFrom(ComponentFlow.Builder.class)) {
+					return holder.builder;
+				}
+				if (returnType.isAssignableFrom(ComponentFlow.class)) {
+					return mockFlow;
+				}
+				if (returnType.isInterface() && returnType.getSimpleName().endsWith("Spec")) {
+					return Mockito.mock(returnType, this);
+				}
+				return Mockito.RETURNS_DEFAULTS.answer(invocation);
+			}
+		};
+		holder.builder = Mockito.mock(ComponentFlow.Builder.class, builderAnswer);
+		return holder.builder;
 	}
 
 }
