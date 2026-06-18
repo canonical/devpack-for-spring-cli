@@ -306,9 +306,6 @@ public class SetupCommandsTests {
 		Mockito.doReturn(List.of()).when(mockContext).get("java");
 		setupMultiselect(mockContext);
 
-		// no confirmation dialog should be shown - return null for uninstall key
-		Mockito.doReturn(null).when(mockContext).get("uninstall");
-
 		ComponentFlow.ComponentFlowResult mockResult = Mockito.mock(ComponentFlow.ComponentFlowResult.class);
 		Mockito.doReturn(mockContext).when(mockResult).getContext();
 
