@@ -89,8 +89,14 @@ public class SetupCommands {
 						.and();
 				}
 			}
+			builder = builder.withConfirmationInput("uninstall")
+					.name("Remove unselected software?")
+					.defaultValue(false)
+					.and();
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
+			uninstall = result.getContext().get("uninstall");
+
 			for (SetupCategory cat : model.getCategories()) {
 				HashSet<String> entrySet = new HashSet<>();
 				if (cat.isAllowMultiSelect()) {
