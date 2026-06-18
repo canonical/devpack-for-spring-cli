@@ -97,8 +97,7 @@ public class SetupCommands {
 			}
 			ComponentFlow flow = builder.build();
 			ComponentFlow.ComponentFlowResult result = flow.run();
-			uninstall = result.getContext().get("uninstall");
-
+			uninstall = uninstall || Boolean.TRUE.equals(result.getContext().get("uninstall"));
 			for (SetupCategory cat : model.getCategories()) {
 				HashSet<String> entrySet = new HashSet<>();
 				if (cat.isAllowMultiSelect()) {
