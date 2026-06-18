@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.canonical.devpackspring.IProcessUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -45,15 +46,24 @@ public class SetupCommandsTests {
 	@Mock
 	private IProcessUtil mockProcessUtil;
 
+	private Path tempPath;
+
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
+
+	@BeforeEach
+	public void setUp() throws IOException {
+		var temp = File.createTempFile("install", "yaml");
+		temp.deleteOnExit();
+		tempPath = temp.toPath();
+	}
 
 	@Test
 	public void testSetupCommand() {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			setupCommands.setup(new String[] { "foo", "bar" }, null, null);
+			setupCommands.setup(new String[] { "foo", "bar" }, null, tempPath);
 			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
 					"Not installed bar - the software item is not defined.");
 
@@ -72,7 +82,7 @@ public class SetupCommandsTests {
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
 			.willReturn(0);
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, null);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 	}
 
@@ -95,7 +105,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, null);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install package %s.", toInstall));
 	}
 
@@ -134,7 +144,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, null);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install snap %s.", toInstall));
 	}
 
@@ -144,7 +154,7 @@ public class SetupCommandsTests {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			org.assertj.core.api.Assertions
-				.assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo" }, Path.of("config.yaml"), null))
+				.assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo" }, Path.of("config.yaml"), tempPath))
 				.isInstanceOf(RuntimeException.class)
 				.hasMessage("Options --add and --file options are mutually exclusive.");
 		});
@@ -187,7 +197,7 @@ public class SetupCommandsTests {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			setupCommands.setup(null, configPath, null);
+			setupCommands.setup(null, configPath, tempPath);
 			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
 					"Not installed bar - the software item is not defined.");
 		});
