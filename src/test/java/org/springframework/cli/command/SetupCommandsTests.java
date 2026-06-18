@@ -403,7 +403,7 @@ public class SetupCommandsTests {
 			this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 				StubTerminalMessage stub = new StubTerminalMessage();
 				SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, null, false);
+				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null, null, false);
 
 				Path expectedPath = tempDir.resolve(".config")
 					.resolve("devpack-for-spring")
@@ -411,10 +411,11 @@ public class SetupCommandsTests {
 
 				assertThat(expectedPath).exists();
 				String content = Files.readString(expectedPath);
-				assertThat(content).contains("openjdk-17").contains("openjdk-21");
+				assertThat(content).contains("openjdk-17-jdk").contains("openjdk-21-jdk");
 				File installFile = File.createTempFile("install", ".tmp");
 				installFile.deleteOnExit();
-				setupCommands.setup(new String[] { "openjdk-17", "openjdk-21" }, null, installFile.toPath(), false);
+				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null, installFile.toPath(),
+						false);
 				assertThat(installFile).exists();
 
 			});
@@ -432,7 +433,11 @@ public class SetupCommandsTests {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			setupCommands.setup(null, configPath, tempPath, false);
+			assertThatThrownBy(() -> setupCommands.setup(null, configPath, tempPath, false))
+				.isInstanceOf(RuntimeException.class)
+				.hasCauseInstanceOf(IOException.class)
+				.hasMessageContaining("Missing software item definitions");
+
 			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
 					"Not installed bar - the software item is not defined.");
 		});
