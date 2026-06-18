@@ -35,6 +35,7 @@ import org.springframework.shell.component.context.ComponentContext;
 import org.springframework.shell.component.flow.ComponentFlow;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -58,7 +59,10 @@ public class SetupCommandsTests {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			setupCommands.setup(new String[] { "foo", "bar" }, false);
+			assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo", "bar" }, false))
+				.isInstanceOf(RuntimeException.class)
+				.hasCauseInstanceOf(IOException.class)
+				.hasMessageContaining("Missing software item definitions");
 			assertThat(stub.getPrintMessages()).contains("Not installed foo - the software item is not defined.",
 					"Not installed bar - the software item is not defined.");
 
