@@ -20,6 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -31,6 +34,7 @@ import com.canonical.devpackspring.setup.SetupCategory;
 import com.canonical.devpackspring.setup.SetupEntry;
 import com.canonical.devpackspring.setup.SetupEntryFactory;
 import com.canonical.devpackspring.setup.SetupModel;
+import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.TerminalMessage;
@@ -60,12 +64,34 @@ public class SetupCommands {
 		this.processUtil = processUtil;
 	}
 
+	private void saveInstalledSoftware(Path fileName, String[] software) throws IOException {
+		var yaml = new Yaml();
+		ConfigUtil.writeInstallConfig(fileName, yaml.dump(software));
+	}
+
+	private String[] loadSoftwareList(Path configPath) throws IOException {
+		var yaml = new Yaml();
+		ArrayList<String> data = yaml.load(Files.readString(configPath));
+		return data.toArray(String[]::new);
+	}
+
 	@Command(command = "setup", description = "Setup development environment")
-	public void setup(@Option(description = "Software to install") String[] add) {
+	public void setup(@Option(description = "Software to install") String[] add,
+			@Option(description = "Path to the software list file") Path configPath,
+			@Option(description = "Path to save the installed software list") Path saveSetupList) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
+			if (add != null && configPath != null) {
+				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
+			}
 			if (add != null) {
 				headlessSetup(add, model);
+				saveInstalledSoftware(saveSetupList, add);
+				return;
+			}
+
+			if (configPath != null) {
+				headlessSetup(loadSoftwareList(configPath), model);
 				return;
 			}
 
@@ -100,7 +126,7 @@ public class SetupCommands {
 					String selectedEntry = result.getContext().get(cat.getName());
 					entrySet.add(selectedEntry);
 				}
-
+				saveInstalledSoftware(saveSetupList, entrySet.toArray(String[]::new));
 				for (var entry : cat.getSetupEntries()) {
 					if (entrySet.contains(entry.item())) {
 						entry.install(terminalMessage);
