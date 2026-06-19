@@ -90,7 +90,7 @@ public class SetupCommands {
 			if (add != null && configPath != null) {
 				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
 			}
-			Path saveSetupPath = Path.of(saveSetupList);
+			Path saveSetupPath = (saveSetupList != null) ? Path.of(saveSetupList) : null;
 			if (add != null) {
 				headlessSetup(add, model, uninstall);
 				saveInstalledSoftware(saveSetupPath, add);
