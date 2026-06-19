@@ -55,7 +55,7 @@ public class SetupCommandsTests {
 	@Mock
 	private IProcessUtil mockProcessUtil;
 
-	private Path tempPath;
+	private String tempPath;
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
@@ -64,7 +64,7 @@ public class SetupCommandsTests {
 	public void setUp() throws IOException {
 		var temp = File.createTempFile("install", "yaml");
 		temp.deleteOnExit();
-		tempPath = temp.toPath();
+		tempPath = temp.getAbsolutePath();
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		File installFile = File.createTempFile("install", ".tmp");
 		installFile.deleteOnExit();
-		setupCommands.setup(new String[] { toInstall }, null, installFile.toPath(), false);
+		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false);
 		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
 		assertThat(Files.readString(installFile.toPath())).isEqualTo("[docker]\n");
 	}
@@ -388,8 +388,7 @@ public class SetupCommandsTests {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			org.assertj.core.api.Assertions
-				.assertThatThrownBy(
-						() -> setupCommands.setup(new String[] { "foo" }, Path.of("config.yaml"), tempPath, false))
+				.assertThatThrownBy(() -> setupCommands.setup(new String[] { "foo" }, "config.yaml", tempPath, false))
 				.isInstanceOf(RuntimeException.class)
 				.hasMessage("Options --add and --file options are mutually exclusive.");
 		});
@@ -414,8 +413,8 @@ public class SetupCommandsTests {
 				assertThat(content).contains("openjdk-17-jdk").contains("openjdk-21-jdk");
 				File installFile = File.createTempFile("install", ".tmp");
 				installFile.deleteOnExit();
-				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null, installFile.toPath(),
-						false);
+				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null,
+						installFile.getAbsolutePath(), false);
 				assertThat(installFile).exists();
 
 			});
@@ -433,7 +432,7 @@ public class SetupCommandsTests {
 		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			assertThatThrownBy(() -> setupCommands.setup(null, configPath, tempPath, false))
+			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false))
 				.isInstanceOf(RuntimeException.class)
 				.hasCauseInstanceOf(IOException.class)
 				.hasMessageContaining("Missing software item definitions");

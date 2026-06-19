@@ -81,23 +81,24 @@ public class SetupCommands {
 
 	@Command(command = "setup", description = "Setup development environment")
 	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
-			@Option(longNames = "file", description = "Path to the software list file") Path configPath,
+			@Option(longNames = "file", description = "Path to the software list file") String configPath,
 			@Option(longNames = "save",
-					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") Path saveSetupList,
+					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
 			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null && configPath != null) {
 				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
 			}
+			Path saveSetupPath = (saveSetupList != null) ? Path.of(saveSetupList) : null;
 			if (add != null) {
 				headlessSetup(add, model, uninstall);
-				saveInstalledSoftware(saveSetupList, add);
+				saveInstalledSoftware(saveSetupPath, add);
 				return;
 			}
 
 			if (configPath != null) {
-				headlessSetup(loadSoftwareList(configPath), model, uninstall);
+				headlessSetup(loadSoftwareList(Path.of(configPath)), model, uninstall);
 				return;
 			}
 
@@ -150,7 +151,7 @@ public class SetupCommands {
 					}
 				}
 			}
-			saveInstalledSoftware(saveSetupList, installed.toArray(String[]::new));
+			saveInstalledSoftware(saveSetupPath, installed.toArray(String[]::new));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
