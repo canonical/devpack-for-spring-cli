@@ -27,7 +27,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cli.config.SpringCliRuntimeHints;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.shell.CommandNotFound;
-import org.springframework.shell.command.annotation.CommandScan;
 
 /**
  * Main boot app.
@@ -36,7 +35,6 @@ import org.springframework.shell.command.annotation.CommandScan;
  */
 @SpringBootApplication
 @ImportRuntimeHints(SpringCliRuntimeHints.class)
-@CommandScan
 public class DevpackForSpringCliApplication {
 
 	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW)
