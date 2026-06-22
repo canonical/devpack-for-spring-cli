@@ -27,7 +27,7 @@ import org.springframework.cli.util.SpringCliTerminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ReactorResourceFactory;
-import org.springframework.shell.command.CommandExceptionResolver;
+import org.springframework.shell.core.ExitStatusExceptionMapper;
 import org.springframework.shell.result.CommandNotFoundMessageProvider;
 import org.springframework.shell.style.ThemeResolver;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -56,7 +56,7 @@ public class SpringCliConfiguration {
 	}
 
 	@Bean
-	public CommandExceptionResolver commandExceptionResolver(@Value("${app.debug:false}") boolean debug) {
+	public ExitStatusExceptionMapper exitStatusExceptionMapper(@Value("${app.debug:false}") boolean debug) {
 		return new SpringCliExceptionResolver(debug);
 	}
 

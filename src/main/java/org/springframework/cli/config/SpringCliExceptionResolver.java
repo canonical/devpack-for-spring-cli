@@ -25,10 +25,10 @@ import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.shell.command.CommandExceptionResolver;
-import org.springframework.shell.command.CommandHandlingResult;
+import org.springframework.shell.core.ExitStatus;
+import org.springframework.shell.core.ExitStatusExceptionMapper;
 
-public class SpringCliExceptionResolver implements CommandExceptionResolver, ApplicationContextAware, InitializingBean {
+public class SpringCliExceptionResolver implements ExitStatusExceptionMapper, ApplicationContextAware, InitializingBean {
 
 	private ApplicationContext applicationContext;
 
@@ -41,13 +41,13 @@ public class SpringCliExceptionResolver implements CommandExceptionResolver, App
 	}
 
 	@Override
-	public CommandHandlingResult resolve(Exception e) {
+	public ExitStatus apply(Exception e) {
 		if (debug) {
 			e.printStackTrace(getTerminal().writer());
-			return CommandHandlingResult.of("", 1);
+			return new ExitStatus(1, "");
 		}
-		return CommandHandlingResult.of(AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s\n", e.getMessage())
-				+ AnsiOutput.encode(AnsiColor.DEFAULT), 1);
+		return new ExitStatus(1, AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s\n", e.getMessage())
+				+ AnsiOutput.encode(AnsiColor.DEFAULT));
 	}
 
 	private Terminal getTerminal() {
