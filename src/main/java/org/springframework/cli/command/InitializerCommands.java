@@ -32,15 +32,16 @@ import org.springframework.cli.initializr.InitializrClient;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.initializr.InitializrUtils;
 import org.springframework.cli.initializr.model.Metadata;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
+import org.springframework.stereotype.Component;
+import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.CommandGroup;
+import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.component.context.ComponentContext;
 import org.springframework.shell.component.flow.ComponentFlow;
 import org.springframework.shell.component.flow.ComponentFlow.ComponentFlowResult;
 import org.springframework.shell.component.flow.ResultMode;
 import org.springframework.shell.component.flow.SelectItem;
 import org.springframework.shell.component.support.SelectorItem;
-import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -48,8 +49,9 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Janne Valkealahti
  */
-@Command(command = "boot", group = "Boot")
-public class InitializerCommands extends AbstractShellComponent {
+@Component
+@CommandGroup(prefix = "boot", name = "Boot")
+public class InitializerCommands {
 
 	private static final String PATH_NAME = "Path";
 
@@ -131,7 +133,7 @@ public class InitializerCommands extends AbstractShellComponent {
 		this.springCliProperties = springCliProperties;
 	}
 
-	@Command(command = "start", description = "Create a new project from start.spring.io")
+	@Command(name = "start", description = "Create a new project from start.spring.io")
 	public String init(@Option(description = "Path to extract") String path,
 			@Option(description = "Project") String project, @Option(description = "Language") String language,
 			@Option(longNames = "boot-version", description = "Language") String bootVersion,
