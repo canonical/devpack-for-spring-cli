@@ -30,7 +30,7 @@ import org.springframework.cli.config.SpringCliUserConfig;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.shell.core.style.ThemeResolver;
+import org.springframework.shell.jline.tui.style.ThemeResolver;
 
 public class MockConfigurations {
 
@@ -64,8 +64,7 @@ public class MockConfigurations {
 			try (FileSystem fileSystem = Jimfs.newFileSystem()) {
 				Function<String, Path> pathProvider = fileSystem::getPath;
 				return new SpringCliUserConfig(pathProvider);
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
 		}
