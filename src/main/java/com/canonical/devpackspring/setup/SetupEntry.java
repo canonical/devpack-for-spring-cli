@@ -23,7 +23,7 @@ import com.canonical.devpackspring.IProcessUtil;
 import org.apache.commons.text.StringSubstitutor;
 
 import org.springframework.cli.util.TerminalMessage;
-import org.springframework.shell.core.component.flow.DefaultSelectItem;
+import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
 
 public abstract class SetupEntry extends DefaultSelectItem {
 
