@@ -39,16 +39,16 @@ import org.springframework.cli.util.TerminalMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.Option;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.DefaultSelectItem;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.component.flow.SelectItem;
-import org.springframework.shell.component.support.Nameable;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.core.component.flow.ComponentFlow;
+import org.springframework.shell.core.component.flow.DefaultSelectItem;
+import org.springframework.shell.core.component.flow.ResultMode;
+import org.springframework.shell.core.component.flow.SelectItem;
+import org.springframework.shell.core.component.support.Nameable;
+import org.springframework.shell.jline.tui.table.ArrayTableModel;
+import org.springframework.shell.jline.tui.table.BorderStyle;
+import org.springframework.shell.jline.tui.table.Table;
+import org.springframework.shell.jline.tui.table.TableBuilder;
+import org.springframework.shell.jline.tui.table.TableModel;
 
 @Component
 public class BuildCommands {

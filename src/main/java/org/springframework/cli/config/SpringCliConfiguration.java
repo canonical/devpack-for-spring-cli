@@ -28,8 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.shell.core.ExitStatusExceptionMapper;
-import org.springframework.shell.result.CommandNotFoundMessageProvider;
-import org.springframework.shell.style.ThemeResolver;
+import org.springframework.shell.core.result.CommandNotFoundMessageProvider;
+import org.springframework.shell.core.style.ThemeResolver;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**

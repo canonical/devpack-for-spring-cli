@@ -34,11 +34,11 @@ import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.shell.style.TemplateExecutor;
-import org.springframework.shell.style.Theme;
-import org.springframework.shell.style.ThemeRegistry;
-import org.springframework.shell.style.ThemeResolver;
-import org.springframework.shell.style.ThemeSettings;
+import org.springframework.shell.core.style.TemplateExecutor;
+import org.springframework.shell.core.style.Theme;
+import org.springframework.shell.core.style.ThemeRegistry;
+import org.springframework.shell.core.style.ThemeResolver;
+import org.springframework.shell.core.style.ThemeSettings;
 
 public abstract class AbstractShellTests {
 

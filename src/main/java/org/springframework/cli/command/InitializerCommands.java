@@ -36,12 +36,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
-import org.springframework.shell.component.context.ComponentContext;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.ComponentFlow.ComponentFlowResult;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.component.flow.SelectItem;
-import org.springframework.shell.component.support.SelectorItem;
+import org.springframework.shell.core.component.context.ComponentContext;
+import org.springframework.shell.core.component.flow.ComponentFlow;
+import org.springframework.shell.core.component.flow.ComponentFlow.ComponentFlowResult;
+import org.springframework.shell.core.component.flow.ResultMode;
+import org.springframework.shell.core.component.flow.SelectItem;
+import org.springframework.shell.core.component.support.SelectorItem;
 import org.springframework.util.ObjectUtils;
 
 /**

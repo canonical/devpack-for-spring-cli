@@ -41,10 +41,10 @@ import org.springframework.cli.util.TerminalMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.Option;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.component.flow.SelectItem;
-import org.springframework.shell.component.support.Nameable;
+import org.springframework.shell.core.component.flow.ComponentFlow;
+import org.springframework.shell.core.component.flow.ResultMode;
+import org.springframework.shell.core.component.flow.SelectItem;
+import org.springframework.shell.core.component.support.Nameable;
 
 @Component
 public class SetupCommands {

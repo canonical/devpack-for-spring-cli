@@ -35,8 +35,8 @@ import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.MockConfigurations;
 import org.springframework.cli.util.StubTerminalMessage;
-import org.springframework.shell.component.context.ComponentContext;
-import org.springframework.shell.component.flow.ComponentFlow;
+import org.springframework.shell.core.component.context.ComponentContext;
+import org.springframework.shell.core.component.flow.ComponentFlow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

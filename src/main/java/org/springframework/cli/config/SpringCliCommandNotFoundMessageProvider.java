@@ -30,11 +30,11 @@ import org.jline.utils.AttributedStyle;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.shell.Utils;
-import org.springframework.shell.command.CommandCatalog;
-import org.springframework.shell.command.CommandRegistration;
-import org.springframework.shell.result.CommandNotFoundMessageProvider;
-import org.springframework.shell.standard.commands.Help;
+import org.springframework.shell.core.Utils;
+import org.springframework.shell.core.command.CommandCatalog;
+import org.springframework.shell.core.command.CommandRegistration;
+import org.springframework.shell.core.result.CommandNotFoundMessageProvider;
+import org.springframework.shell.core.command.Help;
 
 public class SpringCliCommandNotFoundMessageProvider
 		implements CommandNotFoundMessageProvider, ApplicationContextAware {

@@ -22,7 +22,7 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import org.springframework.shell.style.ThemeResolver;
+import org.springframework.shell.core.style.ThemeResolver;
 import org.springframework.util.StringUtils;
 
 /**

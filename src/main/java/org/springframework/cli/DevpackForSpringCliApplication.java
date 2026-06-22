@@ -26,7 +26,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cli.config.SpringCliRuntimeHints;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.shell.CommandNotFound;
+import org.springframework.shell.core.CommandNotFound;
 
 /**
  * Main boot app.
