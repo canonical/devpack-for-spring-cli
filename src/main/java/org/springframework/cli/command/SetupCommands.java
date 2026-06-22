@@ -81,9 +81,9 @@ public class SetupCommands {
 	}
 
 	@Command(name = "setup", description = "Setup development environment")
-	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
-			@Option(longNames = "file", description = "Path to the software list file") String configPath,
-			@Option(longNames = "save",
+	public void setup(@Option(longName = "add", description = "Software to install") String[] add,
+			@Option(longName = "file", description = "Path to the software list file") String configPath,
+			@Option(longName = "save",
 					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
 			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {

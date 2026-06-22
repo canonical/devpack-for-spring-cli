@@ -136,14 +136,14 @@ public class InitializerCommands {
 	@Command(name = "start", description = "Create a new project from start.spring.io")
 	public String init(@Option(description = "Path to extract") String path,
 			@Option(description = "Project") String project, @Option(description = "Language") String language,
-			@Option(longNames = "boot-version", description = "Language") String bootVersion,
+			@Option(longName = "boot-version", description = "Language") String bootVersion,
 			@Option(description = "Version") String version, @Option(description = "Group") String group,
 			@Option(description = "Artifact") String artifact, @Option(description = "Name") String name,
 			@Option(description = "Description") String description,
-			@Option(longNames = "package-name", description = "Package Name") String packageName,
+			@Option(longName = "package-name", description = "Package Name") String packageName,
 			@Option(description = "Dependencies") List<String> dependencies,
 			@Option(description = "Packaging") String packaging,
-			@Option(longNames = "java-version", description = "Java") String javaVersion) {
+			@Option(longName = "java-version", description = "Java") String javaVersion) {
 		InitializrClient client = buildClient();
 		Metadata metadata = client.getMetadata();
 
