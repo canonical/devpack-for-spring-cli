@@ -93,7 +93,8 @@ public abstract class AbstractShellTests {
 					pipedOutputStream.write(take);
 					pipedOutputStream.flush();
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 			}
 		});
 	}
@@ -142,7 +143,8 @@ public abstract class AbstractShellTests {
 		public String toString() {
 			try {
 				return out.toString(StandardCharsets.UTF_8.name());
-			} catch (UnsupportedEncodingException ex) {
+			}
+			catch (UnsupportedEncodingException ex) {
 				throw new RuntimeException(ex);
 			}
 		}

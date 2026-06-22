@@ -25,10 +25,12 @@ import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.shell.core.ExitStatus;
-import org.springframework.shell.core.ExitStatusExceptionMapper;
+import org.springframework.shell.core.command.CommandNotFoundException;
+import org.springframework.shell.core.command.ExitStatus;
+import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;;
 
-public class SpringCliExceptionResolver implements ExitStatusExceptionMapper, ApplicationContextAware, InitializingBean {
+public class SpringCliExceptionResolver
+		implements ExitStatusExceptionMapper, ApplicationContextAware, InitializingBean {
 
 	private ApplicationContext applicationContext;
 
@@ -46,7 +48,14 @@ public class SpringCliExceptionResolver implements ExitStatusExceptionMapper, Ap
 			e.printStackTrace(getTerminal().writer());
 			return new ExitStatus(1, "");
 		}
-		return new ExitStatus(1, AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s\n", e.getMessage())
+		if (e instanceof CommandNotFoundException cmd) {
+			return new ExitStatus(1,
+					AnsiOutput.encode(AnsiColor.BRIGHT_RED)
+							+ String.format("Command not found: %s", cmd.getCommandName())
+							+ AnsiOutput.encode(AnsiColor.DEFAULT));
+
+		}
+		return new ExitStatus(1, AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s", e.getMessage())
 				+ AnsiOutput.encode(AnsiColor.DEFAULT));
 	}
 
