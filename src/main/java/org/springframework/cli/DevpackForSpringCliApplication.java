@@ -26,7 +26,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cli.config.SpringCliRuntimeHints;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.shell.core.CommandNotFound;
+import org.springframework.shell.core.command.CommandNotFoundException;
 
 /**
  * Main boot app.
@@ -71,7 +71,7 @@ public class DevpackForSpringCliApplication {
 			if (debug) {
 				tx.printStackTrace();
 			}
-			if (tx instanceof CommandNotFound) {
+			if (tx instanceof CommandNotFoundException) {
 				System.exit(-1);
 			}
 			if (tx instanceof ExitCodeGenerator exitCode) {
