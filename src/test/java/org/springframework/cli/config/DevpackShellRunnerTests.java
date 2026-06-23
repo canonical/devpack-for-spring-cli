@@ -27,7 +27,6 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.shell.core.command.Command;
 import org.springframework.shell.core.command.CommandRegistry;
 import org.springframework.shell.core.command.DefaultCommandParser;
-import org.springframework.shell.core.command.ExitStatus;
 import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
