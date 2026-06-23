@@ -55,8 +55,8 @@ public class SpringCliExceptionResolver
 							+ AnsiOutput.encode(AnsiColor.DEFAULT));
 
 		}
-		return new ExitStatus(1, AnsiOutput.encode(AnsiColor.BRIGHT_RED) + String.format("%s", e.getMessage())
-				+ AnsiOutput.encode(AnsiColor.DEFAULT));
+		return new ExitStatus(1,
+				AnsiOutput.encode(AnsiColor.BRIGHT_RED) + e.getMessage() + AnsiOutput.encode(AnsiColor.DEFAULT));
 	}
 
 	private Terminal getTerminal() {
