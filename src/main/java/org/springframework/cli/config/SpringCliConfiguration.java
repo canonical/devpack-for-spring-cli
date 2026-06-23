@@ -67,8 +67,8 @@ public class SpringCliConfiguration {
 	@Bean
 	@Primary
 	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
-			Terminal terminal, ExitStatusExceptionMapper mapper) {
-		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper);
+			Terminal terminal, ExitStatusExceptionMapper mapper, DevpackCommandValidator validator) {
+		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper, validator);
 	}
 
 	@Bean
