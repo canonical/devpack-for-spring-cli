@@ -20,6 +20,7 @@ import java.time.Duration;
 
 import org.jline.terminal.Terminal;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.util.SpringCliTerminal;
@@ -50,6 +51,12 @@ public class SpringCliConfiguration {
 	@Bean
 	public WebClient.Builder webClientBuilder() {
 		return WebClient.builder();
+	}
+
+	@Bean
+	@Primary
+	public ExitStatusExceptionMapper exitStatusExceptionMapper(@Value("${app.debug:false}") boolean debug) {
+		return new SpringCliExceptionResolver(debug);
 	}
 
 	@Bean
