@@ -32,7 +32,6 @@ import org.springframework.cli.initializr.InitializrClient;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.initializr.InitializrUtils;
 import org.springframework.cli.initializr.model.Metadata;
-import org.springframework.stereotype.Component;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
@@ -42,6 +41,7 @@ import org.springframework.shell.jline.tui.component.flow.ComponentFlow.Componen
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
 import org.springframework.shell.jline.tui.component.flow.SelectItem;
 import org.springframework.shell.jline.tui.component.support.SelectorItem;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 /**

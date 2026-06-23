@@ -25,7 +25,7 @@ import org.springframework.shell.core.command.CommandOption;
 import org.springframework.shell.core.command.CommandRegistry;
 import org.springframework.shell.core.command.ParsedInput;
 
-public class DevpackCommandValidator  {
+public class DevpackCommandValidator {
 
 	private final CommandRegistry registry;
 

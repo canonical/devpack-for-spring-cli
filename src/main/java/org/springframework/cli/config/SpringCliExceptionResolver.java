@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.shell.core.command.CommandNotFoundException;
 import org.springframework.shell.core.command.ExitStatus;
-import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;;
+import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
 
 public class SpringCliExceptionResolver
 		implements ExitStatusExceptionMapper, ApplicationContextAware, InitializingBean {

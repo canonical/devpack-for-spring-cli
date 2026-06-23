@@ -49,13 +49,6 @@ public class SpringCliConfiguration {
 		return new SpringCliExceptionResolver(debug);
 	}
 
-	/**
-	 * Override non-interactive runner
-	 * @param commandParser
-	 * @param commandRegistry
-	 * @param terminal
-	 * @return
-	 */
 	@Bean
 	@Primary
 	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
@@ -94,4 +87,5 @@ public class SpringCliConfiguration {
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
 	}
+
 }

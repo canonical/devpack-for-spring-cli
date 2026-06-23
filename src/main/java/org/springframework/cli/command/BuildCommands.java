@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.IoUtils;
 import org.springframework.cli.util.TerminalMessage;
-import org.springframework.stereotype.Component;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
@@ -49,6 +48,7 @@ import org.springframework.shell.jline.tui.table.BorderStyle;
 import org.springframework.shell.jline.tui.table.Table;
 import org.springframework.shell.jline.tui.table.TableBuilder;
 import org.springframework.shell.jline.tui.table.TableModel;
+import org.springframework.stereotype.Component;
 
 @Component
 public class BuildCommands {

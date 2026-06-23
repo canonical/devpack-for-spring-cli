@@ -64,7 +64,8 @@ public class MockConfigurations {
 			try (FileSystem fileSystem = Jimfs.newFileSystem()) {
 				Function<String, Path> pathProvider = fileSystem::getPath;
 				return new SpringCliUserConfig(pathProvider);
-			} catch (IOException ex) {
+			}
+			catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
 		}

@@ -17,7 +17,9 @@
 package org.springframework.cli.config;
 
 public class DevpackCommandArgumentException extends RuntimeException {
-    public DevpackCommandArgumentException(String why) {
-        super(why);
-    }
+
+	public DevpackCommandArgumentException(String why) {
+		super(why);
+	}
+
 }
