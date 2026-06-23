@@ -26,7 +26,12 @@ import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.util.SpringCliTerminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ReactorResourceFactory;
+import org.springframework.shell.core.ShellRunner;
+import org.springframework.shell.core.command.CommandParser;
+import org.springframework.shell.core.command.CommandRegistry;
+import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
 import org.springframework.shell.jline.tui.style.ThemeResolver;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -39,9 +44,27 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableConfigurationProperties({ SpringCliProperties.class })
 public class SpringCliConfiguration {
 
+	@Bean
+	public ExitStatusExceptionMapper exitStatusExceptionMapper(@Value("${app.debug:false}") boolean debug) {
+		return new SpringCliExceptionResolver(debug);
+	}
+
+	/**
+	 * Override non-interactive runner
+	 * @param commandParser
+	 * @param commandRegistry
+	 * @param terminal
+	 * @return
+	 */
+	@Bean
+	@Primary
+	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
+			Terminal terminal, ExitStatusExceptionMapper mapper) {
+		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper);
+	}
+
 	/**
 	 * Workaround Intellij IDEA debugger issue
-	 * 
 	 * @return WebClient.Builder
 	 */
 	@Bean
@@ -70,6 +93,11 @@ public class SpringCliConfiguration {
 	@Bean
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
+	}
+
+	@Bean
+	public CommandParser devpackCommandParser(CommandRegistry registry) {
+		return new DevpackCommandParser(registry);
 	}
 
 }
