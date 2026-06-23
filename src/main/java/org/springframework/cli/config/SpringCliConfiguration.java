@@ -60,6 +60,11 @@ public class SpringCliConfiguration {
 	}
 
 	@Bean
+	public DevpackCommandValidator devpackCommandValidator(CommandRegistry registry) {
+		return new DevpackCommandValidator(registry);
+	}
+
+	@Bean
 	@Primary
 	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
 			Terminal terminal, ExitStatusExceptionMapper mapper) {

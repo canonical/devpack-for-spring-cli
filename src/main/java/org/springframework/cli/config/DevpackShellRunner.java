@@ -68,12 +68,12 @@ public class DevpackShellRunner implements ShellRunner {
 	};
 
 	public DevpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry, PrintWriter outputWriter,
-			ExitStatusExceptionMapper exitCodeMapper) {
+			ExitStatusExceptionMapper exitCodeMapper, DevpackCommandValidator devpackCommandValidator) {
 		this.commandParser = commandParser;
 		this.commandRegistry = commandRegistry;
 		this.commandExecutor = new CommandExecutor(commandRegistry);
 		this.exitCodeMapper = exitCodeMapper;
-		this.commandValidator = new DevpackCommandValidator(commandRegistry);
+		this.commandValidator = devpackCommandValidator;
 		this.outputWriter = (outputWriter != null) ? outputWriter : new PrintWriter(System.out);
 	}
 

@@ -59,12 +59,8 @@ public class DevpackCommandValidator {
 			}
 		}
 
-		List<String> reasons = new ArrayList<>();
 		if (!unknownOptions.isEmpty()) {
-			reasons.add("Unknown option(s): " + String.join(", ", unknownOptions));
-		}
-		if (!reasons.isEmpty()) {
-			throw new DevpackCommandArgumentException(String.join(". ", reasons));
+			throw new DevpackCommandArgumentException("Unknown option(s): " + String.join(", ", unknownOptions));
 		}
 	}
 
