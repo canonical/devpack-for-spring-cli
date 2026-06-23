@@ -186,6 +186,9 @@ public class DevpackShellRunner implements ShellRunner {
 			}
 			throw new ShellExitException(status);
 		}
+		finally {
+			outputWriter.flush();
+		}
 
 	}
 
