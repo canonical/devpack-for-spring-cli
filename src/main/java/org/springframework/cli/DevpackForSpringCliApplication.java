@@ -38,7 +38,7 @@ import org.springframework.shell.core.command.CommandNotFoundException;
 public class DevpackForSpringCliApplication {
 
 	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW)
-			+ "DEVPACK-FOR-SPRING INTERACTIVE MODE" + AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype "
+			+ "DEVPACK-FOR-SPRING" + AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype "
 			+ AnsiOutput.encode(AnsiColor.BRIGHT_GREEN) + "\"help\"" + AnsiOutput.encode(AnsiColor.DEFAULT)
 			+ " to see the list of available commands";
 
