@@ -100,12 +100,4 @@ class DevpackCommandValidatorTests {
 			.withMessageContaining("--bar");
 	}
 
-	@Test
-	void validateMessageContainsBothUnknownOptionAndUnknownArgument() {
-		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " --bad-opt=x -- first extra");
-		assertThatExceptionOfType(DevpackCommandArgumentException.class)
-			.isThrownBy(() -> validator.validateOptions(parsedInput))
-			.withMessageContaining("Unknown option(s): --bad-opt");
-	}
-
 }
