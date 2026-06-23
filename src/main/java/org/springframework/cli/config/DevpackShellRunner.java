@@ -48,6 +48,8 @@ public class DevpackShellRunner implements ShellRunner {
 
 	private static final Log log = LogFactory.getLog(DevpackShellRunner.class);
 
+	public static final String HELP = "help";
+
 	private final ExitStatusExceptionMapper exitCodeMapper;
 
 	private final CommandParser commandParser;
@@ -162,13 +164,18 @@ public class DevpackShellRunner implements ShellRunner {
 			}
 		}
 		catch (Exception ex) {
+			if (primaryCommand.startsWith(HELP)) {
+				ExitStatus status = new ExitStatus(255, "help command failed with " + ex.getMessage());
+				outputWriter.println(status.description());
+				throw new ShellExitException(status);
+			}
 			ExitStatus status = exitCodeMapper.apply(ex);
 			outputWriter.println(status.description());
 			if (ex instanceof CommandNotFoundException) {
-				executeCommand("help");
+				executeCommand(HELP);
 			}
 			else if (ex instanceof DevpackCommandArgumentException && parsedInput != null) {
-				executeCommand("help " + parsedInput.commandName());
+				executeCommand(HELP + " " + parsedInput.commandName());
 			}
 			else if (ex instanceof IllegalArgumentException && parsedInput == null) {
 				int index = primaryCommand.indexOf(' ');
@@ -241,7 +248,7 @@ public class DevpackShellRunner implements ShellRunner {
 			ParsedInput parsedInput = commandContext.parsedInput();
 			String commandName = parsedInput.commandName();
 			if (isLikeHelp(commandName)) {
-				commandName = "help";
+				commandName = HELP;
 			}
 			if (!parsedInput.subCommands().isEmpty()) {
 				commandName += " " + String.join(" ", parsedInput.subCommands());
