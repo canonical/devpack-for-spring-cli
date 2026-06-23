@@ -35,7 +35,8 @@ public class DevpackCommandValidator {
 	public void validateOptions(ParsedInput parsedInput) {
 		String commandName = parsedInput.commandName();
 		if (commandName.isEmpty()) {
-			return; // do not raise error, the unknown command will raise CommandNotFoundException
+			return; // do not raise error, the unknown command will raise
+					// CommandNotFoundException
 		}
 		String fullCommandName = commandName;
 		if (!parsedInput.subCommands().isEmpty()) {

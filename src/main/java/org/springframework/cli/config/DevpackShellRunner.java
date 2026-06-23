@@ -159,7 +159,7 @@ public class DevpackShellRunner implements ShellRunner {
 			}
 		}
 		catch (Exception ex) {
-			if (primaryCommand.startsWith(HELP)) {
+			if (primaryCommand != null && (primaryCommand.startsWith(HELP + " ") || primaryCommand.equals(HELP))) {
 				ExitStatus status = new ExitStatus(255, "help command failed with " + ex.getMessage());
 				outputWriter.println(status.description());
 				throw new ShellExitException(status);
@@ -177,7 +177,7 @@ public class DevpackShellRunner implements ShellRunner {
 				if (index < 0) {
 					index = primaryCommand.length();
 				}
-				executeCommand("help " + primaryCommand.substring(0, index));
+				executeCommand(HELP + " " + primaryCommand.substring(0, index));
 			}
 			else {
 				outputWriter.println(new AttributedString("Use 'devpack-for-spring help' to get help.",
@@ -196,8 +196,7 @@ public class DevpackShellRunner implements ShellRunner {
 	}
 
 	/**
-	 * Exception class that handles outer loop exceptions fatal shell runner
-	 * failures
+	 * Exception class that handles outer loop exceptions fatal shell runner failures
 	 */
 	private static class ShellRunnerExitException extends ShellExitException {
 
@@ -244,7 +243,7 @@ public class DevpackShellRunner implements ShellRunner {
 		ExitStatus execute(CommandContext commandContext) throws Exception {
 			ParsedInput parsedInput = commandContext.parsedInput();
 			String commandName = parsedInput.commandName();
-			if (isLikeHelp(commandName)) {
+			if (DevpackShellRunner.isLikeHelp(commandName)) {
 				commandName = HELP;
 			}
 			if (!parsedInput.subCommands().isEmpty()) {
