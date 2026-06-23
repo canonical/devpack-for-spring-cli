@@ -32,10 +32,10 @@ public class DevpackCommandValidator {
 		registry = commandRegistry;
 	}
 
-	public void validate(ParsedInput parsedInput) {
+	public void validateOptions(ParsedInput parsedInput) {
 		String commandName = parsedInput.commandName();
 		if (commandName.isEmpty()) {
-			return;
+			return; // do not raise error, the unknown command will raise CommandNotFoundException
 		}
 		String fullCommandName = commandName;
 		if (!parsedInput.subCommands().isEmpty()) {

@@ -60,26 +60,26 @@ class DevpackCommandValidatorTests {
 	@Test
 	void validateDoesNotThrowForKnownLongOption() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " --profile=dev");
-		assertThatCode(() -> validator.validate(parsedInput)).doesNotThrowAnyException();
+		assertThatCode(() -> validator.validateOptions(parsedInput)).doesNotThrowAnyException();
 	}
 
 	@Test
 	void validateDoesNotThrowForKnownShortOption() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " -p=dev");
-		assertThatCode(() -> validator.validate(parsedInput)).doesNotThrowAnyException();
+		assertThatCode(() -> validator.validateOptions(parsedInput)).doesNotThrowAnyException();
 	}
 
 	@Test
 	void validateDoesNotThrowForArguments() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " -- myarg unknownArg");
-		assertThatCode(() -> validator.validate(parsedInput)).doesNotThrowAnyException();
+		assertThatCode(() -> validator.validateOptions(parsedInput)).doesNotThrowAnyException();
 	}
 
 	@Test
 	void validateThrowsForUnknownLongOption() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " --unknown=value");
 		assertThatExceptionOfType(DevpackCommandArgumentException.class)
-			.isThrownBy(() -> validator.validate(parsedInput))
+			.isThrownBy(() -> validator.validateOptions(parsedInput))
 			.withMessageContaining("Unknown option(s): --unknown");
 	}
 
@@ -87,7 +87,7 @@ class DevpackCommandValidatorTests {
 	void validateThrowsForUnknownShortOption() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " -x=value");
 		assertThatExceptionOfType(DevpackCommandArgumentException.class)
-			.isThrownBy(() -> validator.validate(parsedInput))
+			.isThrownBy(() -> validator.validateOptions(parsedInput))
 			.withMessageContaining("Unknown option(s): -x");
 	}
 
@@ -95,7 +95,7 @@ class DevpackCommandValidatorTests {
 	void validateMessageListsAllUnknownOptions() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " --foo=1 --bar=2");
 		assertThatExceptionOfType(DevpackCommandArgumentException.class)
-			.isThrownBy(() -> validator.validate(parsedInput))
+			.isThrownBy(() -> validator.validateOptions(parsedInput))
 			.withMessageContaining("--foo")
 			.withMessageContaining("--bar");
 	}
@@ -104,7 +104,7 @@ class DevpackCommandValidatorTests {
 	void validateMessageContainsBothUnknownOptionAndUnknownArgument() {
 		ParsedInput parsedInput = parser.parse(COMMAND_NAME + " --bad-opt=x -- first extra");
 		assertThatExceptionOfType(DevpackCommandArgumentException.class)
-			.isThrownBy(() -> validator.validate(parsedInput))
+			.isThrownBy(() -> validator.validateOptions(parsedInput))
 			.withMessageContaining("Unknown option(s): --bad-opt");
 	}
 
