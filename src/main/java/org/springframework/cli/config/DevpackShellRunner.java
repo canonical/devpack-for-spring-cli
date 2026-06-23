@@ -189,6 +189,16 @@ public class DevpackShellRunner implements ShellRunner {
 
 	}
 
+	private static boolean isLikeHelp(String command) {
+		List<String> wordList = Arrays.asList(HELP, "-h", "-help", "--h", "--help", "-hlep", "-hep", "-hel", "-hlpe",
+				"-elp", "--hlep", "--hep", "--hel", "--hlep", "--elp", "hlep", "hep", "hel", "hlpe");
+		return wordList.stream().anyMatch(command::equals);
+	}
+
+	/**
+	 * Exception class that handles outer loop exceptions fatal shell runner
+	 * failures
+	 */
 	private static class ShellRunnerExitException extends ShellExitException {
 
 		ShellRunnerExitException(ExitStatus status) {
@@ -197,6 +207,9 @@ public class DevpackShellRunner implements ShellRunner {
 
 	}
 
+	/**
+	 * Exception class that handles command parsing and execution errors
+	 */
 	private static class ShellExitException extends RuntimeException implements ExitCodeGenerator {
 
 		private final ExitStatus status;
@@ -217,19 +230,8 @@ public class DevpackShellRunner implements ShellRunner {
 
 		private final CommandRegistry commandRegistry;
 
-		/**
-		 * Create a new {@link org.springframework.shell.core.command.CommandExecutor}
-		 * instance.
-		 * @param commandRegistry the command registry
-		 */
 		CommandExecutor(CommandRegistry commandRegistry) {
 			this.commandRegistry = commandRegistry;
-		}
-
-		private boolean isLikeHelp(String command) {
-			List<String> wordList = Arrays.asList("help", "-h", "-help", "--h", "--help", "-hlep", "-hep", "-hel",
-					"-hlpe", "-elp", "--hlep", "--hep", "--hel", "--hlep", "--elp", "hlep", "hep", "hel", "hlpe");
-			return wordList.stream().anyMatch(command::contains);
 		}
 
 		/**
