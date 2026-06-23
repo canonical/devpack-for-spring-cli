@@ -60,8 +60,7 @@ public class DevpackShellRunner implements ShellRunner {
 
 	private final DevpackCommandValidator commandValidator;
 
-	// Use System.out as default output writer
-	private PrintWriter outputWriter;
+	private final PrintWriter outputWriter;
 
 	// Use a no-op InputReader since input is not needed in non-interactive mode
 	private final InputReader inputReader = new InputReader() {
@@ -193,7 +192,7 @@ public class DevpackShellRunner implements ShellRunner {
 	}
 
 	private static boolean isLikeHelp(String command) {
-		List<String> wordList = Arrays.asList(HELP, "-h", "-help", "--h", "--help", "-hlep", "-hep", "-hel", "-hlpe",
+		List<String> wordList = Arrays.asList(HELP, "-h", "-help", "--h", "--help", "-hep", "-hel", "-hlpe",
 				"-elp", "--hlep", "--hep", "--hel", "--hlep", "--elp", "hlep", "hep", "hel", "hlpe");
 		return wordList.stream().anyMatch(command::equals);
 	}
