@@ -23,26 +23,17 @@ import org.springframework.shell.core.command.Command;
 import org.springframework.shell.core.command.CommandArgument;
 import org.springframework.shell.core.command.CommandOption;
 import org.springframework.shell.core.command.CommandRegistry;
-import org.springframework.shell.core.command.DefaultCommandParser;
 import org.springframework.shell.core.command.ParsedInput;
 
-public class DevpackCommandParser extends DefaultCommandParser {
+public class DevpackCommandValidator  {
 
 	private final CommandRegistry registry;
 
-	public DevpackCommandParser(CommandRegistry commandRegistry) {
-		super(commandRegistry);
+	public DevpackCommandValidator(CommandRegistry commandRegistry) {
 		registry = commandRegistry;
 	}
 
-	@Override
-	public ParsedInput parse(String input) {
-		ParsedInput parsedInput = super.parse(input);
-		validate(parsedInput);
-		return parsedInput;
-	}
-
-	private void validate(ParsedInput parsedInput) {
+	public void validate(ParsedInput parsedInput) {
 		String commandName = parsedInput.commandName();
 		if (commandName.isEmpty()) {
 			return;
@@ -85,7 +76,7 @@ public class DevpackCommandParser extends DefaultCommandParser {
 			reasons.add("Unknown argument(s): " + String.join(", ", unknownArguments));
 		}
 		if (!reasons.isEmpty()) {
-			throw new RuntimeException(String.join(". ", reasons));
+			throw new DevpackCommandArgumentException(String.join(". ", reasons));
 		}
 	}
 

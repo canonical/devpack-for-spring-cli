@@ -94,10 +94,4 @@ public class SpringCliConfiguration {
 	public SpringCliUserConfig springCliUserConfig() {
 		return new SpringCliUserConfig();
 	}
-
-	@Bean
-	public CommandParser devpackCommandParser(CommandRegistry registry) {
-		return new DevpackCommandParser(registry);
-	}
-
 }
