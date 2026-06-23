@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.shell.core.command.Command;
-import org.springframework.shell.core.command.CommandArgument;
 import org.springframework.shell.core.command.CommandOption;
 import org.springframework.shell.core.command.CommandRegistry;
 import org.springframework.shell.core.command.ParsedInput;
@@ -59,21 +58,9 @@ public class DevpackCommandValidator {
 			}
 		}
 
-		List<String> unknownArguments = new ArrayList<>();
-		List<CommandArgument> parsedArguments = parsedInput.arguments();
-		List<CommandArgument> definedArguments = command.getArguments();
-		for (CommandArgument parsedArg : parsedArguments) {
-			if (!isKnownArgument(parsedArg, definedArguments)) {
-				unknownArguments.add(parsedArg.value());
-			}
-		}
-
 		List<String> reasons = new ArrayList<>();
 		if (!unknownOptions.isEmpty()) {
 			reasons.add("Unknown option(s): " + String.join(", ", unknownOptions));
-		}
-		if (!unknownArguments.isEmpty()) {
-			reasons.add("Unknown argument(s): " + String.join(", ", unknownArguments));
 		}
 		if (!reasons.isEmpty()) {
 			throw new DevpackCommandArgumentException(String.join(". ", reasons));
@@ -92,17 +79,6 @@ public class DevpackCommandValidator {
 					}
 				}
 				if (parsedOpt.shortName() != ' ' && parsedOpt.shortName() == definedOpt.shortName()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean isKnownArgument(CommandArgument parsedArg, List<CommandArgument> definedArguments) {
-		if (definedArguments != null) {
-			for (CommandArgument definedArg : definedArguments) {
-				if (parsedArg.index() == definedArg.index()) {
 					return true;
 				}
 			}
