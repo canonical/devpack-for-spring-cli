@@ -178,7 +178,7 @@ public class DevpackShellRunner implements ShellRunner {
 				executeCommand("help " + primaryCommand.substring(0, index));
 			}
 			else {
-				outputWriter.println(new AttributedString("  Use 'devpack-for-spring help' to get help.",
+				outputWriter.println(new AttributedString("Use 'devpack-for-spring help' to get help.",
 						AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
 					.toAnsi());
 			}
