@@ -37,10 +37,9 @@ import org.springframework.shell.core.command.CommandNotFoundException;
 @ImportRuntimeHints(SpringCliRuntimeHints.class)
 public class DevpackForSpringCliApplication {
 
-	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW)
-			+ "DEVPACK-FOR-SPRING" + AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype "
-			+ AnsiOutput.encode(AnsiColor.BRIGHT_GREEN) + "\"help\"" + AnsiOutput.encode(AnsiColor.DEFAULT)
-			+ " to see the list of available commands";
+	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW) + "DEVPACK-FOR-SPRING"
+			+ AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype " + AnsiOutput.encode(AnsiColor.BRIGHT_GREEN)
+			+ "\"help\"" + AnsiOutput.encode(AnsiColor.DEFAULT) + " to see the list of available commands";
 
 	public static void main(String[] args) {
 		System.setProperty("java.awt.headless", Boolean.toString(true));
