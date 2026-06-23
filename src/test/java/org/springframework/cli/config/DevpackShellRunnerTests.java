@@ -65,12 +65,12 @@ class DevpackShellRunnerTests {
 		assertThatCode(() -> runner.run(new String[] { "help" })).doesNotThrowAnyException();
 		String helpOutput = output.toString();
 		assertThat(helpOutput).contains("help");
-		assertThatCode(() -> runner.run(new String[] { COMMAND_NAME })).doesNotThrowAnyException();
-		assertThat(output.toString()).isEqualTo(helpOutput);
 	}
 
 	@Test
 	void runExistingCommandDoesNotThrow() {
+		assertThatCode(() -> runner.run(new String[] { COMMAND_NAME })).doesNotThrowAnyException();
+		assertThat(output.toString()).isEmpty();
 	}
 
 	@Test
