@@ -20,7 +20,6 @@ import java.time.Duration;
 
 import org.jline.terminal.Terminal;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.util.SpringCliTerminal;
@@ -44,18 +43,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableConfigurationProperties({ SpringCliProperties.class })
 public class SpringCliConfiguration {
 
-	@Bean
-	public ExitStatusExceptionMapper exitStatusExceptionMapper(@Value("${app.debug:false}") boolean debug) {
-		return new SpringCliExceptionResolver(debug);
-	}
-
-	@Bean
-	@Primary
-	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
-			Terminal terminal, ExitStatusExceptionMapper mapper) {
-		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper);
-	}
-
 	/**
 	 * Workaround Intellij IDEA debugger issue
 	 * @return WebClient.Builder
@@ -63,6 +50,13 @@ public class SpringCliConfiguration {
 	@Bean
 	public WebClient.Builder webClientBuilder() {
 		return WebClient.builder();
+	}
+
+	@Bean
+	@Primary
+	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
+			Terminal terminal, ExitStatusExceptionMapper mapper) {
+		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper);
 	}
 
 	@Bean
