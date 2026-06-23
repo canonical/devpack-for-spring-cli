@@ -61,25 +61,20 @@ public class DevpackShellRunner implements ShellRunner {
 	private final DevpackCommandValidator commandValidator;
 
 	// Use System.out as default output writer
-	private PrintWriter outputWriter = new PrintWriter(System.out);
+	private PrintWriter outputWriter;
 
 	// Use a no-op InputReader since input is not needed in non-interactive mode
 	private final InputReader inputReader = new InputReader() {
 	};
 
-	public DevpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
+	public DevpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry, PrintWriter outputWriter,
 			ExitStatusExceptionMapper exitCodeMapper) {
 		this.commandParser = commandParser;
 		this.commandRegistry = commandRegistry;
 		this.commandExecutor = new CommandExecutor(commandRegistry);
 		this.exitCodeMapper = exitCodeMapper;
 		this.commandValidator = new DevpackCommandValidator(commandRegistry);
-	}
-
-	public DevpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry, PrintWriter outputWriter,
-			ExitStatusExceptionMapper exitCodeMapper) {
-		this(commandParser, commandRegistry, exitCodeMapper);
-		this.outputWriter = outputWriter;
+		this.outputWriter = (outputWriter != null) ? outputWriter : new PrintWriter(System.out);
 	}
 
 	@Override
