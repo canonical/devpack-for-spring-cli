@@ -192,8 +192,8 @@ public class DevpackShellRunner implements ShellRunner {
 	}
 
 	private static boolean isLikeHelp(String command) {
-		List<String> wordList = Arrays.asList(HELP, "-h", "-help", "--h", "--help", "-hep", "-hel", "-hlpe",
-				"-elp", "--hlep", "--hep", "--hel", "--hlep", "--elp", "hlep", "hep", "hel", "hlpe");
+		List<String> wordList = Arrays.asList(HELP, "-h", "-help", "--h", "--help", "-hep", "-hel", "-hlpe", "-elp",
+				"--hlep", "--hep", "--hel", "--hlep", "--elp", "hlep", "hep", "hel", "hlpe");
 		return wordList.stream().anyMatch(command::equals);
 	}
 
