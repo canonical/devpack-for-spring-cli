@@ -71,9 +71,6 @@ public class DevpackForSpringCliApplication {
 			if (debug) {
 				tx.printStackTrace();
 			}
-			if (tx instanceof CommandNotFoundException) {
-				System.exit(-1);
-			}
 			if (tx instanceof ExitCodeGenerator exitCode) {
 				System.exit(exitCode.getExitCode());
 			}
