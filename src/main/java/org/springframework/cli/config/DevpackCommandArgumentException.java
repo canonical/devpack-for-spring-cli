@@ -16,18 +16,10 @@
 
 package org.springframework.cli.config;
 
-import org.junit.jupiter.api.Test;
+public class DevpackCommandArgumentException extends RuntimeException {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class SpringCliPromptProviderTests {
-
-	@Test
-	void getPromptSecond() {
-		final SpringCliPromptProvider prompt = new SpringCliPromptProvider();
-		prompt.getPrompt(); // first invocation
-		// check if prompt has exactly one line (no newline characters)
-		assertThat(prompt.getPrompt().toString().indexOf('\n')).isEqualTo(-1);
+	public DevpackCommandArgumentException(String why) {
+		super(why);
 	}
 
 }

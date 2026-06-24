@@ -38,14 +38,15 @@ import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.TerminalMessage;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.component.flow.SelectItem;
-import org.springframework.shell.component.support.Nameable;
+import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.Option;
+import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
+import org.springframework.shell.jline.tui.component.flow.ResultMode;
+import org.springframework.shell.jline.tui.component.flow.SelectItem;
+import org.springframework.shell.jline.tui.component.support.Nameable;
+import org.springframework.stereotype.Component;
 
-@Command
+@Component
 public class SetupCommands {
 
 	public static final String SETUP_CONFIGURATION = "SPRING_CLI_SETUP_COMMANDS_CONFIGURATION";
@@ -79,10 +80,10 @@ public class SetupCommands {
 		return list.stream().map(String::valueOf).toArray(String[]::new);
 	}
 
-	@Command(command = "setup", description = "Setup development environment")
-	public void setup(@Option(longNames = "add", description = "Software to install") String[] add,
-			@Option(longNames = "file", description = "Path to the software list file") String configPath,
-			@Option(longNames = "save",
+	@Command(name = "setup", description = "Setup development environment")
+	public void setup(@Option(longName = "add", description = "Software to install") String[] add,
+			@Option(longName = "file", description = "Path to the software list file") String configPath,
+			@Option(longName = "save",
 					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
 			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {

@@ -16,7 +16,7 @@
 
 package org.springframework.cli.testutil;
 
-import org.springframework.shell.table.Table;
+import org.springframework.shell.jline.tui.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

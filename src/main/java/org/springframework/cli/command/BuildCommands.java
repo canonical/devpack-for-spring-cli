@@ -36,20 +36,21 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.IoUtils;
 import org.springframework.cli.util.TerminalMessage;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.DefaultSelectItem;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.component.flow.SelectItem;
-import org.springframework.shell.component.support.Nameable;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.Option;
+import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
+import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
+import org.springframework.shell.jline.tui.component.flow.ResultMode;
+import org.springframework.shell.jline.tui.component.flow.SelectItem;
+import org.springframework.shell.jline.tui.component.support.Nameable;
+import org.springframework.shell.jline.tui.table.ArrayTableModel;
+import org.springframework.shell.jline.tui.table.BorderStyle;
+import org.springframework.shell.jline.tui.table.Table;
+import org.springframework.shell.jline.tui.table.TableBuilder;
+import org.springframework.shell.jline.tui.table.TableModel;
+import org.springframework.stereotype.Component;
 
-@Command
+@Component
 public class BuildCommands {
 
 	public static final String PLUGIN_CONFIGURATION = "SPRING_CLI_BUILD_COMMANDS_PLUGIN_CONFIGURATION";
@@ -85,7 +86,7 @@ public class BuildCommands {
 		return ConfigUtil.openConfigurationFile(PLUGIN_CONFIGURATION, "plugin-configuration.yaml");
 	}
 
-	@Command(command = "plugin", description = "Run a build plugin for the project")
+	@Command(name = "plugin", description = "Run a build plugin for the project")
 	public void run(@Option(description = "plugin name") String plugin,
 			@Option(description = "task/goal") String command, @Option(description = "project path") Path projectPath)
 			throws IOException {
@@ -186,7 +187,7 @@ public class BuildCommands {
 		}
 	}
 
-	@Command(command = "plugin-init", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
+	@Command(name = "plugin-init", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
 	public void initPluginConfiguration(@Option(description = "project path") Path projectPath) throws IOException {
 		if (projectPath == null) {
 			projectPath = workingDir;
@@ -209,7 +210,7 @@ public class BuildCommands {
 		terminalMessage.print("Created " + target);
 	}
 
-	@Command(command = "list-plugins", description = "List supported build plugins")
+	@Command(name = "list-plugins", description = "List supported build plugins")
 	public Table list() {
 		// TODO: check build system and print applicable plugins
 		var header = Stream.<String[]>of(new String[] { "Name", "Id", "Description", "Build System" });

@@ -26,8 +26,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cli.config.SpringCliRuntimeHints;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.shell.CommandNotFound;
-import org.springframework.shell.command.annotation.CommandScan;
 
 /**
  * Main boot app.
@@ -36,13 +34,11 @@ import org.springframework.shell.command.annotation.CommandScan;
  */
 @SpringBootApplication
 @ImportRuntimeHints(SpringCliRuntimeHints.class)
-@CommandScan
 public class DevpackForSpringCliApplication {
 
-	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW)
-			+ "DEVPACK-FOR-SPRING INTERACTIVE MODE" + AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype "
-			+ AnsiOutput.encode(AnsiColor.BRIGHT_GREEN) + "\"help\"" + AnsiOutput.encode(AnsiColor.DEFAULT)
-			+ " to see the list of available commands";
+	private static final String BANNER_TEXT = AnsiOutput.encode(AnsiColor.BRIGHT_YELLOW) + "DEVPACK-FOR-SPRING"
+			+ AnsiOutput.encode(AnsiColor.DEFAULT) + "\n" + "\ttype " + AnsiOutput.encode(AnsiColor.BRIGHT_GREEN)
+			+ "\"help\"" + AnsiOutput.encode(AnsiColor.DEFAULT) + " to see the list of available commands";
 
 	public static void main(String[] args) {
 		System.setProperty("java.awt.headless", Boolean.toString(true));
@@ -72,9 +68,6 @@ public class DevpackForSpringCliApplication {
 		catch (RuntimeException tx) {
 			if (debug) {
 				tx.printStackTrace();
-			}
-			if (tx instanceof CommandNotFound) {
-				System.exit(-1);
 			}
 			if (tx instanceof ExitCodeGenerator exitCode) {
 				System.exit(exitCode.getExitCode());

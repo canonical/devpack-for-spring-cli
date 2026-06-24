@@ -26,10 +26,13 @@ import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.util.SpringCliTerminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ReactorResourceFactory;
-import org.springframework.shell.command.CommandExceptionResolver;
-import org.springframework.shell.result.CommandNotFoundMessageProvider;
-import org.springframework.shell.style.ThemeResolver;
+import org.springframework.shell.core.ShellRunner;
+import org.springframework.shell.core.command.CommandParser;
+import org.springframework.shell.core.command.CommandRegistry;
+import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
+import org.springframework.shell.jline.tui.style.ThemeResolver;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -51,13 +54,21 @@ public class SpringCliConfiguration {
 	}
 
 	@Bean
-	public CommandNotFoundMessageProvider commandNotFoundMessageProvider() {
-		return new SpringCliCommandNotFoundMessageProvider();
+	@Primary
+	public ExitStatusExceptionMapper exitStatusExceptionMapper(@Value("${app.debug:false}") boolean debug) {
+		return new SpringCliExceptionResolver(debug);
 	}
 
 	@Bean
-	public CommandExceptionResolver commandExceptionResolver(@Value("${app.debug:false}") boolean debug) {
-		return new SpringCliExceptionResolver(debug);
+	public DevpackCommandValidator devpackCommandValidator(CommandRegistry registry) {
+		return new DevpackCommandValidator(registry);
+	}
+
+	@Bean
+	@Primary
+	public ShellRunner devpackShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
+			Terminal terminal, ExitStatusExceptionMapper mapper, DevpackCommandValidator validator) {
+		return new DevpackShellRunner(commandParser, commandRegistry, terminal.writer(), mapper, validator);
 	}
 
 	@Bean

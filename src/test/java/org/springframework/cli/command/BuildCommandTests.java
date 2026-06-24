@@ -28,7 +28,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.IntegrationTestSupport;
 import org.springframework.cli.support.MockConfigurations;
 import org.springframework.cli.util.StubTerminalMessage;
-import org.springframework.shell.table.Table;
+import org.springframework.shell.jline.tui.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;

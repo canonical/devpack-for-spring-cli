@@ -33,20 +33,23 @@ import com.canonical.devpackspring.snap.Snap;
 import org.xml.sax.SAXException;
 
 import org.springframework.cli.util.TerminalMessage;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.shell.command.annotation.Option;
-import org.springframework.shell.component.flow.ComponentFlow;
-import org.springframework.shell.component.flow.ResultMode;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.CommandGroup;
+import org.springframework.shell.core.command.annotation.Option;
+import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
+import org.springframework.shell.jline.tui.component.flow.ResultMode;
+import org.springframework.shell.jline.tui.table.ArrayTableModel;
+import org.springframework.shell.jline.tui.table.BorderStyle;
+import org.springframework.shell.jline.tui.table.Table;
+import org.springframework.shell.jline.tui.table.TableBuilder;
+import org.springframework.shell.jline.tui.table.TableModel;
+import org.springframework.stereotype.Component;
 
 /**
  * This command is responsible for the manipulation of the content snaps
  */
-@Command(command = "snap", group = "Devpack")
+@Component
+@CommandGroup(prefix = "snap", name = "Devpack")
 public class SnapCommands {
 
 	private static final String SNAP_PARAMETER_ID = "snap";
@@ -64,7 +67,7 @@ public class SnapCommands {
 		this.terminalMessage = terminalMessage;
 	}
 
-	@Command(command = "list", description = "List available libraries packaged as a snap.")
+	@Command(name = "list", description = "List available libraries packaged as a snap.")
 	public Table list() {
 		try {
 			var header = Stream.<String[]>of(new String[] { "Installed", "Name", "Channel", "Version", "Description" });
@@ -84,7 +87,7 @@ public class SnapCommands {
 		}
 	}
 
-	@Command(command = "install", description = "Install a snap-packaged library.")
+	@Command(name = "install", description = "Install a snap-packaged library.")
 	public String install(@Option(description = "Name of the library to install") String snap)
 			throws IOException, InterruptedException, XPathExpressionException, ParserConfigurationException,
 			TransformerException, SAXException {
@@ -111,7 +114,7 @@ public class SnapCommands {
 		return String.format("Installed %s.", toInstall.name());
 	}
 
-	@Command(command = "setup-gradle", description = "Setup Gradle to use snap-packaged libraries.")
+	@Command(name = "setup-gradle", description = "Setup Gradle to use snap-packaged libraries.")
 	public void setupGradle() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -125,7 +128,7 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(command = "setup-maven", description = "Setup Maven to use snap-packaged libraries.")
+	@Command(name = "setup-maven", description = "Setup Maven to use snap-packaged libraries.")
 	public void setupMaven() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -139,7 +142,7 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(command = "remove", description = "Remove a snap-packaged library.")
+	@Command(name = "remove", description = "Remove a snap-packaged library.")
 	public String remove(@Option(description = "Name of the library to remove") String snap)
 			throws IOException, InterruptedException {
 		Snap toRemove = getSnap(snap, true);

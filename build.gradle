@@ -51,7 +51,7 @@ repositories {
 }
 
 ext {
-	set('springShellVersion', '3.4.3')
+	set('springShellVersion', '4.0.3')
 	set('initializrVersion', '0.24.0')
 	set('jarchivelibVersion', '1.2.0')
 	set('openrewriteVersion', '8.85.2')
@@ -220,4 +220,10 @@ if (useAot) {
 
 bootJar {
 	requiresUnpack '**/kotlin-compiler-embeddable-*.jar'
+}
+
+tasks.named('bootJar') {
+    manifest {
+        attributes 'Enable-Native-Access': 'ALL-UNNAMED'
+    }
 }

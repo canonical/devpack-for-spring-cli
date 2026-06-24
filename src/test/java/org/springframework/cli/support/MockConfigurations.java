@@ -30,7 +30,7 @@ import org.springframework.cli.config.SpringCliUserConfig;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.shell.style.ThemeResolver;
+import org.springframework.shell.jline.tui.style.ThemeResolver;
 
 public class MockConfigurations {
 
