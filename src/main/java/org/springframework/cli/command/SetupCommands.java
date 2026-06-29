@@ -39,6 +39,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
@@ -47,6 +48,7 @@ import org.springframework.shell.jline.tui.component.support.Nameable;
 import org.springframework.stereotype.Component;
 
 @Component
+@CommandGroup(prefix = "", name = "Devpack")
 public class SetupCommands {
 
 	public static final String SETUP_CONFIGURATION = "SPRING_CLI_SETUP_COMMANDS_CONFIGURATION";
