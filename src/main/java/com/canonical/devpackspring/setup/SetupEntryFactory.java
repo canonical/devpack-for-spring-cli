@@ -52,7 +52,7 @@ public class SetupEntryFactory {
 
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(TerminalMessage msg) throws IOException {
+			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (installed) {
 					msg.print(String.format("Snap %s is already installed.", item()));
 					return true;
@@ -74,7 +74,7 @@ public class SetupEntryFactory {
 					msg.print(new AttributedString(String.format("Failed to install snap %s.", item()), style));
 					return false;
 				}
-				boolean ret = executeExtraCommands(msg, processUtil);
+				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
 					msg.print(new AttributedString(
 							String.format("Failed to install snap %s. Post-installation commands failed.", item()),
@@ -85,7 +85,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(TerminalMessage msg) throws IOException {
+			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (!installed) {
 					return true;
 				}
@@ -106,7 +106,7 @@ public class SetupEntryFactory {
 				String.format("dpkg -s %s | grep -q \"Status: install ok installed\"", itemId));
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(TerminalMessage msg) throws IOException {
+			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (installed) {
 					msg.print(String.format("Package %s is already installed.", item()));
 					return true;
@@ -122,7 +122,7 @@ public class SetupEntryFactory {
 					msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
 					return false;
 				}
-				boolean ret = executeExtraCommands(msg, processUtil);
+				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
 					msg.print(new AttributedString(
 							String.format("Failed to install package %s. Post-installation commands failed.", item()),
@@ -133,7 +133,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(TerminalMessage msg) throws IOException {
+			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (!installed) {
 					return true;
 				}

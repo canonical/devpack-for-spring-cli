@@ -45,11 +45,11 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		this.suffix = suffix;
 	}
 
-	public abstract boolean install(TerminalMessage msg) throws IOException;
+	public abstract boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
 
-	public abstract boolean remove(TerminalMessage msg) throws IOException;
+	public abstract boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
 
-	protected boolean executeExtraCommands(TerminalMessage msg, IProcessUtil ipc) throws IOException {
+	protected boolean executeExtraCommands(TerminalMessage msg, boolean retry, IProcessUtil ipc) throws IOException {
 		if (extraCommands == null) {
 			return true;
 		}
