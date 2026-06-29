@@ -446,7 +446,7 @@ public class SetupCommandsTests {
 	}
 
 	@Test
-	public void testDryRunAptInstall() throws IOException {
+	public void testSaveOnlyAptInstall() throws IOException {
 		String toInstall = "openjdk-17-jdk";
 
 		StubTerminalMessage tm = new StubTerminalMessage();
@@ -467,7 +467,7 @@ public class SetupCommandsTests {
 	}
 
 	@Test
-	public void testDryRunSnapInstall() throws IOException {
+	public void testSaveOnlySnapInstall() throws IOException {
 		String toInstall = "docker";
 
 		StubTerminalMessage tm = new StubTerminalMessage();
@@ -490,7 +490,7 @@ public class SetupCommandsTests {
 	}
 
 	@Test
-	public void testDryRunAptRemove() throws IOException {
+	public void testSaveOnlyAptRemove() throws IOException {
 		String toRemove = "openjdk-17-jdk";
 
 		StubTerminalMessage tm = new StubTerminalMessage();
@@ -505,7 +505,7 @@ public class SetupCommandsTests {
 	}
 
 	@Test
-	public void testDryRunSnapRemove() throws IOException {
+	public void testSaveOnlySnapRemove() throws IOException {
 		String toRemove = "docker";
 		StubTerminalMessage tm = new StubTerminalMessage();
 
