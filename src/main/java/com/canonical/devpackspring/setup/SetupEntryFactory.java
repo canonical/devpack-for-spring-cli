@@ -98,6 +98,7 @@ public class SetupEntryFactory {
 					msg.print(SetupStyles.error(String.format("Failed to remove snap %s.", item())));
 					return false;
 				}
+				msg.print(SetupStyles.ok(String.format("%s was successfully removed.", name())));
 				return true;
 			}
 		};
