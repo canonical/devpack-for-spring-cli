@@ -145,6 +145,35 @@ public class SetupCommandsTests {
 	}
 
 	@Test
+	public void testRetrySnapInstall() throws IOException {
+		String toInstall = "docker";
+		String description = "docker - Docker container runtime snap";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		// Report as NOT installed via dpkg (apt) and snap checks
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(1);
+
+		// First snap install attempt fails, second succeeds
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"), eq(toInstall)))
+			.willReturn(1, 0);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		File installFile = File.createTempFile("install", ".tmp");
+		installFile.deleteOnExit();
+		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, true);
+
+		// The install command must have been called twice (initial attempt + one retry)
+		verify(mockProcessUtil, Mockito.times(2)).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"),
+				eq("install"), eq(toInstall));
+		assertThat(tm.getPrintAttributedMessages())
+			.contains(String.format("%s was successfully installed.", description));
+	}
+
+	@Test
 	public void testFailedSnapInstall() throws IOException {
 		String toInstall = "docker";
 
