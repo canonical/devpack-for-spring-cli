@@ -66,7 +66,6 @@ public abstract class SetupEntry extends DefaultSelectItem {
 	/**
 	 * Run the given command with an exponential backoff strategy until the command
 	 * succeeds.
-	 *
 	 * @param retry Whether to retry on failure
 	 * @param msg Terminal message to print errors to
 	 * @param ipc Process utility to run the command
