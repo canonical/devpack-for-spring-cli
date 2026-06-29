@@ -18,10 +18,8 @@ package com.canonical.devpackspring.setup;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.canonical.devpackspring.CommandLineUtil;
 import com.canonical.devpackspring.IProcessUtil;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -58,20 +56,11 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		}
 		for (var command : extraCommands) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
-			if (!runWithBackoff(retry, msg, ipc, splitArgs(command))) {
+			if (!runWithBackoff(retry, msg, ipc, CommandLineUtil.splitArgs(command))) {
 				return false;
 			}
 		}
 		return true;
-	}
-
-	private static String[] splitArgs(String command) {
-		List<String> list = new ArrayList<>();
-		Matcher m = Pattern.compile("([^\"]\\S*|\"[^\"]*\")\\s*").matcher(command);
-		while (m.find()) {
-			list.add(m.group(1).replace("\"", "")); // Adds match and removes extra quotes
-		}
-		return list.toArray(new String[0]);
 	}
 
 	protected boolean runWithBackoff(boolean retry, TerminalMessage msg, IProcessUtil ipc, String... args)
@@ -92,7 +81,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		return true;
 	}
 
-	public static void backoff(int seconds) {
+	protected void backoff(int seconds) {
 		try {
 			Thread.sleep(seconds * 1000L);
 		}
