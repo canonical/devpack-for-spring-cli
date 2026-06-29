@@ -445,4 +445,84 @@ public class SetupCommandsTests {
 		});
 	}
 
+	@Test
+	public void testDryRunAptInstall() throws IOException {
+		String toInstall = "openjdk-17-jdk";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		// Report as NOT installed so the install path is taken
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(1);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(0);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, false);
+
+		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would install package %s.", toInstall));
+		// The actual apt-get install must never be called in dry-run mode
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("install"),
+				eq("-y"), eq(toInstall));
+	}
+
+	@Test
+	public void testDryRunSnapInstall() throws IOException {
+		String toInstall = "docker";
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		// Report as NOT installed so the install path is taken
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(),
+				contains("grep -q \"Status: install ok installed\"")))
+			.willReturn(0);
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		File installFile = File.createTempFile("install", ".tmp");
+		installFile.deleteOnExit();
+		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, true, false);
+
+		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would install snap %s.", toInstall));
+		// The actual snap install must never be called in dry-run mode
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"),
+				eq(toInstall));
+	}
+
+	@Test
+	public void testDryRunAptRemove() throws IOException {
+		String toRemove = "openjdk-17-jdk";
+		String aptInstallPattern = "dpkg -s " + toRemove;
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptInstallPattern))))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
+
+		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would remove package %s.", toRemove));
+		// The actual apt-get remove must never be called in dry-run mode
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
+				eq("-y"), eq(toRemove));
+	}
+
+	@Test
+	public void testDryRunSnapRemove() throws IOException {
+		String toRemove = "docker";
+		String snapInstallPattern = "snap info " + toRemove;
+
+		StubTerminalMessage tm = new StubTerminalMessage();
+		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(snapInstallPattern))))
+			.willReturn(1);
+
+		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
+		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
+
+		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would remove snap %s.", toRemove));
+		// The actual snap remove must never be called in dry-run mode
+		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"),
+				eq(toRemove));
+	}
+
 }
