@@ -74,13 +74,14 @@ public class SetupEntryTests {
 		List<Integer> retryArray = List.of(5, 10, 20, 40, 60, 60);
 		AtomicInteger calls = new AtomicInteger(0);
 
-		given(this.mockProcessUtil.runProcess(any(), anyBoolean(), any())).willAnswer(_ -> (calls.incrementAndGet() < retryArray.size() +1) ? 1 : 0);
+		given(this.mockProcessUtil.runProcess(any(), anyBoolean(), any()))
+			.willAnswer(_ -> (calls.incrementAndGet() < retryArray.size() + 1) ? 1 : 0);
 
 		MockSetupEntry entry = new MockSetupEntry();
 		boolean result = entry.runWithBackoff(true, new StubTerminalMessage(), this.mockProcessUtil, "cmd");
 
 		assertThat(result).isTrue();
-		assertThat(calls.get()).isEqualTo( retryArray.size() +1);
+		assertThat(calls.get()).isEqualTo(retryArray.size() + 1);
 		assertThat(entry.backoffValues).isEqualTo(retryArray);
 	}
 
