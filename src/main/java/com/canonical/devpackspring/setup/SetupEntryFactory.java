@@ -54,7 +54,7 @@ public class SetupEntryFactory {
 			@Override
 			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
-					msg.print(String.format("Dry run: would install snap %s.", item()));
+					msg.print(String.format("Save only: would install snap %s.", item()));
 					return true;
 				}
 
@@ -92,7 +92,7 @@ public class SetupEntryFactory {
 			@Override
 			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
-					msg.print(String.format("Dry run: would remove snap %s.", item()));
+					msg.print(String.format("Save only: would remove snap %s.", item()));
 					return true;
 				}
 
@@ -118,7 +118,7 @@ public class SetupEntryFactory {
 			@Override
 			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
-					msg.print(String.format("Dry run: would install package %s.", item()));
+					msg.print(String.format("Save only: would install package %s.", item()));
 					return true;
 				}
 
@@ -150,7 +150,7 @@ public class SetupEntryFactory {
 			@Override
 			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
-					msg.print(String.format("Dry run: would remove package %s.", item()));
+					msg.print(String.format("Save only: would remove package %s.", item()));
 					return true;
 				}
 

@@ -460,8 +460,8 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, false);
 
-		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would install package %s.", toInstall));
-		// The actual apt-get install must never be called in dry-run mode
+		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would install package %s.", toInstall));
+		// The actual apt-get install must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("install"),
 				eq("-y"), eq(toInstall));
 	}
@@ -483,8 +483,8 @@ public class SetupCommandsTests {
 		installFile.deleteOnExit();
 		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, true, false);
 
-		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would install snap %s.", toInstall));
-		// The actual snap install must never be called in dry-run mode
+		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would install snap %s.", toInstall));
+		// The actual snap install must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"),
 				eq(toInstall));
 	}
@@ -498,8 +498,8 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
 
-		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would remove package %s.", toRemove));
-		// The actual apt-get remove must never be called in dry-run mode
+		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would remove package %s.", toRemove));
+		// The actual apt-get remove must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
 				eq("-y"), eq(toRemove));
 	}
@@ -512,8 +512,8 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
 
-		assertThat(tm.getPrintMessages()).contains(String.format("Dry run: would remove snap %s.", toRemove));
-		// The actual snap remove must never be called in dry-run mode
+		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would remove snap %s.", toRemove));
+		// The actual snap remove must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"),
 				eq(toRemove));
 	}
