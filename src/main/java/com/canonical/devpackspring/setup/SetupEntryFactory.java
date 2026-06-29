@@ -53,6 +53,11 @@ public class SetupEntryFactory {
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
 			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+				if (dryRun) {
+					msg.print(String.format("Save only: would install snap %s.", item()));
+					return true;
+				}
+
 				if (installed) {
 					msg.print(String.format("Snap %s is already installed.", item()));
 					return true;
@@ -86,6 +91,11 @@ public class SetupEntryFactory {
 
 			@Override
 			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+				if (dryRun) {
+					msg.print(String.format("Save only: would remove snap %s.", item()));
+					return true;
+				}
+
 				if (!installed) {
 					return true;
 				}
@@ -107,6 +117,11 @@ public class SetupEntryFactory {
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
 			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+				if (dryRun) {
+					msg.print(String.format("Save only: would install package %s.", item()));
+					return true;
+				}
+
 				if (installed) {
 					msg.print(String.format("Package %s is already installed.", item()));
 					return true;
@@ -134,6 +149,11 @@ public class SetupEntryFactory {
 
 			@Override
 			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+				if (dryRun) {
+					msg.print(String.format("Save only: would remove package %s.", item()));
+					return true;
+				}
+
 				if (!installed) {
 					return true;
 				}
