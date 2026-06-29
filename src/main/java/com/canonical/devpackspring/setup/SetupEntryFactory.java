@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.canonical.devpackspring.IProcessUtil;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStyle;
 
 import org.springframework.cli.util.TerminalMessage;
 
@@ -62,7 +60,6 @@ public class SetupEntryFactory {
 					msg.print(String.format("Snap %s is already installed.", item()));
 					return true;
 				}
-				AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
 				ArrayList<String> call = new ArrayList<>();
 				call.add(SUDO);
 				call.add("snap");
@@ -74,18 +71,16 @@ public class SetupEntryFactory {
 				if (channel != null) {
 					call.add(String.format("--channel=%s", channel));
 				}
-				int exitCode = processUtil.runProcess(msg, true, call.toArray(String[]::new));
-				if (exitCode != 0) {
-					msg.print(new AttributedString(String.format("Failed to install snap %s.", item()), style));
+				if (!runWithBackoff(retry, msg, processUtil, call.toArray(String[]::new))) {
+					msg.print(SetupStyles.error(String.format("Failed to install snap %s.", item())));
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
-					msg.print(new AttributedString(
-							String.format("Failed to install snap %s. Post-installation commands failed.", item()),
-							style));
+					msg.print(SetupStyles
+						.error(String.format("Failed to install snap %s. Post-installation commands failed.", item())));
 				}
-				msg.print(String.format("%s was successfully installed.", name()));
+				msg.print(SetupStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
@@ -99,7 +94,12 @@ public class SetupEntryFactory {
 				if (!installed) {
 					return true;
 				}
-				return processUtil.runProcess(msg, true, SUDO, "snap", "remove", item()) == 0;
+				if (!runWithBackoff(retry, msg, processUtil, SUDO, "snap", "remove", item())) {
+					msg.print(SetupStyles.error(String.format("Failed to remove snap %s.", item())));
+					return false;
+				}
+				msg.print(SetupStyles.ok(String.format("%s was successfully removed.", name())));
+				return true;
 			}
 		};
 	}
@@ -126,24 +126,21 @@ public class SetupEntryFactory {
 					msg.print(String.format("Package %s is already installed.", item()));
 					return true;
 				}
-				AttributedStyle style = new AttributedStyle().foreground(AttributedStyle.RED);
-				int exitCode = processUtil.runProcess(msg, true, SUDO, APT_GET, "update");
-				if (exitCode != 0) {
-					msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
+
+				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "update")) {
+					msg.print(SetupStyles.error(String.format("Failed to install package %s.", item())));
 					return false;
 				}
-				exitCode = processUtil.runProcess(msg, true, SUDO, APT_GET, "install", "-y", item());
-				if (exitCode != 0) {
-					msg.print(new AttributedString(String.format("Failed to install package %s.", item()), style));
+				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "install", "-y", item())) {
+					msg.print(SetupStyles.error(String.format("Failed to install package %s.", item())));
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
-					msg.print(new AttributedString(
-							String.format("Failed to install package %s. Post-installation commands failed.", item()),
-							style));
+					msg.print(SetupStyles.error(
+							String.format("Failed to install package %s. Post-installation commands failed.", item())));
 				}
-				msg.print(String.format("%s was successfully installed.", name()));
+				msg.print(SetupStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
@@ -157,7 +154,12 @@ public class SetupEntryFactory {
 				if (!installed) {
 					return true;
 				}
-				return processUtil.runProcess(msg, true, SUDO, APT_GET, "remove", "-y", item()) == 0;
+				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "remove", "-y", item())) {
+					msg.print(SetupStyles.error(String.format("Failed to remove package %s.", item())));
+					return false;
+				}
+				msg.print(SetupStyles.ok(String.format("%s was successfully removed.", name())));
+				return true;
 			}
 		};
 	}

@@ -19,6 +19,7 @@ package com.canonical.devpackspring.setup;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.canonical.devpackspring.CommandLineUtil;
 import com.canonical.devpackspring.IProcessUtil;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -55,12 +56,48 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		}
 		for (var command : extraCommands) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
-			int exitCode = ipc.runProcess(msg, true, command.split(" "));
-			if (exitCode != 0) {
+			if (!runWithBackoff(retry, msg, ipc, CommandLineUtil.splitArgs(command))) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Run the given command with an exponential backoff strategy until the command
+	 * succeeds.
+	 * @param retry Whether to retry on failure
+	 * @param msg Terminal message to print errors to
+	 * @param ipc Process utility to run the command
+	 * @param args Command to run
+	 * @return true if the command succeeded, false otherwise
+	 */
+	protected boolean runWithBackoff(boolean retry, TerminalMessage msg, IProcessUtil ipc, String... args)
+			throws IOException {
+		int backoff = 5;
+		while (ipc.runProcess(msg, true, args) != 0) {
+			if (!retry) {
+				return false;
+			}
+			msg.print(SetupStyles.error(
+					String.format("Command failed: %s. Retrying in %d seconds...", String.join(" ", args), backoff)));
+			backoff(backoff);
+			backoff *= 2;
+			if (backoff > 60) {
+				backoff = 60;
+			}
+		}
+		return true;
+	}
+
+	protected void backoff(int seconds) {
+		try {
+			Thread.sleep(seconds * 1000L);
+		}
+		catch (InterruptedException ex) {
+			throw new RuntimeException("Interrupted while waiting to retry command", ex);
+		}
+
 	}
 
 }
