@@ -37,8 +37,8 @@ public class GradleInitTests {
 		var init = new GradleInit(outputDir);
 		init.addGradleInitFile(snap);
 		String result = Files.readString(Path.of(outputDir.getAbsolutePath(), "foo.gradle"));
-		assertThat(result).contains("url \"file:///snap/foo/current/maven-repo/\"");
-		assertThat(result).contains("name \"foo\"");
+		assertThat(result).contains("url=\"file:///snap/foo/current/maven-repo/\"");
+		assertThat(result).contains("name=\"foo\"");
 	}
 
 }
