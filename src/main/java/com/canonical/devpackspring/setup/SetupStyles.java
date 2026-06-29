@@ -16,20 +16,23 @@
 
 package com.canonical.devpackspring.setup;
 
-import org.jline.utils.AttributedStyle;
 import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 
-public class SetupStyles {
+public final class SetupStyles {
 
 	private static final AttributedStyle STYLE_ERROR = new AttributedStyle().foreground(AttributedStyle.RED);
 
 	private static final AttributedStyle STYLE_OK = new AttributedStyle().foreground(AttributedStyle.GREEN);
 
-	public static final AttributedString error(String message) {
+	private SetupStyles() {
+	}
+
+	public static AttributedString error(String message) {
 		return new AttributedString(message, STYLE_ERROR);
 	}
 
-	public static final AttributedString ok(String message) {
+	public static AttributedString ok(String message) {
 		return new AttributedString(message, STYLE_OK);
 	}
 
