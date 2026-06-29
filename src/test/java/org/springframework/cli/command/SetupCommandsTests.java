@@ -464,6 +464,7 @@ public class SetupCommandsTests {
 		// The actual apt-get install must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("install"),
 				eq("-y"), eq(toInstall));
+		assertThat(new File(tempPath)).content().contains(toInstall);
 	}
 
 	@Test
@@ -479,14 +480,13 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		File installFile = File.createTempFile("install", ".tmp");
-		installFile.deleteOnExit();
-		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, true, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, false);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would install snap %s.", toInstall));
 		// The actual snap install must never be called in save-only mode
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"),
 				eq(toInstall));
+		assertThat(new File(tempPath)).content().contains(toInstall);
 	}
 
 	@Test
