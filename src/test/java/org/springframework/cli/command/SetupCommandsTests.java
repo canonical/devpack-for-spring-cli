@@ -492,11 +492,8 @@ public class SetupCommandsTests {
 	@Test
 	public void testDryRunAptRemove() throws IOException {
 		String toRemove = "openjdk-17-jdk";
-		String aptInstallPattern = "dpkg -s " + toRemove;
 
 		StubTerminalMessage tm = new StubTerminalMessage();
-		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(aptInstallPattern))))
-			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
@@ -510,11 +507,7 @@ public class SetupCommandsTests {
 	@Test
 	public void testDryRunSnapRemove() throws IOException {
 		String toRemove = "docker";
-		String snapInstallPattern = "snap info " + toRemove;
-
 		StubTerminalMessage tm = new StubTerminalMessage();
-		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), not(contains(snapInstallPattern))))
-			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
