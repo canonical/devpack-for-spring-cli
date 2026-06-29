@@ -63,6 +63,16 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		return true;
 	}
 
+	/**
+	 * Run the given command with an exponential backoff strategy until the command
+	 * succeeds.
+	 *
+	 * @param retry Whether to retry on failure
+	 * @param msg Terminal message to print errors to
+	 * @param ipc Process utility to run the command
+	 * @param args Command to run
+	 * @return true if the command succeeded, false otherwise
+	 */
 	protected boolean runWithBackoff(boolean retry, TerminalMessage msg, IProcessUtil ipc, String... args)
 			throws IOException {
 		int backoff = 5;
