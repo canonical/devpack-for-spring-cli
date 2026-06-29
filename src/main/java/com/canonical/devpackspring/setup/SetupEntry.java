@@ -55,12 +55,39 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		}
 		for (var command : extraCommands) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
-			int exitCode = ipc.runProcess(msg, true, command.split(" "));
-			if (exitCode != 0) {
+			if (!runWithBackoff(retry, msg, ipc, command.split(" "))) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	protected boolean runWithBackoff(boolean retry, TerminalMessage msg, IProcessUtil ipc, String... args)
+			throws IOException {
+		int backoff = 5;
+		while (ipc.runProcess(msg, true, args) != 0) {
+			if (!retry) {
+				return false;
+			}
+			msg.print(SetupStyles.error(
+					String.format("Command failed: %s. Retrying in %d seconds...", String.join(" ", args), backoff)));
+			backoff(backoff);
+			backoff *= 2;
+			if (backoff > 60) {
+				backoff = 60;
+			}
+		}
+		return true;
+	}
+
+	public static void backoff(int seconds) throws IOException {
+		try {
+			Thread.sleep(seconds * 1000L);
+		}
+		catch (InterruptedException e) {
+			throw new IOException("Interrupted while waiting to retry command", e);
+		}
+
 	}
 
 }

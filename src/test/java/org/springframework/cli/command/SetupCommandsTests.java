@@ -96,7 +96,8 @@ public class SetupCommandsTests {
 			.willReturn(0);
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, false);
-		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+		assertThat(tm.getPrintAttributedMessages())
+			.contains(String.format("%s was successfully installed.", description));
 	}
 
 	@Test
@@ -138,7 +139,8 @@ public class SetupCommandsTests {
 		File installFile = File.createTempFile("install", ".tmp");
 		installFile.deleteOnExit();
 		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, false);
-		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+		assertThat(tm.getPrintAttributedMessages())
+			.contains(String.format("%s was successfully installed.", description));
 		assertThat(Files.readString(installFile.toPath())).isEqualTo("[docker]\n");
 	}
 
@@ -269,7 +271,8 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, mockBuilder, mockProcessUtil);
 		setupCommands.setup(null, null, tempPath, false, false, false);
 
-		assertThat(tm.getPrintMessages()).contains(String.format("%s was successfully installed.", description));
+		assertThat(tm.getPrintAttributedMessages())
+			.contains(String.format("%s was successfully installed.", description));
 		// no package should have been removed
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
 				eq("-y"), any());
