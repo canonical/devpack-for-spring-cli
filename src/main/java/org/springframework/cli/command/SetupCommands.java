@@ -85,7 +85,10 @@ public class SetupCommands {
 			@Option(longName = "file", description = "Path to the software list file") String configPath,
 			@Option(longName = "save",
 					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
-			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
+			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall,
+			@Option(description = "Do not update the host system, only simulate the actions", longName = "dry-run",
+					defaultValue = "false") boolean dryRun,
+			@Option(description = "Retry failing commands", longName = "retry", defaultValue = "false") boolean retry) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null && configPath != null) {
@@ -93,13 +96,13 @@ public class SetupCommands {
 			}
 			Path saveSetupPath = (saveSetupList != null) ? Path.of(saveSetupList) : null;
 			if (add != null) {
-				headlessSetup(add, model, uninstall);
+				headlessSetup(add, model, uninstall, retry, dryRun);
 				saveInstalledSoftware(saveSetupPath, add);
 				return;
 			}
 
 			if (configPath != null) {
-				headlessSetup(loadSoftwareList(Path.of(configPath)), model, uninstall);
+				headlessSetup(loadSoftwareList(Path.of(configPath)), model, uninstall, retry, dryRun);
 				return;
 			}
 
@@ -145,10 +148,10 @@ public class SetupCommands {
 				for (var entry : cat.getSetupEntries()) {
 					if (entrySet.contains(entry.item())) {
 						installed.add(entry.item());
-						entry.install(terminalMessage);
+						entry.install(terminalMessage, retry, dryRun);
 					}
 					else if (uninstall) {
-						entry.remove(terminalMessage);
+						entry.remove(terminalMessage, retry, dryRun);
 					}
 				}
 			}
@@ -160,17 +163,18 @@ public class SetupCommands {
 
 	}
 
-	private void headlessSetup(String[] add, SetupModel model, boolean uninstall) throws IOException {
+	private void headlessSetup(String[] add, SetupModel model, boolean uninstall, boolean retry, boolean dryRun)
+			throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
 		ArrayList<Operation> operators = new ArrayList<>();
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
-					operators.add(() -> entry.install(this.terminalMessage));
+					operators.add(() -> entry.install(this.terminalMessage, retry, dryRun));
 					toAdd.remove(entry.item());
 				}
 				else if (uninstall) {
-					operators.add(() -> entry.remove(this.terminalMessage));
+					operators.add(() -> entry.remove(this.terminalMessage, retry, dryRun));
 				}
 			}
 		}
