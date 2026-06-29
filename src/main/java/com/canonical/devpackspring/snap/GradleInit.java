@@ -37,8 +37,8 @@ public class GradleInit {
 					gradle.beforeSettings { settings ->
 						settings.pluginManagement.repositories { handler ->
 							var repo = maven {
-									name "plugin-%s"
-									url "file:///snap/%s/current/maven-repo/"
+									name="plugin-%s"
+									url="file:///snap/%s/current/maven-repo/"
 								}
 							handler.remove(repo)
 							handler.addFirst(repo)
@@ -47,8 +47,8 @@ public class GradleInit {
 					gradle.allprojects { project ->
 						project.repositories {
 							maven {
-								name "%s"
-								url "file:///snap/%s/current/maven-repo/"
+								name="%s"
+								url="file:///snap/%s/current/maven-repo/"
 							}
 						}
 					}
