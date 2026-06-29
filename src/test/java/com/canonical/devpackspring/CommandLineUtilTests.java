@@ -34,9 +34,9 @@ public class CommandLineUtilTests {
 
 	@Test
 	public void testSplitArgsQuotedExtraSpace() {
-		assertThat(CommandLineUtil.splitArgs("  foo   \"bar   baz\"   qux  ")).containsExactly("foo", "bar   baz", "qux");
+		assertThat(CommandLineUtil.splitArgs("  foo   \"bar   baz\"   qux  ")).containsExactly("foo", "bar   baz",
+				"qux");
 	}
-
 
 	@Test
 	public void testSplitArgsExtraWhitespace() {
@@ -46,6 +46,11 @@ public class CommandLineUtilTests {
 	@Test
 	public void testSplitArgsEmpty() {
 		assertThat(CommandLineUtil.splitArgs("")).isEmpty();
+	}
+
+	@Test
+	public void testSplitArgsEscapedQuote() {
+		assertThat(CommandLineUtil.splitArgs("foo \"bar\\\"baz\\\"\" qux")).containsExactly("foo", "bar\"baz\"", "qux");
 	}
 
 }

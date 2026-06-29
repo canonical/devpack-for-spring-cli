@@ -167,8 +167,8 @@ public class SetupCommandsTests {
 		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, true);
 
 		// The install command must have been called twice (initial attempt + one retry)
-		verify(mockProcessUtil, Mockito.times(2)).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"),
-				eq("install"), eq(toInstall));
+		verify(mockProcessUtil, Mockito.times(2)).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"),
+				eq(toInstall));
 		assertThat(tm.getPrintAttributedMessages())
 			.contains(String.format("%s was successfully installed.", description));
 	}

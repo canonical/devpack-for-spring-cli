@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public final class CommandLineUtil {
 
-	private static final Pattern ARG_PATTERN = Pattern.compile("([^\"]\\S*|\"[^\"]*\")\\s*");
+	private static final Pattern ARG_PATTERN = Pattern.compile("([^\"]\\S*|\"(?:[^\"\\\\]|\\\\.)*\")\\s*");
 
 	private CommandLineUtil() {
 	}
@@ -32,7 +32,12 @@ public final class CommandLineUtil {
 		List<String> list = new ArrayList<>();
 		Matcher m = ARG_PATTERN.matcher(command.trim());
 		while (m.find()) {
-			list.add(m.group(1).replace("\"", "")); // Adds match and removes extra quotes
+			String token = m.group(1);
+			if (token.startsWith("\"")) {
+				// Strip surrounding quotes then unescape \" → "
+				token = token.substring(1, token.length() - 1).replace("\\\"", "\"");
+			}
+			list.add(token);
 		}
 		return list.toArray(new String[0]);
 	}

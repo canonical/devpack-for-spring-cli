@@ -85,7 +85,6 @@ public class SetupEntryTests {
 		assertThat(entry.backoffValues).isEqualTo(retryArray);
 	}
 
-
 	@Test
 	public void testExecuteExtraCommandsFailsOnError() throws IOException {
 		ArrayList<String> extras = new ArrayList<>(List.of("failing-cmd"));
