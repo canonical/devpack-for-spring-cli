@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.IoUtils;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
@@ -51,6 +52,7 @@ import org.springframework.shell.jline.tui.table.TableModel;
 import org.springframework.stereotype.Component;
 
 @Component
+@CommandGroup(prefix = "", name = "Plugins")
 public class BuildCommands {
 
 	public static final String PLUGIN_CONFIGURATION = "SPRING_CLI_BUILD_COMMANDS_PLUGIN_CONFIGURATION";
@@ -86,7 +88,7 @@ public class BuildCommands {
 		return ConfigUtil.openConfigurationFile(PLUGIN_CONFIGURATION, "plugin-configuration.yaml");
 	}
 
-	@Command(name = "plugin", description = "Run a build plugin for the project")
+	@Command(name = "run", description = "Run a build plugin for the project")
 	public void run(@Option(description = "plugin name") String plugin,
 			@Option(description = "task/goal") String command, @Option(description = "project path") Path projectPath)
 			throws IOException {
@@ -187,7 +189,7 @@ public class BuildCommands {
 		}
 	}
 
-	@Command(name = "plugin-init", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
+	@Command(name = "init-plugin", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
 	public void initPluginConfiguration(@Option(description = "project path") Path projectPath) throws IOException {
 		if (projectPath == null) {
 			projectPath = workingDir;
@@ -210,7 +212,7 @@ public class BuildCommands {
 		terminalMessage.print("Created " + target);
 	}
 
-	@Command(name = "list-plugins", description = "List supported build plugins")
+	@Command(name = "plugins", description = "List supported build plugins")
 	public Table list() {
 		// TODO: check build system and print applicable plugins
 		var header = Stream.<String[]>of(new String[] { "Name", "Id", "Description", "Build System" });

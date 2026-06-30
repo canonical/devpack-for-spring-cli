@@ -49,7 +49,7 @@ import org.springframework.stereotype.Component;
  * This command is responsible for the manipulation of the content snaps
  */
 @Component
-@CommandGroup(prefix = "snap", name = "Devpack")
+@CommandGroup(prefix = "", name = "Devpack")
 public class SnapCommands {
 
 	private static final String SNAP_PARAMETER_ID = "snap";
@@ -67,7 +67,7 @@ public class SnapCommands {
 		this.terminalMessage = terminalMessage;
 	}
 
-	@Command(name = "list", description = "List available libraries packaged as a snap.")
+	@Command(name = "libraries", description = "List available libraries packaged as a snap.")
 	public Table list() {
 		try {
 			var header = Stream.<String[]>of(new String[] { "Installed", "Name", "Channel", "Version", "Description" });
@@ -87,7 +87,7 @@ public class SnapCommands {
 		}
 	}
 
-	@Command(name = "install", description = "Install a snap-packaged library.")
+	@Command(name = "add-library", description = "Install a snap-packaged library.")
 	public String install(@Option(description = "Name of the library to install") String snap)
 			throws IOException, InterruptedException, XPathExpressionException, ParserConfigurationException,
 			TransformerException, SAXException {
@@ -114,7 +114,7 @@ public class SnapCommands {
 		return String.format("Installed %s.", toInstall.name());
 	}
 
-	@Command(name = "setup-gradle", description = "Setup Gradle to use snap-packaged libraries.")
+	@Command(name = "gradle-libraries", description = "Setup Gradle to use snap-packaged libraries.")
 	public void setupGradle() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -128,7 +128,7 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(name = "setup-maven", description = "Setup Maven to use snap-packaged libraries.")
+	@Command(name = "maven-libraries", description = "Setup Maven to use snap-packaged libraries.")
 	public void setupMaven() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -142,7 +142,7 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(name = "remove", description = "Remove a snap-packaged library.")
+	@Command(name = "remove-library", description = "Remove a snap-packaged library.")
 	public String remove(@Option(description = "Name of the library to remove") String snap)
 			throws IOException, InterruptedException {
 		Snap toRemove = getSnap(snap, true);
