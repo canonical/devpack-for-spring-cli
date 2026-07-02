@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.canonical.devpackspring.setup;
+package com.canonical.devpackspring;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-public final class SetupStyles {
+public final class TerminalStyles {
 
 	private static final AttributedStyle STYLE_ERROR = new AttributedStyle().foreground(AttributedStyle.RED);
 
 	private static final AttributedStyle STYLE_OK = new AttributedStyle().foreground(AttributedStyle.GREEN);
 
-	private SetupStyles() {
+	private TerminalStyles() {
 	}
 
 	public static AttributedString error(String message) {

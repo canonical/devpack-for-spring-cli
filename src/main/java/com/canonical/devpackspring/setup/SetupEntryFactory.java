@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.canonical.devpackspring.IProcessUtil;
+import com.canonical.devpackspring.TerminalStyles;
 
 import org.springframework.cli.util.TerminalMessage;
 
@@ -72,15 +73,15 @@ public class SetupEntryFactory {
 					call.add(String.format("--channel=%s", channel));
 				}
 				if (!runWithBackoff(retry, msg, processUtil, call.toArray(String[]::new))) {
-					msg.print(SetupStyles.error(String.format("Failed to install snap %s.", item())));
+					msg.print(TerminalStyles.error(String.format("Failed to install snap %s.", item())));
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
-					msg.print(SetupStyles
+					msg.print(TerminalStyles
 						.error(String.format("Failed to install snap %s. Post-installation commands failed.", item())));
 				}
-				msg.print(SetupStyles.ok(String.format("%s was successfully installed.", name())));
+				msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
@@ -95,10 +96,10 @@ public class SetupEntryFactory {
 					return true;
 				}
 				if (!runWithBackoff(retry, msg, processUtil, SUDO, "snap", "remove", item())) {
-					msg.print(SetupStyles.error(String.format("Failed to remove snap %s.", item())));
+					msg.print(TerminalStyles.error(String.format("Failed to remove snap %s.", item())));
 					return false;
 				}
-				msg.print(SetupStyles.ok(String.format("%s was successfully removed.", name())));
+				msg.print(TerminalStyles.ok(String.format("%s was successfully removed.", name())));
 				return true;
 			}
 		};
@@ -128,19 +129,19 @@ public class SetupEntryFactory {
 				}
 
 				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "update")) {
-					msg.print(SetupStyles.error(String.format("Failed to install package %s.", item())));
+					msg.print(TerminalStyles.error(String.format("Failed to install package %s.", item())));
 					return false;
 				}
 				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "install", "-y", item())) {
-					msg.print(SetupStyles.error(String.format("Failed to install package %s.", item())));
+					msg.print(TerminalStyles.error(String.format("Failed to install package %s.", item())));
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
 				if (!ret) {
-					msg.print(SetupStyles.error(
+					msg.print(TerminalStyles.error(
 							String.format("Failed to install package %s. Post-installation commands failed.", item())));
 				}
-				msg.print(SetupStyles.ok(String.format("%s was successfully installed.", name())));
+				msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
@@ -155,10 +156,10 @@ public class SetupEntryFactory {
 					return true;
 				}
 				if (!runWithBackoff(retry, msg, processUtil, SUDO, APT_GET, "remove", "-y", item())) {
-					msg.print(SetupStyles.error(String.format("Failed to remove package %s.", item())));
+					msg.print(TerminalStyles.error(String.format("Failed to remove package %s.", item())));
 					return false;
 				}
-				msg.print(SetupStyles.ok(String.format("%s was successfully removed.", name())));
+				msg.print(TerminalStyles.ok(String.format("%s was successfully removed.", name())));
 				return true;
 			}
 		};

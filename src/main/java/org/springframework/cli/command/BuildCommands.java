@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.IoUtils;
 import org.springframework.cli.util.TerminalMessage;
+import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
@@ -46,7 +47,6 @@ import org.springframework.shell.jline.tui.component.flow.SelectItem;
 import org.springframework.shell.jline.tui.component.support.Nameable;
 import org.springframework.shell.jline.tui.table.ArrayTableModel;
 import org.springframework.shell.jline.tui.table.BorderStyle;
-import org.springframework.shell.jline.tui.table.Table;
 import org.springframework.shell.jline.tui.table.TableBuilder;
 import org.springframework.shell.jline.tui.table.TableModel;
 import org.springframework.stereotype.Component;
@@ -89,9 +89,9 @@ public class BuildCommands {
 	}
 
 	@Command(name = "run", description = "Run a build plugin for the project")
-	public void run(@Option(description = "plugin name") String plugin,
-			@Option(description = "task/goal") String command, @Option(description = "project path") Path projectPath)
-			throws IOException {
+	public void run(@Argument(index = 0, description = "plugin name") String plugin,
+			@Argument(index = 1, description = "task/goal") String command,
+			@Option(description = "project path") Path projectPath) throws IOException {
 		PluginRunner runner = new PluginRunner((projectPath != null) ? projectPath : workingDir);
 		BuildSystem buildSystem = runner.detectBuildSystem();
 
@@ -213,7 +213,7 @@ public class BuildCommands {
 	}
 
 	@Command(name = "plugins", description = "List supported build plugins")
-	public Table list() {
+	public void list() {
 		// TODO: check build system and print applicable plugins
 		var header = Stream.<String[]>of(new String[] { "Name", "Id", "Description", "Build System" });
 		var gradlePlugins = getPlugins(BuildSystem.gradle);
@@ -221,7 +221,7 @@ public class BuildCommands {
 		var data = Stream.concat(Stream.concat(header, gradlePlugins), mavenPlugins).toArray(String[][]::new);
 		TableModel model = new ArrayTableModel(data);
 		TableBuilder tableBuilder = new TableBuilder(model);
-		return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+		terminalMessage.print(tableBuilder.addFullBorder(BorderStyle.fancy_light).build().render(terminalMessage.width()));
 	}
 
 	private @NotNull Stream<String[]> getPlugins(BuildSystem buildSystem) {

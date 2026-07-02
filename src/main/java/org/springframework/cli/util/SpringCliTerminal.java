@@ -39,6 +39,10 @@ public class SpringCliTerminal implements org.springframework.cli.util.TerminalM
 		this.themeResolver = themeResolver;
 	}
 
+	public int width() {
+		return terminal.getWidth();
+	}
+
 	public void print(String... text) {
 		for (String t : text) {
 			this.terminal.writer().println(t);
