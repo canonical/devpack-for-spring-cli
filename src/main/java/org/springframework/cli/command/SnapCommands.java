@@ -93,6 +93,9 @@ public class SnapCommands {
 	public String install(@Argument(index = 0, description = "Name of the library to install") String snap)
 			throws IOException, InterruptedException, XPathExpressionException, ParserConfigurationException,
 			TransformerException, SAXException {
+		if ("".equals(snap)) {
+			snap = null;
+		}
 		Snap toInstall = getSnap(snap, false);
 		if (toInstall == null) {
 			if (snap == null) {

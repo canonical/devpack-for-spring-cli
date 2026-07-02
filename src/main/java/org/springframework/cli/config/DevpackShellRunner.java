@@ -19,9 +19,11 @@ package org.springframework.cli.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.canonical.devpackspring.TerminalStyles;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jline.utils.AttributedString;
@@ -163,32 +165,38 @@ public class DevpackShellRunner implements ShellRunner {
 				outputWriter.println(status.description());
 				throw new ShellExitException(status);
 			}
-			ExitStatus status = exitCodeMapper.apply(ex);
-			outputWriter.println(status.description());
-			if (ex instanceof CommandNotFoundException) {
-				executeCommand(HELP);
+			Exception reportException = ex;
+			if (ex instanceof InvocationTargetException tx && tx.getCause() instanceof Exception exception) {
+				reportException = exception;
 			}
-			else if (ex instanceof DevpackCommandArgumentException && parsedInput != null) {
-				executeCommand(HELP + " " + parsedInput.commandName());
-			}
-			else if (ex instanceof IllegalArgumentException && parsedInput == null) {
-				int index = primaryCommand.indexOf(' ');
-				if (index < 0) {
-					index = primaryCommand.length();
-				}
-				executeCommand(HELP + " " + primaryCommand.substring(0, index));
-			}
-			else {
-				outputWriter.println(new AttributedString("Use 'devpack-for-spring help' to get help.",
-						AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
-					.toAnsi());
-			}
+			ExitStatus status = exitCodeMapper.apply(reportException);
+			reportError(status.description(), primaryCommand, reportException, parsedInput);
 			throw new ShellExitException(status);
 		}
 		finally {
 			outputWriter.flush();
 		}
 
+	}
+
+	private void reportError(String description, String primaryCommand, Exception reportException,
+			ParsedInput parsedInput) {
+		outputWriter.println(TerminalStyles.error(description));
+		switch (reportException) {
+			case CommandNotFoundException _ -> executeCommand(HELP);
+			case DevpackCommandArgumentException _ when parsedInput != null ->
+				executeCommand(HELP + " " + parsedInput.commandName());
+			case IllegalArgumentException _ when parsedInput == null -> {
+				int index = primaryCommand.indexOf(' ');
+				if (index < 0) {
+					index = primaryCommand.length();
+				}
+				executeCommand(HELP + " " + primaryCommand.substring(0, index));
+			}
+			default -> outputWriter.println(new AttributedString("Use 'devpack-for-spring help' to get help.",
+					AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
+				.toAnsi());
+		}
 	}
 
 	private static boolean isLikeHelp(String command) {

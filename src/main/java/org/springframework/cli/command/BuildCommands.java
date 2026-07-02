@@ -94,6 +94,12 @@ public class BuildCommands {
 			@Option(description = "project path") Path projectPath) throws IOException {
 		PluginRunner runner = new PluginRunner((projectPath != null) ? projectPath : workingDir);
 		BuildSystem buildSystem = runner.detectBuildSystem();
+		if ("".equals(plugin)) {
+			plugin = null;
+		}
+		if ("".equals(command)) {
+			command = null;
+		}
 
 		if (buildSystem == BuildSystem.unknown) {
 			throw new IllegalArgumentException("Unknown build system, only Maven and Gradle are supported.\n");
@@ -125,7 +131,7 @@ public class BuildCommands {
 				.resultValue(plugin)
 				.resultMode(ResultMode.ACCEPT)
 				.selectItems(items)
-				.defaultSelect(items.iterator().next().name())
+				.defaultSelect(items.getFirst().name())
 				.sort(Comparator.comparing(Nameable::getName))
 				.and()
 				.build();
@@ -158,8 +164,8 @@ public class BuildCommands {
 		}
 
 		if (command != null && !desc.tasks().aliases().contains(command)) {
-			throw new IllegalArgumentException(
-					command + " is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
+			throw new IllegalArgumentException("Command '" +
+					command + "' is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
 		}
 
 		var alias = (command != null) ? command : desc.defaultTask();
