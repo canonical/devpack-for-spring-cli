@@ -26,6 +26,12 @@ import org.jline.utils.AttributedString;
 public interface TerminalMessage {
 
 	/**
+	 * Retrieve terminal width
+	 * @return terminal width
+	 */
+	int width();
+
+	/**
 	 * Print a text.
 	 * @param text a text
 	 */
@@ -43,6 +49,11 @@ public interface TerminalMessage {
 	 */
 	static TerminalMessage noop() {
 		return new TerminalMessage() {
+
+			@Override
+			public int width() {
+				return 80;
+			}
 
 			@Override
 			public void print(String... text) {

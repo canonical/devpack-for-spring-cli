@@ -26,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.canonical.devpackspring.TerminalStyles;
 import com.canonical.devpackspring.snap.GradleSetup;
 import com.canonical.devpackspring.snap.Manifest;
 import com.canonical.devpackspring.snap.MavenSetup;
@@ -33,6 +34,7 @@ import com.canonical.devpackspring.snap.Snap;
 import org.xml.sax.SAXException;
 
 import org.springframework.cli.util.TerminalMessage;
+import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
@@ -40,7 +42,6 @@ import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
 import org.springframework.shell.jline.tui.table.ArrayTableModel;
 import org.springframework.shell.jline.tui.table.BorderStyle;
-import org.springframework.shell.jline.tui.table.Table;
 import org.springframework.shell.jline.tui.table.TableBuilder;
 import org.springframework.shell.jline.tui.table.TableModel;
 import org.springframework.stereotype.Component;
@@ -68,7 +69,7 @@ public class SnapCommands {
 	}
 
 	@Command(name = "libraries", description = "List available libraries packaged as a snap.")
-	public Table list() {
+	public void list() {
 		try {
 			var header = Stream.<String[]>of(new String[] { "Installed", "Name", "Channel", "Version", "Description" });
 			var manifest = new Manifest();
@@ -80,7 +81,8 @@ public class SnapCommands {
 			String[][] data = Stream.concat(header, rows).toArray(String[][]::new);
 			TableModel model = new ArrayTableModel(data);
 			TableBuilder tableBuilder = new TableBuilder(model);
-			return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+			terminalMessage
+				.print(tableBuilder.addFullBorder(BorderStyle.fancy_light).build().render(terminalMessage.width()));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
@@ -88,7 +90,7 @@ public class SnapCommands {
 	}
 
 	@Command(name = "add-library", description = "Install a snap-packaged library.")
-	public String install(@Option(description = "Name of the library to install") String snap)
+	public String install(@Argument(index = 0, description = "Name of the library to install") String snap)
 			throws IOException, InterruptedException, XPathExpressionException, ParserConfigurationException,
 			TransformerException, SAXException {
 		Snap toInstall = getSnap(snap, false);
@@ -111,7 +113,7 @@ public class SnapCommands {
 		terminalMessage.print(MavenSetup.setupMaven(toInstall));
 		terminalMessage.print(GradleSetup.setupGradle(toInstall));
 
-		return String.format("Installed %s.", toInstall.name());
+		return TerminalStyles.ok(String.format("Installed %s.", toInstall.name())).toAnsi();
 	}
 
 	@Command(name = "gradle-libraries", description = "Setup Gradle to use snap-packaged libraries.")
@@ -161,7 +163,7 @@ public class SnapCommands {
 			return String.format("Failed to remove %s.", toRemove.name());
 		}
 
-		return String.format("Removed %s.", toRemove.name());
+		return TerminalStyles.ok(String.format("Removed %s.", toRemove.name())).toAnsi();
 	}
 
 	private Snap getSnap(String snap, boolean installed) throws IOException {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import com.canonical.devpackspring.CommandLineUtil;
 import com.canonical.devpackspring.IProcessUtil;
+import com.canonical.devpackspring.TerminalStyles;
 import org.apache.commons.text.StringSubstitutor;
 
 import org.springframework.cli.util.TerminalMessage;
@@ -79,7 +80,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 			if (!retry) {
 				return false;
 			}
-			msg.print(SetupStyles.error(
+			msg.print(TerminalStyles.error(
 					String.format("Command failed: %s. Retrying in %d seconds...", String.join(" ", args), backoff)));
 			backoff(backoff);
 			backoff *= 2;
