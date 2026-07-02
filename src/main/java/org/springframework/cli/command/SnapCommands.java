@@ -37,7 +37,6 @@ import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
-import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
 import org.springframework.shell.jline.tui.table.ArrayTableModel;
