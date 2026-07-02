@@ -169,7 +169,8 @@ public class DevpackShellRunner implements ShellRunner {
 			if (ex instanceof InvocationTargetException tx && tx.getCause() instanceof Exception exception) {
 				reportException = exception;
 			}
-			ExitStatus status = getExitStatus(primaryCommand, reportException, parsedInput);
+			ExitStatus status = exitCodeMapper.apply(reportException);
+			reportError(status.description(), primaryCommand, reportException, parsedInput);
 			throw new ShellExitException(status);
 		}
 		finally {
@@ -178,10 +179,9 @@ public class DevpackShellRunner implements ShellRunner {
 
 	}
 
-	private ExitStatus getExitStatus(String primaryCommand, Exception reportException,
+	private void reportError(String description, String primaryCommand, Exception reportException,
 			ParsedInput parsedInput) {
-		ExitStatus status = exitCodeMapper.apply(reportException);
-		outputWriter.println(TerminalStyles.error(status.description()));
+		outputWriter.println(TerminalStyles.error(description));
 		switch (reportException) {
 			case CommandNotFoundException _ -> executeCommand(HELP);
 			case DevpackCommandArgumentException _ when parsedInput != null ->
@@ -197,7 +197,6 @@ public class DevpackShellRunner implements ShellRunner {
 					AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
 				.toAnsi());
 		}
-		return status;
 	}
 
 	private static boolean isLikeHelp(String command) {
