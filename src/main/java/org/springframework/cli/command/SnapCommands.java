@@ -37,7 +37,6 @@ import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
-import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
 import org.springframework.shell.jline.tui.table.ArrayTableModel;
@@ -99,9 +98,9 @@ public class SnapCommands {
 		Snap toInstall = getSnap(snap, false);
 		if (toInstall == null) {
 			if (snap == null) {
-				return "No snaps are available to install.";
+				return TerminalStyles.error("No snaps are available to install.").toAnsi();
 			}
-			return String.format("Snap %s is not available to install.", snap);
+			return TerminalStyles.error(String.format("Snap %s is not available to install.", snap)).toAnsi();
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "install", toInstall.name(),
@@ -148,14 +147,17 @@ public class SnapCommands {
 	}
 
 	@Command(name = "remove-library", description = "Remove a snap-packaged library.")
-	public String remove(@Option(description = "Name of the library to remove") String snap)
+	public String remove(@Argument(index = 0, description = "Name of the library to remove") String snap)
 			throws IOException, InterruptedException {
+		if ("".equals(snap)) {
+			snap = null;
+		}
 		Snap toRemove = getSnap(snap, true);
 		if (toRemove == null) {
 			if (snap == null) {
-				return "No snaps are available to remove.";
+				return TerminalStyles.error("No snaps are available to remove.").toAnsi();
 			}
-			return String.format("Snap %s is not available to remove.", snap);
+			return TerminalStyles.error(String.format("Snap %s is not available to remove.", snap)).toAnsi();
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "remove", toRemove.name());
@@ -163,7 +165,7 @@ public class SnapCommands {
 		Process p = pb.start();
 		int exitCode = p.waitFor();
 		if (exitCode != 0) {
-			return String.format("Failed to remove %s.", toRemove.name());
+			return TerminalStyles.error(String.format("Failed to remove %s.", toRemove.name())).toAnsi();
 		}
 
 		return TerminalStyles.ok(String.format("Removed %s.", toRemove.name())).toAnsi();
