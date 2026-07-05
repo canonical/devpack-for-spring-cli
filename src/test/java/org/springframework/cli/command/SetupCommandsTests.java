@@ -478,6 +478,19 @@ public class SetupCommandsTests {
 	}
 
 	@Test
+	public void testSetupWithMissingFileOption(@org.junit.jupiter.api.io.TempDir Path tempDir) {
+		Path configPath = tempDir.resolve("missing_config.yaml");
+
+		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+			StubTerminalMessage stub = new StubTerminalMessage();
+			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
+			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, false))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("The software list " + configPath + " does not exist!");
+		});
+	}
+
+	@Test
 	public void testSaveOnlyAptInstall() throws IOException {
 		String toInstall = "openjdk-17-jdk";
 
