@@ -84,7 +84,7 @@ public class SetupCommands {
 
 	@Command(name = "setup", description = "Setup development environment")
 	public void setup(@Option(longName = "add", description = "Software to install") String[] add,
-			@Option(longName = "file", description = "Path to the software list file") String configPath,
+			@Option(longName = "file", description = "Path to the software list file") String fileConfig,
 			@Option(longName = "save",
 					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
 			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall,
@@ -93,7 +93,7 @@ public class SetupCommands {
 			@Option(description = "Retry failing commands", longName = "retry", defaultValue = "false") boolean retry) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
-			if (add != null && configPath != null) {
+			if (add != null && fileConfig != null) {
 				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
 			}
 			Path saveSetupPath = (saveSetupList != null) ? Path.of(saveSetupList) : null;
@@ -103,8 +103,12 @@ public class SetupCommands {
 				return;
 			}
 
-			if (configPath != null) {
-				headlessSetup(loadSoftwareList(Path.of(configPath)), model, uninstall, retry, saveOnly);
+			if (fileConfig != null) {
+				var configPath = Path.of(fileConfig);
+				if (!Files.exists(configPath)) {
+					throw new IllegalArgumentException("The software list " + fileConfig + " does not exist!");
+				}
+				headlessSetup(loadSoftwareList(configPath), model, uninstall, retry, saveOnly);
 				return;
 			}
 
