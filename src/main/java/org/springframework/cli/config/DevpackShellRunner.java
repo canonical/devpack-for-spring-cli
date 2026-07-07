@@ -151,6 +151,10 @@ public class DevpackShellRunner implements ShellRunner {
 			parsedInput = this.commandParser.parse(primaryCommand);
 			if (!isLikeHelp(parsedInput.commandName())) {
 				commandValidator.validateOptions(parsedInput);
+				if (commandValidator.hasHelpOption(parsedInput)) {
+					contextHelp(parsedInput);
+					return;
+				}
 			}
 			CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
 					this.inputReader);
@@ -184,8 +188,7 @@ public class DevpackShellRunner implements ShellRunner {
 		outputWriter.println(TerminalStyles.error(description));
 		switch (reportException) {
 			case CommandNotFoundException _ -> executeCommand(HELP);
-			case DevpackCommandArgumentException _ when parsedInput != null ->
-				executeCommand(HELP + " " + parsedInput.commandName());
+			case DevpackCommandArgumentException _ when parsedInput != null -> contextHelp(parsedInput);
 			case IllegalArgumentException _ when parsedInput == null -> {
 				int index = primaryCommand.indexOf(' ');
 				if (index < 0) {
@@ -197,6 +200,14 @@ public class DevpackShellRunner implements ShellRunner {
 					AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
 				.toAnsi());
 		}
+	}
+
+	private void contextHelp(ParsedInput parsedInput) {
+		String helpTarget = parsedInput.commandName();
+		if (!parsedInput.subCommands().isEmpty()) {
+			helpTarget += " " + String.join(" ", parsedInput.subCommands());
+		}
+		executeCommand(HELP + " " + helpTarget);
 	}
 
 	private static boolean isLikeHelp(String command) {

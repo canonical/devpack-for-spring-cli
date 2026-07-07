@@ -48,6 +48,9 @@ class DevpackShellRunnerTests {
 
 		Command helpCommand = Command.builder().name("help").execute(ctx -> {
 			ctx.outputWriter().println("help");
+			for (var arg : ctx.parsedInput().arguments()) {
+				ctx.outputWriter().println(arg.value());
+			}
 		});
 
 		CommandRegistry commandRegistry = new CommandRegistry(Set.of(command, helpCommand));
@@ -93,7 +96,14 @@ class DevpackShellRunnerTests {
 		assertThat(output.toString()).isNotEmpty();
 		assertThat(output.toString()).contains("Command not found: no-such-command");
 		assertThat(output.toString()).contains("help");
+	}
 
+	@Test
+	void commandHelp() {
+		assertThatCode(() -> runner.run(new String[] { COMMAND_NAME, "--help" })).doesNotThrowAnyException();
+		String helpOutput = output.toString();
+		assertThat(helpOutput).contains("help");
+		assertThat(helpOutput).contains(COMMAND_NAME);
 	}
 
 }
