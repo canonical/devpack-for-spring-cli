@@ -151,6 +151,10 @@ public class DevpackShellRunner implements ShellRunner {
 			parsedInput = this.commandParser.parse(primaryCommand);
 			if (!isLikeHelp(parsedInput.commandName())) {
 				commandValidator.validateOptions(parsedInput);
+				if (commandValidator.hasHelpOption(parsedInput)) {
+					executeCommand(HELP + " " + parsedInput.commandName());
+					return;
+				}
 			}
 			CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
 					this.inputReader);
