@@ -64,8 +64,16 @@ public class DevpackCommandValidator {
 		}
 	}
 
+	public boolean hasHelpOption(ParsedInput parsedInput) {
+		return parsedInput.options().stream().anyMatch(this::isHelpOption);
+	}
+
+	private boolean isHelpOption(CommandOption option) {
+		return "help".equals(option.longName()) || option.shortName() == 'h';
+	}
+
 	private boolean isKnownOption(CommandOption parsedOpt, List<CommandOption> definedOptions) {
-		if ("help".equals(parsedOpt.longName()) || parsedOpt.shortName() == 'h') {
+		if (isHelpOption(parsedOpt)) {
 			return true;
 		}
 		if (definedOptions != null) {

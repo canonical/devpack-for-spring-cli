@@ -4,40 +4,40 @@ Devpack for Spring CLI supports declarative build plugin management for both Gra
 
 ## CLI Commands
 
-### `plugin`
+### `run`
 
 Runs a build plugin task in the current project:
 
 ```shell
 # Interactive (prompts for plugin and task selection)
-plugin
+run
 
 # Fully specified: plugin name + task alias
-plugin rockcraft build-rock
+run rockcraft build-rock
 
 # Plugin name only (uses default task)
-plugin format
+run format
 ```
 
 The CLI auto-detects the build system (Gradle or Maven) by looking for `build.gradle`, `build.gradle.kts`, or `pom.xml` in the working directory.
 
-### `list-plugins`
+### `plugins`
 
 Lists all available plugins:
 
 ```shell
-list-plugins
+plugins
 ```
 
-### `plugin-init`
+### `init-plugin`
 
 Initializes a local plugin configuration file in the current directory:
 
 ```shell
-plugin-init
+init-plugin
 ```
 
-This command creates the `.devpack-for-spring/` directory (if it does not already exist) and copies the built-in `plugin-configuration.yaml` into it. After running `plugin-init`, you can edit `.devpack-for-spring/plugin-configuration.yaml` to customize plugin versions, add new plugins, or override defaults. The local file takes precedence over the built-in defaults (see **Configuration File** below).
+This command creates the `.devpack-for-spring/` directory (if it does not already exist) and copies the built-in `plugin-configuration.yaml` into it. After running `init-plugin`, you can edit `.devpack-for-spring/plugin-configuration.yaml` to customize plugin versions, add new plugins, or override defaults. The local file takes precedence over the built-in defaults (see **Configuration File** below).
 
 ## Configuration File
 
@@ -50,7 +50,7 @@ Plugin definitions are stored in `plugin-configuration.yaml`. The file is loaded
 
 ### YAML Schema
 
-Each top-level key is the **plugin name** (the first positional argument to the `plugin` command, e.g. `plugin rockcraft build-rock`). Under it, separate `gradle` and/or `maven` sections define the build-system-specific plugin, along with optional shared `resources`.
+Each top-level key is the **plugin name** (the first positional argument to the `run` command, e.g. `run rockcraft build-rock`). Under it, separate `gradle` and/or `maven` sections define the build-system-specific plugin, along with optional shared `resources`.
 
 ```yaml
 <plugin-name>:
@@ -101,7 +101,7 @@ Each top-level key is the **plugin name** (the first positional argument to the 
 | `version` | Yes | Plugin version |
 | `repository` | No | Gradle plugin repository (e.g. `gradlePluginPortal()`) |
 | `default-task` | Yes | Task alias used when no `--command` is specified |
-| `description` | Yes | Human-readable description shown by `list-plugins` |
+| `description` | Yes | Human-readable description shown by `plugins` |
 | `tasks` | Yes | Map of task aliases to actual build commands |
 | `configuration` | No | Build-system-specific configuration snippets |
 | `resources` | No | Files to provision in the project before running the plugin |
@@ -246,7 +246,7 @@ rockcraft:
 
 ## How It Works
 
-When the `plugin` command is executed:
+When the `run` command is executed:
 
 1. The build system is detected from the project files (`build.gradle`, `build.gradle.kts`, or `pom.xml`)
 2. The plugin is looked up in the configuration for the detected build system

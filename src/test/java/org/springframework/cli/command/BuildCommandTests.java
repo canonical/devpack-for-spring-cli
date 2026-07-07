@@ -28,7 +28,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cli.support.IntegrationTestSupport;
 import org.springframework.cli.support.MockConfigurations;
 import org.springframework.cli.util.StubTerminalMessage;
-import org.springframework.shell.jline.tui.table.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -50,8 +49,8 @@ public class BuildCommandTests {
 	public void testListPlugins() throws IOException {
 		StubTerminalMessage terminalMessage = new StubTerminalMessage();
 		BuildCommands commands = new BuildCommands(terminalMessage, null);
-		Table ret = commands.list();
-		String plugins = ret.render(80);
+		commands.list();
+		String plugins = terminalMessage.getPrintMessages().get(0);
 		assertThat(plugins).contains("rockcraft");
 		assertThat(plugins).contains("io.github.rockcrafters.rockcraft");
 	}

@@ -26,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.canonical.devpackspring.TerminalStyles;
 import com.canonical.devpackspring.snap.GradleSetup;
 import com.canonical.devpackspring.snap.Manifest;
 import com.canonical.devpackspring.snap.MavenSetup;
@@ -33,14 +34,13 @@ import com.canonical.devpackspring.snap.Snap;
 import org.xml.sax.SAXException;
 
 import org.springframework.cli.util.TerminalMessage;
+import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
-import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
 import org.springframework.shell.jline.tui.table.ArrayTableModel;
 import org.springframework.shell.jline.tui.table.BorderStyle;
-import org.springframework.shell.jline.tui.table.Table;
 import org.springframework.shell.jline.tui.table.TableBuilder;
 import org.springframework.shell.jline.tui.table.TableModel;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Component;
  * This command is responsible for the manipulation of the content snaps
  */
 @Component
-@CommandGroup(prefix = "snap", name = "Devpack")
+@CommandGroup(prefix = "", name = "Devpack")
 public class SnapCommands {
 
 	private static final String SNAP_PARAMETER_ID = "snap";
@@ -67,8 +67,8 @@ public class SnapCommands {
 		this.terminalMessage = terminalMessage;
 	}
 
-	@Command(name = "list", description = "List available libraries packaged as a snap.")
-	public Table list() {
+	@Command(name = "libraries", description = "List available libraries packaged as a snap.")
+	public void list() {
 		try {
 			var header = Stream.<String[]>of(new String[] { "Installed", "Name", "Channel", "Version", "Description" });
 			var manifest = new Manifest();
@@ -80,23 +80,27 @@ public class SnapCommands {
 			String[][] data = Stream.concat(header, rows).toArray(String[][]::new);
 			TableModel model = new ArrayTableModel(data);
 			TableBuilder tableBuilder = new TableBuilder(model);
-			return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+			terminalMessage
+				.print(tableBuilder.addFullBorder(BorderStyle.fancy_light).build().render(terminalMessage.width()));
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
-	@Command(name = "install", description = "Install a snap-packaged library.")
-	public String install(@Option(description = "Name of the library to install") String snap)
+	@Command(name = "add-library", description = "Install a snap-packaged library.")
+	public String install(@Argument(index = 0, description = "Name of the library to install") String snap)
 			throws IOException, InterruptedException, XPathExpressionException, ParserConfigurationException,
 			TransformerException, SAXException {
+		if ("".equals(snap)) {
+			snap = null;
+		}
 		Snap toInstall = getSnap(snap, false);
 		if (toInstall == null) {
 			if (snap == null) {
-				return "No snaps are available to install.";
+				return TerminalStyles.error("No snaps are available to install.").toAnsi();
 			}
-			return String.format("Snap %s is not available to install.", snap);
+			return TerminalStyles.error(String.format("Snap %s is not available to install.", snap)).toAnsi();
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "install", toInstall.name(),
@@ -111,10 +115,10 @@ public class SnapCommands {
 		terminalMessage.print(MavenSetup.setupMaven(toInstall));
 		terminalMessage.print(GradleSetup.setupGradle(toInstall));
 
-		return String.format("Installed %s.", toInstall.name());
+		return TerminalStyles.ok(String.format("Installed %s.", toInstall.name())).toAnsi();
 	}
 
-	@Command(name = "setup-gradle", description = "Setup Gradle to use snap-packaged libraries.")
+	@Command(name = "gradle-libraries", description = "Setup Gradle to use snap-packaged libraries.")
 	public void setupGradle() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -128,7 +132,7 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(name = "setup-maven", description = "Setup Maven to use snap-packaged libraries.")
+	@Command(name = "maven-libraries", description = "Setup Maven to use snap-packaged libraries.")
 	public void setupMaven() throws IOException {
 		var manifest = new Manifest();
 		var snaps = manifest.load(loadManifest());
@@ -142,15 +146,18 @@ public class SnapCommands {
 		});
 	}
 
-	@Command(name = "remove", description = "Remove a snap-packaged library.")
-	public String remove(@Option(description = "Name of the library to remove") String snap)
+	@Command(name = "remove-library", description = "Remove a snap-packaged library.")
+	public String remove(@Argument(index = 0, description = "Name of the library to remove") String snap)
 			throws IOException, InterruptedException {
+		if ("".equals(snap)) {
+			snap = null;
+		}
 		Snap toRemove = getSnap(snap, true);
 		if (toRemove == null) {
 			if (snap == null) {
-				return "No snaps are available to remove.";
+				return TerminalStyles.error("No snaps are available to remove.").toAnsi();
 			}
-			return String.format("Snap %s is not available to remove.", snap);
+			return TerminalStyles.error(String.format("Snap %s is not available to remove.", snap)).toAnsi();
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(SNAP_COMMAND, "remove", toRemove.name());
@@ -158,10 +165,10 @@ public class SnapCommands {
 		Process p = pb.start();
 		int exitCode = p.waitFor();
 		if (exitCode != 0) {
-			return String.format("Failed to remove %s.", toRemove.name());
+			return TerminalStyles.error(String.format("Failed to remove %s.", toRemove.name())).toAnsi();
 		}
 
-		return String.format("Removed %s.", toRemove.name());
+		return TerminalStyles.ok(String.format("Removed %s.", toRemove.name())).toAnsi();
 	}
 
 	private Snap getSnap(String snap, boolean installed) throws IOException {

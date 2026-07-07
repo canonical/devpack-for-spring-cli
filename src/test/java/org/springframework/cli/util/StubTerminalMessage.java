@@ -28,6 +28,11 @@ public class StubTerminalMessage implements TerminalMessage {
 	private List<String> printAttributedMessages = new ArrayList<>();
 
 	@Override
+	public int width() {
+		return 80;
+	}
+
+	@Override
 	public void print(String... text) {
 		for (String s : text) {
 			this.printMessages.add(s);

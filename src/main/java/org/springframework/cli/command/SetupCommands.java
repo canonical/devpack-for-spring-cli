@@ -39,6 +39,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Command;
+import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
 import org.springframework.shell.jline.tui.component.flow.ComponentFlow;
 import org.springframework.shell.jline.tui.component.flow.ResultMode;
@@ -47,6 +48,7 @@ import org.springframework.shell.jline.tui.component.support.Nameable;
 import org.springframework.stereotype.Component;
 
 @Component
+@CommandGroup(prefix = "", name = "Devpack")
 public class SetupCommands {
 
 	public static final String SETUP_CONFIGURATION = "SPRING_CLI_SETUP_COMMANDS_CONFIGURATION";
@@ -82,24 +84,31 @@ public class SetupCommands {
 
 	@Command(name = "setup", description = "Setup development environment")
 	public void setup(@Option(longName = "add", description = "Software to install") String[] add,
-			@Option(longName = "file", description = "Path to the software list file") String configPath,
+			@Option(longName = "file", description = "Path to the software list file") String fileConfig,
 			@Option(longName = "save",
 					description = "Path to save the installed software list (defaults to $user.home/.config/devpack-for-spring/installed_config.yaml)") String saveSetupList,
-			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall) {
+			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall,
+			@Option(description = "Do not update the host system, only save the install file", longName = "save-only",
+					defaultValue = "false") boolean saveOnly,
+			@Option(description = "Retry failing commands", longName = "retry", defaultValue = "false") boolean retry) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
-			if (add != null && configPath != null) {
+			if (add != null && fileConfig != null) {
 				throw new RuntimeException("Options --add and --file options are mutually exclusive.");
 			}
 			Path saveSetupPath = (saveSetupList != null) ? Path.of(saveSetupList) : null;
 			if (add != null) {
-				headlessSetup(add, model, uninstall);
+				headlessSetup(add, model, uninstall, retry, saveOnly);
 				saveInstalledSoftware(saveSetupPath, add);
 				return;
 			}
 
-			if (configPath != null) {
-				headlessSetup(loadSoftwareList(Path.of(configPath)), model, uninstall);
+			if (fileConfig != null) {
+				var configPath = Path.of(fileConfig);
+				if (!Files.exists(configPath)) {
+					throw new IllegalArgumentException("The software list " + fileConfig + " does not exist!");
+				}
+				headlessSetup(loadSoftwareList(configPath), model, uninstall, retry, saveOnly);
 				return;
 			}
 
@@ -145,10 +154,10 @@ public class SetupCommands {
 				for (var entry : cat.getSetupEntries()) {
 					if (entrySet.contains(entry.item())) {
 						installed.add(entry.item());
-						entry.install(terminalMessage);
+						entry.install(terminalMessage, retry, saveOnly);
 					}
 					else if (uninstall) {
-						entry.remove(terminalMessage);
+						entry.remove(terminalMessage, retry, saveOnly);
 					}
 				}
 			}
@@ -160,17 +169,18 @@ public class SetupCommands {
 
 	}
 
-	private void headlessSetup(String[] add, SetupModel model, boolean uninstall) throws IOException {
+	private void headlessSetup(String[] add, SetupModel model, boolean uninstall, boolean retry, boolean saveOnly)
+			throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
 		ArrayList<Operation> operators = new ArrayList<>();
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
-					operators.add(() -> entry.install(this.terminalMessage));
+					operators.add(() -> entry.install(this.terminalMessage, retry, saveOnly));
 					toAdd.remove(entry.item());
 				}
 				else if (uninstall) {
-					operators.add(() -> entry.remove(this.terminalMessage));
+					operators.add(() -> entry.remove(this.terminalMessage, retry, saveOnly));
 				}
 			}
 		}
