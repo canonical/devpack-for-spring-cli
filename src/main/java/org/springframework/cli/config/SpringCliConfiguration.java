@@ -19,6 +19,7 @@ package org.springframework.cli.config;
 import java.time.Duration;
 
 import org.jline.terminal.Terminal;
+import reactor.netty.transport.ClientTransport;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ReactorResourceFactory;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.shell.core.ShellRunner;
 import org.springframework.shell.core.command.CommandParser;
 import org.springframework.shell.core.command.CommandRegistry;
@@ -45,12 +47,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class SpringCliConfiguration {
 
 	/**
-	 * Workaround Intellij IDEA debugger issue
+	 * @param factory - resource factory
+	 * @param config - inject ProxyConfiguration to ensure it is run before this method
 	 * @return WebClient.Builder
 	 */
 	@Bean
-	public WebClient.Builder webClientBuilder() {
-		return WebClient.builder();
+	public WebClient.Builder webClientBuilder(ReactorResourceFactory factory, ProxyConfiguration config) {
+		return WebClient.builder()
+			.clientConnector(new ReactorClientHttpConnector(factory, ClientTransport::proxyWithSystemProperties));
 	}
 
 	@Bean
