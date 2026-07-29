@@ -62,7 +62,7 @@ public final class Refactoring {
 			.build();
 
 		ArrayList<Recipe> recipes = new ArrayList<>();
-		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
+		recipes.add(new AddGradlePluginRecipe(id, version, kotlin, descriptor.subprojects()));
 
 		if (configuration != null) {
 			var withId = kotlin ? String.format("plugins.withId(\"%s\"){\n%s\n}\n", id, configuration)

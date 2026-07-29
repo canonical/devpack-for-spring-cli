@@ -49,7 +49,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private final SourceFile templateSource;
 
-	public KotlinAddPluginVisitor(String pluginName, String pluginVersion) {
+	public KotlinAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
 		Parser.Builder builder = GradleParser.builder()
 			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(false));
 		Parser parser = builder.build();
@@ -58,7 +58,9 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		// Use dummy file name to force the use of kotlin parser
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
 				: String.format(builtInTemplateKotlin, pluginName);
-		pluginDefinition += String.format(subprojectsTemplateKotlin, pluginName);
+		if (subprojects) {
+			pluginDefinition += String.format(subprojectsTemplateKotlin, pluginName);
+		}
 		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), pluginDefinition)),
