@@ -44,7 +44,9 @@ public class GradleRunnerTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, "format",
 					new PluginTasks(Map.of("format", List.of("format"))),
-					new PluginConfiguration(new PluginResource[0], null, null, null), null);
+					new PluginConfiguration(new PluginResource[0], null,
+							null, null),
+					null, true);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			GradleRunner.run(workingDir, desc, List.of("format"), terminalMessage);
 
@@ -63,7 +65,9 @@ public class GradleRunnerTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			PluginDescriptor desc = new PluginDescriptor("io.spring.javaformat", "0.0.43", null, "format",
 					new PluginTasks(Map.of("format", List.of("format"))),
-					new PluginConfiguration(new PluginResource[0], null, null, null), null);
+					new PluginConfiguration(new PluginResource[0], null,
+							null, null),
+					null, true);
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
 			GradleRunner.run(workingDir, desc, List.of("format"), terminalMessage);
 			StringBuilder content = new StringBuilder();

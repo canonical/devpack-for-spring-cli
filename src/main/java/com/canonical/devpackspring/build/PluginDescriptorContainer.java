@@ -58,10 +58,13 @@ public class PluginDescriptorContainer {
 			PluginConfiguration config = readPluginConfiguration(resources,
 					(Map<String, Object>) description.get("configuration"));
 			PluginTasks pluginTasks = readTasks((Map<String, Object>) description.get("tasks"));
-			pluginMap.put(getKey(key, buildSystem),
+			// subprojects: plugins apply to subprojects by default
+			boolean subprojects = Boolean.parseBoolean(String.valueOf(description.get("subprojects")));
+            pluginMap.put(getKey(key, buildSystem),
 					new PluginDescriptor((String) description.get("id"), (String) description.get("version"),
 							(String) description.get("repository"), (String) description.get("default-task"),
-							pluginTasks, config, (String) description.get("description")));
+							pluginTasks, config, (String) description.get("description"),
+							subprojects));
 		}
 	}
 

@@ -41,7 +41,7 @@ public class MavenRunnerTests {
 		PluginDescriptor desc = new PluginDescriptor("org.springframework.boot:spring-boot-maven-plugin", null, null,
 				null, new PluginTasks(Collections.emptyMap()),
 				new PluginConfiguration(new PluginResource[0], new MavenConfiguration(null, null, null), null, null),
-				null);
+				null, true);
 
 		StubTerminalMessage terminalMessage = new StubTerminalMessage();
 		assertThatNoException().isThrownBy(() -> MavenRunner.run(workingDir, desc, List.of("foo"), terminalMessage));

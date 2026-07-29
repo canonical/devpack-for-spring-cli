@@ -22,18 +22,15 @@ import org.jspecify.annotations.NonNull;
  * Describes gradle plugin configuration
  *
  */
-public record PluginDescriptor(String id, String version, String repository, String defaultTask, PluginTasks tasks,
-		@NonNull PluginConfiguration configuration, String description) {
+public record PluginDescriptor(String id,
+							   String version,
+							   String repository,
+							   String defaultTask,
+							   PluginTasks tasks,
+							   @NonNull PluginConfiguration configuration,
+							   String description,
+							   boolean subprojects) {
 	PluginResource[] resources() {
 		return configuration.resources();
 	}
-
-	String getGradleKotlinSnippet() {
-		return configuration().gradleKotlinSnippet();
-	}
-
-	String getGradleGroovySnippet() {
-		return configuration().gradleGroovySnippet();
-	}
-
 }
