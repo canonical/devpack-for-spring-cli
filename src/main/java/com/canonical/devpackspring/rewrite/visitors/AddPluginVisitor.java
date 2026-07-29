@@ -29,6 +29,9 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.Statement;
 
+/**
+ * Used by GroovyAddPluginVisitor and KotlinAddPluginVisitor
+ */
 public class AddPluginVisitor {
 
 	public static final String HAS_PLUGIN_BLOCK = "has_plugin_block";
