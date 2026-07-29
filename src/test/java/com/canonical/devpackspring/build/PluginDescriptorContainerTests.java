@@ -30,7 +30,7 @@ public class PluginDescriptorContainerTests {
 		PluginDescriptorContainer container = new PluginDescriptorContainer(new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-subprojects-plugin.yaml")));
 		assertThat(container.get("checkStyle", BuildSystem.gradle).subprojects()).isFalse();
-		assertThat(container.get("checkStyle", BuildSystem.maven).subprojects()).isFalse();
+		assertThat(container.get("checkStyle", BuildSystem.maven).subprojects()).isTrue();
 	}
 
 	@Test
