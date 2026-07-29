@@ -60,11 +60,10 @@ public class PluginDescriptorContainer {
 			PluginTasks pluginTasks = readTasks((Map<String, Object>) description.get("tasks"));
 			// subprojects: plugins apply to subprojects by default
 			boolean subprojects = Boolean.parseBoolean(String.valueOf(description.get("subprojects")));
-            pluginMap.put(getKey(key, buildSystem),
+			pluginMap.put(getKey(key, buildSystem),
 					new PluginDescriptor((String) description.get("id"), (String) description.get("version"),
 							(String) description.get("repository"), (String) description.get("default-task"),
-							pluginTasks, config, (String) description.get("description"),
-							subprojects));
+							pluginTasks, config, (String) description.get("description"), subprojects));
 		}
 	}
 

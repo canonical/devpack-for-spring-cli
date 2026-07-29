@@ -41,46 +41,49 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 
 	@Test
 	void testGroovyAddBuiltInPluginNoSubprojects() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false, false)), Assertions.buildGradle("""
-				group = 'com.example'
-				version = '1.0'
-				""", """
-				plugins {
-					id 'java'
-				}
-				group = 'com.example'
-				version = '1.0'"""));
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false, false)),
+				Assertions.buildGradle("""
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'java'
+						}
+						group = 'com.example'
+						version = '1.0'"""));
 	}
 
 	@Test
 	void testKotlinAddBuiltInPlugin() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, true)), Assertions.buildGradleKts("""
-				group = "com.example"
-				version = "1.0"
-				""", """
-				plugins {
-					id("java")
-				}
-				subprojects {
-				    apply(plugin = "java")
-				}
-				group = "com.example"
-				version = "1.0"
-				"""));
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, true)),
+				Assertions.buildGradleKts("""
+						group = "com.example"
+						version = "1.0"
+						""", """
+						plugins {
+							id("java")
+						}
+						subprojects {
+						    apply(plugin = "java")
+						}
+						group = "com.example"
+						version = "1.0"
+						"""));
 
 	}
 
 	@Test
 	void testKotlinAddBuiltInPluginNoSubprojects() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false, false)), Assertions.buildGradle("""
-				group = 'com.example'
-				version = '1.0'
-				""", """
-				plugins {
-					id 'java'
-				}
-				group = 'com.example'
-				version = '1.0'"""));
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false, false)),
+				Assertions.buildGradle("""
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'java'
+						}
+						group = 'com.example'
+						version = '1.0'"""));
 	}
 
 	@Test

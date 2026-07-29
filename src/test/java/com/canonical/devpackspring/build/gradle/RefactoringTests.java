@@ -44,10 +44,8 @@ public class RefactoringTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null,
-							null, null),
-					null, true);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
@@ -65,19 +63,15 @@ public class RefactoringTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null,
-							null, null),
-					null, true);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), foo, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
 
 			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null,
-							null, null),
-					null, true);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), otherfoo, buildFile);
 			assertThat(buildFile).content()
@@ -93,9 +87,7 @@ public class RefactoringTests {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null,
-							kotlinSnippet, null),
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, kotlinSnippet, null),
 					null, true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
@@ -115,9 +107,7 @@ public class RefactoringTests {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
-					new PluginTasks(Collections.emptyMap()),
-					new PluginConfiguration(null, null,
-							kotlinSnippet, null),
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, kotlinSnippet, null),
 					null, false);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);

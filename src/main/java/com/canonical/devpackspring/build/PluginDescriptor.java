@@ -22,14 +22,8 @@ import org.jspecify.annotations.NonNull;
  * Describes gradle plugin configuration
  *
  */
-public record PluginDescriptor(String id,
-							   String version,
-							   String repository,
-							   String defaultTask,
-							   PluginTasks tasks,
-							   @NonNull PluginConfiguration configuration,
-							   String description,
-							   boolean subprojects) {
+public record PluginDescriptor(String id, String version, String repository, String defaultTask, PluginTasks tasks,
+		@NonNull PluginConfiguration configuration, String description, boolean subprojects) {
 	PluginResource[] resources() {
 		return configuration.resources();
 	}
