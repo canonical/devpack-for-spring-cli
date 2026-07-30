@@ -74,16 +74,17 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 
 	@Test
 	void testKotlinAddBuiltInPluginNoSubprojects() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, false, false)),
-				Assertions.buildGradle("""
-						group = 'com.example'
-						version = '1.0'
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, false)),
+				Assertions.buildGradleKts("""
+						group = "com.example"
+						version = "1.0"
 						""", """
 						plugins {
-							id 'java'
+							id("java")
 						}
-						group = 'com.example'
-						version = '1.0'"""));
+						group = "com.example"
+						version = "1.0"
+						"""));
 	}
 
 	@Test
