@@ -45,14 +45,16 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private final SourceFile templateSource;
 
-	public GroovyAddPluginVisitor(String pluginName, String pluginVersion) {
+	public GroovyAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
 		Parser.Builder builder = GradleParser.builder()
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
 				: String.format(builtInTemplateGroovy, pluginName);
-		pluginDefinition += String.format(withSubprojectsTemplate, pluginName);
+		if (subprojects) {
+			pluginDefinition += String.format(withSubprojectsTemplate, pluginName);
+		}
 		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)),

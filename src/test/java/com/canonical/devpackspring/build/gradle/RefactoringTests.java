@@ -44,7 +44,8 @@ public class RefactoringTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null,
-					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"bar\"");
 			StubTerminalMessage terminalMessage = new StubTerminalMessage();
@@ -62,13 +63,15 @@ public class RefactoringTests {
 		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null,
-					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), foo, buildFile);
 			assertThat(buildFile).content().contains("id(\"foo\") version \"${bar}\"");
 
 			PluginDescriptor otherfoo = new PluginDescriptor("otherfoo", "bar", null, null,
-					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null);
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
+					true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), otherfoo, buildFile);
 			assertThat(buildFile).content()
@@ -85,13 +88,34 @@ public class RefactoringTests {
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
 					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, kotlinSnippet, null),
-					null);
+					null, true);
 
 			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
 
 			assertThat(buildFile).content().contains("id(\"foo\") version \"1.0.0\"");
 			assertThat(buildFile).content().contains("subprojects {");
 			assertThat(buildFile).content().contains("plugins.withId(\"foo\"){");
+			assertThat(buildFile).content().contains("configure<com.example.MyOptions>");
+		});
+	}
+
+	@Test
+	public void testRefactoringWithConfigBlockNoSubprojects(final @TempDir Path workingDir) {
+		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
+		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
+		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+			Path buildFile = workingDir.resolve("build.gradle.kts");
+			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
+			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
+					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, kotlinSnippet, null),
+					null, false);
+
+			Refactoring.configurePlugin(new StubTerminalMessage(), desc, buildFile);
+
+			assertThat(buildFile).content().contains("id(\"foo\") version \"1.0.0\"");
+			assertThat(buildFile).content().contains("configure<com.example.MyOptions>");
+			assertThat(buildFile).content().doesNotContain("subprojects {");
+			assertThat(buildFile).content().doesNotContain("plugins.withId(\"foo\"){");
 		});
 	}
 

@@ -26,6 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PluginDescriptorContainerTests {
 
 	@Test
+	public void testSubprojectsField() {
+		PluginDescriptorContainer container = new PluginDescriptorContainer(new InputStreamReader(
+				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-subprojects-plugin.yaml")));
+		assertThat(container.get("checkStyle", BuildSystem.gradle).subprojects()).isFalse();
+		assertThat(container.get("checkStyle", BuildSystem.maven).subprojects()).isTrue();
+	}
+
+	@Test
 	public void testLoadContainer() {
 		PluginDescriptorContainer container = new PluginDescriptorContainer(new InputStreamReader(
 				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-plugin.yaml")));

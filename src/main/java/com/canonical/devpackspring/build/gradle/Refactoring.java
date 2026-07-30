@@ -62,12 +62,14 @@ public final class Refactoring {
 			.build();
 
 		ArrayList<Recipe> recipes = new ArrayList<>();
-		recipes.add(new AddGradlePluginRecipe(id, version, kotlin));
+		recipes.add(new AddGradlePluginRecipe(id, version, kotlin, descriptor.subprojects()));
 
 		if (configuration != null) {
-			var withId = kotlin ? String.format("plugins.withId(\"%s\"){\n%s\n}\n", id, configuration)
-					: String.format("plugins.withId('%s'){\n%s\n}\n", id, configuration);
-			configuration = String.format("%s\nsubprojects {\n%s\n}", configuration, withId);
+			if (descriptor.subprojects()) {
+				var withId = kotlin ? String.format("plugins.withId(\"%s\"){\n%s\n}\n", id, configuration)
+						: String.format("plugins.withId('%s'){\n%s\n}\n", id, configuration);
+				configuration = String.format("%s\nsubprojects {\n%s\n}", configuration, withId);
+			}
 			var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 			Path dummyPath = tempDir.resolve(kotlin ? "build.gradle.kts" : "build.gradle");
 			SourceFile configSourceFile = parser

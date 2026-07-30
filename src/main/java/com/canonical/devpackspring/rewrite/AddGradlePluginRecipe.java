@@ -34,13 +34,14 @@ public class AddGradlePluginRecipe extends Recipe {
 	private final TreeVisitor<?, ExecutionContext> visitor;
 
 	public AddGradlePluginRecipe(@JsonProperty("pluginId") String pluginId,
-			@JsonProperty("pluginVersion") String pluginVersion, @JsonProperty("kotlin") boolean kotlin) {
+			@JsonProperty("pluginVersion") String pluginVersion, @JsonProperty("kotlin") boolean kotlin,
+			@JsonProperty("subprojects") boolean subprojects) {
 		this.pluginId = pluginId;
 		if (kotlin) {
-			this.visitor = new KotlinAddPluginVisitor(pluginId, pluginVersion);
+			this.visitor = new KotlinAddPluginVisitor(pluginId, pluginVersion, subprojects);
 		}
 		else {
-			this.visitor = new GroovyAddPluginVisitor(pluginId, pluginVersion);
+			this.visitor = new GroovyAddPluginVisitor(pluginId, pluginVersion, subprojects);
 		}
 	}
 
