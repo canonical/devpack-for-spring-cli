@@ -65,10 +65,9 @@ public final class Refactoring {
 		recipes.add(new AddGradlePluginRecipe(id, version, kotlin, descriptor.subprojects()));
 
 		if (configuration != null) {
-			var withId = kotlin ? String.format("plugins.withId(\"%s\"){\n%s\n}\n", id, configuration)
-					: String.format("plugins.withId('%s'){\n%s\n}\n", id, configuration);
-
 			if (descriptor.subprojects()) {
+				var withId = kotlin ? String.format("plugins.withId(\"%s\"){\n%s\n}\n", id, configuration)
+						: String.format("plugins.withId('%s'){\n%s\n}\n", id, configuration);
 				configuration = String.format("%s\nsubprojects {\n%s\n}", configuration, withId);
 			}
 			var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
