@@ -19,9 +19,9 @@ package com.canonical.devpackspring.setup;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.canonical.devpackspring.CommandLineUtil;
 import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.TerminalStyles;
+import org.apache.commons.exec.CommandLine;
 import org.apache.commons.text.StringSubstitutor;
 
 import org.springframework.cli.util.TerminalMessage;
@@ -57,7 +57,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		}
 		for (var command : extraCommands) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
-			if (!runWithBackoff(retry, msg, ipc, CommandLineUtil.splitArgs(command))) {
+			if (!runWithBackoff(retry, msg, ipc, CommandLine.parse(command).toStrings())) {
 				return false;
 			}
 		}
