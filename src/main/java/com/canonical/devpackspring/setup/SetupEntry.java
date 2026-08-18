@@ -55,7 +55,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		if (extraCommands == null) {
 			return true;
 		}
-		for (var command : extraCommands) {
+		for (var command : extraCommands.stream().filter(x -> x != null && !x.isBlank()).toList()) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
 			if (!runWithBackoff(retry, msg, ipc, CommandLine.parse(command).toStrings())) {
 				return false;
