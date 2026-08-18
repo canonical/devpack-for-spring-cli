@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.canonical.devpackspring.PathResolver;
 import com.canonical.devpackspring.build.PluginDescriptor;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
@@ -41,7 +42,15 @@ public abstract class RecipeUtil {
 		List<Result> results = run.getChangeset().getAllResults();
 		for (Result result : results) {
 			SourceFile after = result.getAfter();
-			Files.writeString(baseDir.resolve(after.getSourcePath()), result.getAfter().printAll());
+			if (after != null) {
+				Files.writeString(PathResolver.resolve(baseDir, after.getSourcePath()), result.getAfter().printAll());
+				continue;
+			}
+			// after is null, delete the original file
+			SourceFile before = result.getBefore();
+			if (before != null) {
+				Files.deleteIfExists(PathResolver.resolve(baseDir, before.getSourcePath()));
+			}
 		}
 		return !results.isEmpty();
 	}
