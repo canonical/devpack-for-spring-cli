@@ -41,7 +41,15 @@ public abstract class RecipeUtil {
 		List<Result> results = run.getChangeset().getAllResults();
 		for (Result result : results) {
 			SourceFile after = result.getAfter();
-			Files.writeString(baseDir.resolve(after.getSourcePath()), result.getAfter().printAll());
+			if (after != null) {
+				Files.writeString(baseDir.resolve(after.getSourcePath()), result.getAfter().printAll());
+				continue;
+			}
+			// after is null, delete the original file
+			SourceFile before = result.getBefore();
+			if (before != null) {
+				Files.deleteIfExists(baseDir.resolve(before.getSourcePath()));
+			}
 		}
 		return !results.isEmpty();
 	}
