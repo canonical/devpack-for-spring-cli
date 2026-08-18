@@ -38,8 +38,7 @@ public class PathResolverTests {
 		Path baseDir = Path.of("base");
 		Path child = Path.of("..", "outside");
 
-		assertThatThrownBy(() -> PathResolver.resolve(baseDir, child))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> PathResolver.resolve(baseDir, child)).isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("Tried to resolve child")
 			.hasMessageContaining("outside")
 			.hasMessageContaining("root");

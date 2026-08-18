@@ -22,11 +22,14 @@ import java.nio.file.Path;
  * Utility class to resolve path securely.
  */
 public abstract class PathResolver {
-    public static Path resolve(Path p, Path child) {
-        Path result = p.resolve(child);
-        if (!result.normalize().startsWith(p.normalize())) {
-            throw new IllegalArgumentException("Tried to resolve child "+ child + " outside " + p.normalize() + " root.");
-        }
-        return result;
-    }
+
+	public static Path resolve(Path p, Path child) {
+		Path result = p.resolve(child);
+		if (!result.normalize().startsWith(p.normalize())) {
+			throw new IllegalArgumentException(
+					"Tried to resolve child " + child + " outside " + p.normalize() + " root.");
+		}
+		return result;
+	}
+
 }
