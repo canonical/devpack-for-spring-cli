@@ -71,23 +71,52 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 			LOG.error("Unable to parse: " + pluginDefinition);
 			throw new RuntimeException("Parser Error:" + error.printAll());
 		}
-		List<Statement> statements = ((K.CompilationUnit) templateSource).getStatements();
-		J.Block block = (J.Block) statements.get(0);
-		K.MethodInvocation stm = (K.MethodInvocation) block.getStatements().get(0);
-		K.Lambda lambda = (K.Lambda) stm.getArguments().get(0);
-		K.Block kBlock = (K.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName, (J.MethodInvocation) kBlock.getStatements().getFirst());
+		visitor = new AddPluginVisitor(pluginName, getTemplateCall());
+	}
+
+	private J.@NonNull MethodInvocation getTemplateCall() {
+		if (!(templateSource instanceof K.CompilationUnit unit)) {
+			throw new IllegalArgumentException("The template is not K.CompilationUnit " + templateSource);
+		}
+		if (unit.getStatements().isEmpty()) {
+			throw new IllegalArgumentException("The template does not contain any statements " + unit);
+		}
+		if (!(unit.getStatements().getFirst() instanceof J.Block block)) {
+			throw new IllegalArgumentException("The first statement is not a block " + unit.getStatements());
+		}
+		if (block.getStatements().isEmpty()) {
+			throw new IllegalArgumentException("The block is empty " + block);
+		}
+		if (!(block.getStatements().getFirst() instanceof K.MethodInvocation kMethod)) {
+			throw new IllegalArgumentException(
+					"The first statement is not K.MethodInvocation " + block.getStatements().getFirst());
+		}
+		if (kMethod.getArguments().isEmpty()) {
+			throw new IllegalArgumentException("The method call has no arguments " + kMethod);
+		}
+		if (!(kMethod.getArguments().getFirst() instanceof J.Lambda lambda
+				&& lambda.getBody() instanceof K.Block innerBlock)) {
+			throw new IllegalArgumentException("The method call argument is not a lambda " + kMethod);
+		}
+		if (innerBlock.getStatements().isEmpty()) {
+			throw new IllegalArgumentException("The lambda is empty " + innerBlock);
+		}
+		if (!(innerBlock.getStatements().getFirst() instanceof J.MethodInvocation templateCall)) {
+			throw new IllegalArgumentException(
+					"The first statement in lambda is not a method call " + innerBlock.getStatements().getFirst());
+		}
+		return templateCall;
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			ExecutionContext executionContext) {
+			@NonNull ExecutionContext executionContext) {
 		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override
 	public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
-			ExecutionContext executionContext) {
+			@NonNull ExecutionContext executionContext) {
 		var tree = super.visitCompilationUnit(cu, executionContext);
 		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
 			return tree;
