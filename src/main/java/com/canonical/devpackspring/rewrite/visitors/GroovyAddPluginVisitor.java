@@ -106,7 +106,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
 			return tree;
 		}
-		if (!tree.getSourcePath().toString().endsWith("build.gradle")) {
+
+		if (!tree.getSourcePath().endsWith(Path.of("build.gradle"))) {
 			return tree;
 		}
 		List<Statement> statements = StatementUtil.prependTemplate(((G.CompilationUnit) templateSource).getStatements(),

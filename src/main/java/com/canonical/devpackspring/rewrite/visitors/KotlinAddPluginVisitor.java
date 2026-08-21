@@ -121,7 +121,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
 			return tree;
 		}
-		if (!tree.getSourcePath().toString().endsWith("build.gradle.kts")) {
+		if (!tree.getSourcePath().endsWith(Path.of("build.gradle.kts"))) {
 			return tree;
 		}
 		List<Statement> statements = StatementUtil.prependTemplate(((K.CompilationUnit) templateSource).getStatements(),
