@@ -62,23 +62,46 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
 
-		List<Statement> statements = ((G.CompilationUnit) templateSource).getStatements();
-		G.MethodInvocation stm = (G.MethodInvocation) statements.getFirst();
-		G.Lambda lambda = (G.Lambda) stm.getArguments().getFirst();
-		G.Block gBlock = (G.Block) lambda.getBody();
-		visitor = new AddPluginVisitor(pluginName,
-				(J.MethodInvocation) ((J.Return) gBlock.getStatements().getFirst()).getExpression());
+		visitor = new AddPluginVisitor(pluginName, getTemplateCall());
+	}
+
+	private J.@NonNull MethodInvocation getTemplateCall() {
+		if (!(templateSource instanceof G.CompilationUnit unit)) {
+			throw new IllegalArgumentException("Unit is not G.CompilationUnit " + templateSource);
+		}
+		if (unit.getStatements().isEmpty()) {
+			throw new IllegalArgumentException("Template: no statements found " + unit);
+		}
+		if (!(unit.getStatements().getFirst() instanceof J.MethodInvocation stm)) {
+			throw new IllegalArgumentException("Template: first statement is not method call " + unit);
+		}
+		if (stm.getArguments().isEmpty()) {
+			throw new IllegalArgumentException("Template: statement has no arguments " + stm);
+		}
+		if (!(stm.getArguments().getFirst() instanceof G.Lambda lambda && lambda.getBody() instanceof G.Block blk)) {
+			throw new IllegalArgumentException("Template: statement argument is not lambda " + stm);
+		}
+		if (blk.getStatements().isEmpty()) {
+			throw new IllegalArgumentException("Template: no statements found in block " + blk);
+		}
+		if (!(blk.getStatements().getFirst() instanceof J.Return jReturn)) {
+			throw new IllegalArgumentException("Template: first statement does not return value " + blk);
+		}
+		if (!(jReturn.getExpression() instanceof J.MethodInvocation templateCall)) {
+			throw new IllegalArgumentException("Template: the statement is not a method call " + jReturn);
+		}
+		return templateCall;
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			ExecutionContext executionContext) {
+			@NonNull ExecutionContext executionContext) {
 		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
 	}
 
 	@Override
 	public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
-			ExecutionContext executionContext) {
+			@NonNull ExecutionContext executionContext) {
 		var tree = super.visitCompilationUnit(cu, executionContext);
 		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
 			return tree;
