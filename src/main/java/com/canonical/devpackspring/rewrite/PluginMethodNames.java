@@ -27,4 +27,6 @@ public final class PluginMethodNames {
 
 	public static final String METHOD_PLUGINS = "plugins";
 
+	public static final String SUBPROJECTS = "subprojects";
+
 }
