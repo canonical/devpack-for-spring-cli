@@ -37,7 +37,7 @@ public class YamlConfigFile implements ConfigFile {
 		mapper = new ObjectMapper(new YAMLFactory());
 		mapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setDefaultPropertyInclusion(Include.NON_NULL);
 	}
 
 	@Override

@@ -105,7 +105,7 @@ public abstract class MavenRunner {
 
 		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
 		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
-		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class.getName());
+		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class);
 		if (!dataTableRows.isEmpty()) {
 			RecipeUtil.pluginAlreadyConfigured(message, desc);
 			return;
