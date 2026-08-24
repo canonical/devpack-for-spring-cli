@@ -17,100 +17,240 @@
 package com.canonical.devpackspring.rewrite.visitors;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.canonical.devpackspring.rewrite.StatementUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
 import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.groovy.tree.G;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.Space;
+import org.openrewrite.java.tree.Statement;
+import org.openrewrite.tree.ParseError;
 
 public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
-	private final String pluginTemplateGroovy = "plugins {\n\tid '%s' version '%s'\n}\n";
+	private static final Log LOG = LogFactory.getLog(GroovyAddPluginVisitor.class);
 
-	private final String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
+	private static String pluginTemplateGroovy = "plugins {\n\tid '%s' version '%s'\n}\n";
 
-	private final String withSubprojectsTemplate = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
+	private static String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
 
-	private final AddPluginVisitor visitor;
+	private static String subprojectsTemplateGroovy = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
 
-	private final SourceFile templateSource;
+	private final String pluginName;
+
+	private final String pluginVersion;
+
+	private final boolean subprojects;
+
+	private final @NonNull Statement pluginsTemplateCall;
+
+	private final @NonNull Statement subprojectsTemplateCall;
+
+	private final J.@NonNull MethodInvocation subProjectApply;
+
+	private final J.@NonNull MethodInvocation pluginCall;
 
 	public GroovyAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
 		Parser.Builder builder = GradleParser.builder()
 			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false));
 		Parser parser = builder.build();
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
+		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
+
+		this.pluginName = pluginName;
+		this.pluginVersion = pluginVersion;
+		this.subprojects = subprojects;
+		var pluginUnit = parsePluginsTemplateCall(parser, tempDir, context);
+		this.pluginsTemplateCall = getPluginsTemplateCall(pluginUnit);
+		var subprojectsUnit = parseSubprojectsTemplateCall(parser, tempDir, context);
+		this.subprojectsTemplateCall = getSubprojectsTemplateCall(subprojectsUnit);
+		var applyCalls = FindMethodVisitor.findApply(subprojectsTemplateCall);
+		if (applyCalls.size() != 1) {
+			throw new IllegalArgumentException("Subprojects block should contain a single apply call");
+		}
+		this.subProjectApply = applyCalls.getFirst();
+		var pluginCalls = FindMethodVisitor.findPluginVersion(pluginsTemplateCall);
+		if (pluginCalls.isEmpty()) {
+			pluginCalls = FindMethodVisitor.findPluginId(pluginsTemplateCall);
+		}
+		if (pluginCalls.size() != 1) {
+			throw new IllegalArgumentException("Plugins block should contain a single plugin call");
+		}
+		this.pluginCall = pluginCalls.getFirst();
+	}
+
+	private G.@NonNull CompilationUnit parsePluginsTemplateCall(Parser parser, Path tempDir,
+			InMemoryExecutionContext context) {
 		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
 				: String.format(builtInTemplateGroovy, pluginName);
-		if (subprojects) {
-			pluginDefinition += String.format(withSubprojectsTemplate, pluginName);
-		}
-		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-		templateSource = parser
-			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)),
-					Paths.get("/tmp"), context)
+		var templateSource = parser
+			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)), tempDir,
+					context)
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
-
-		visitor = new AddPluginVisitor(pluginName, getTemplateCall());
-	}
-
-	private J.@NonNull MethodInvocation getTemplateCall() {
+			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Groovy"));
+		if (templateSource instanceof ParseError error) {
+			LOG.error("Unable to parse: " + pluginDefinition);
+			throw new RuntimeException("Parser Error:" + error.printAll());
+		}
 		if (!(templateSource instanceof G.CompilationUnit unit)) {
-			throw new IllegalArgumentException("Unit is not G.CompilationUnit " + templateSource);
+			throw new IllegalArgumentException("The template is not G.CompilationUnit " + templateSource);
 		}
-		if (unit.getStatements().isEmpty()) {
-			throw new IllegalArgumentException("Template: no statements found " + unit);
-		}
-		if (!(unit.getStatements().getFirst() instanceof J.MethodInvocation stm)) {
-			throw new IllegalArgumentException("Template: first statement is not method call " + unit);
-		}
-		if (stm.getArguments().isEmpty()) {
-			throw new IllegalArgumentException("Template: statement has no arguments " + stm);
-		}
-		if (!(stm.getArguments().getFirst() instanceof G.Lambda lambda && lambda.getBody() instanceof G.Block blk)) {
-			throw new IllegalArgumentException("Template: statement argument is not lambda " + stm);
-		}
-		if (blk.getStatements().isEmpty()) {
-			throw new IllegalArgumentException("Template: no statements found in block " + blk);
-		}
-		if (!(blk.getStatements().getFirst() instanceof J.Return jReturn)) {
-			throw new IllegalArgumentException("Template: first statement does not return value " + blk);
-		}
-		if (!(jReturn.getExpression() instanceof J.MethodInvocation templateCall)) {
-			throw new IllegalArgumentException("Template: the statement is not a method call " + jReturn);
-		}
-		return templateCall;
+		return unit;
 	}
 
-	@Override
-	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			@NonNull ExecutionContext executionContext) {
-		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+	private G.@NonNull CompilationUnit parseSubprojectsTemplateCall(Parser parser, Path tempDir,
+			InMemoryExecutionContext context) {
+		var source = String.format(subprojectsTemplateGroovy, pluginName);
+		var templateSource = parser
+			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), source)), tempDir, context)
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle Groovy"));
+		if (templateSource instanceof ParseError error) {
+			LOG.error("Unable to parse: " + source);
+			throw new RuntimeException("Parser Error:" + error.printAll());
+		}
+		if (!(templateSource instanceof G.CompilationUnit unit)) {
+			throw new IllegalArgumentException("The template is not G.CompilationUnit " + templateSource);
+		}
+		return unit;
+	}
+
+	private J.@NonNull MethodInvocation getPluginsTemplateCall(G.CompilationUnit unit) {
+		var plugins = FindMethodVisitor.findPluginBlock(unit);
+		if (plugins.size() != 1) {
+			throw new IllegalArgumentException("The template should contain only one plugin block " + unit);
+		}
+		return plugins.getFirst();
+	}
+
+	private J.@NonNull MethodInvocation getSubprojectsTemplateCall(G.CompilationUnit unit) {
+		var subprojectsBlocks = FindMethodVisitor.findSubprojects(unit);
+		if (subprojectsBlocks.size() != 1) {
+			throw new IllegalArgumentException("The template should contain only one subprojects block " + unit);
+		}
+		return subprojectsBlocks.getFirst();
 	}
 
 	@Override
 	public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
 			@NonNull ExecutionContext executionContext) {
-		var tree = super.visitCompilationUnit(cu, executionContext);
-		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
-			return tree;
+		if (!cu.getSourcePath().endsWith(Path.of("build.gradle"))) {
+			return cu;
 		}
 
-		if (!tree.getSourcePath().endsWith(Path.of("build.gradle"))) {
-			return tree;
+		G.CompilationUnit updatedCu = handlePluginBlock(cu);
+		updatedCu = handleSubprojectsBlock(updatedCu);
+		return updatedCu;
+	}
+
+	private G.@NonNull CompilationUnit handleSubprojectsBlock(G.@NonNull CompilationUnit updatedCu) {
+		if (!subprojects) {
+			return updatedCu;
 		}
 
-		return StatementUtil.prependStatement(tree, ((G.CompilationUnit) templateSource).getStatements());
+		var subprojectsBlocks = FindMethodVisitor.findSubprojects(updatedCu);
+
+		if (subprojectsBlocks.isEmpty() || subprojectsBlocks.stream()
+			.map(FindMethodVisitor::findApply)
+			.flatMap(Collection::stream)
+			.noneMatch(x -> x.equals(subProjectApply))) {
+			var statements = new ArrayList<>(updatedCu.getStatements());
+			statements.add(subprojectsTemplateCall.withPrefix(Space.build("\n", List.of())));
+			updatedCu = updatedCu.withStatements(statements);
+		}
+		return updatedCu;
+	}
+
+	public G.@NonNull CompilationUnit handlePluginBlock(G.@NonNull CompilationUnit cu) {
+		var pluginBlocks = FindMethodVisitor.findPluginBlock(cu);
+		if (pluginBlocks.isEmpty()) {
+			return StatementUtil.prependStatement(cu, pluginsTemplateCall);
+		}
+
+		if (pluginBlocks.size() != 1) {
+			throw new IllegalArgumentException("Malformed build.gradle - more than one plugin block found");
+		}
+
+		var pluginBlock = pluginBlocks.getFirst();
+
+		var plugins = FindMethodVisitor.findPluginId(pluginBlock).stream()
+			.filter(method -> !method.getArguments().isEmpty())
+			.toList();
+		var matchingPlugins = plugins.stream().filter(this::pluginNameFilter).toList();
+
+		if (matchingPlugins.isEmpty()) {
+			if (plugins.isEmpty()) {
+				// reconstruct plugins container
+				if (pluginBlock.getArguments().isEmpty()) {
+					return StatementUtil.replaceStatement(cu, pluginBlock, pluginsTemplateCall);
+				}
+				if (!(pluginBlock.getArguments().getFirst() instanceof J.Lambda lambda
+						&& lambda.getBody() instanceof J.Block block)) {
+					throw new IllegalArgumentException("Unable to parse existing plugin block " + pluginBlock);
+				}
+				if (block.getStatements().isEmpty()) {
+					return StatementUtil.replaceStatement(cu, pluginBlock, pluginsTemplateCall);
+				}
+				return StatementUtil.insertAfterStatement(cu, block.getStatements().getLast(), pluginCall);
+			}
+			return StatementUtil.insertAfterStatement(cu, plugins.getLast(), pluginCall);
+		}
+
+		if (pluginVersion != null) {
+			var updatedCu = cu;
+			var versionMismatch = FindMethodVisitor.findPluginVersion(pluginBlock).stream()
+				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
+					.stream()
+					.anyMatch(this::pluginNameFilter))
+				.filter(x -> !versionMatches(x))
+				.toList();
+			for (var versionCall : versionMismatch) {
+				updatedCu = StatementUtil.replaceStatement(updatedCu, versionCall,
+						pluginCall.withPrefix(versionCall.getPrefix()));
+			}
+			return updatedCu;
+		}
+		else if (pluginBlocks.stream()
+			.map(FindMethodVisitor::findPluginId)
+			.flatMap(Collection::stream)
+			.noneMatch(this::pluginNameFilter)) {
+			// prepend plugin block, none of existing ones contains the
+			// required plugin
+			return StatementUtil.prependStatement(cu, pluginsTemplateCall);
+		}
+		return cu;
+	}
+
+	private boolean versionMatches(J.MethodInvocation versionCall) {
+		if (versionCall.getArguments().isEmpty()) {
+			return false;
+		}
+		Expression expr = versionCall.getArguments().getFirst();
+		String versionStr = (expr instanceof J.Literal literal && literal.getValue() != null)
+				? literal.getValue().toString() : expr.toString();
+		return pluginVersion.equals(versionStr);
+	}
+
+	private boolean pluginNameFilter(J.MethodInvocation method) {
+		if (method.getArguments().isEmpty()) {
+			return false;
+		}
+		Expression expr = method.getArguments().getFirst();
+		String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
+				? literal.getValue().toString() : expr.toString();
+		return pluginName.equals(pluginNameStr);
 	}
 
 }

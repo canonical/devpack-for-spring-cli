@@ -31,11 +31,12 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 				plugins {
 					id 'java'
 				}
+				group = 'com.example'
+				version = '1.0'
 				subprojects {
 				    apply plugin: 'java'
 				}
-				group = 'com.example'
-				version = '1.0'"""));
+				"""));
 
 	}
 
@@ -97,11 +98,12 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						plugins {
 							id 'org.springframework.boot' version '3.4.3'
 						}
+						group = 'com.example'
+						version = '1.0'
 						subprojects {
 						    apply plugin: 'org.springframework.boot'
 						}
-						group = 'com.example'
-						version = '1.0'"""));
+						"""));
 	}
 
 	@Test
@@ -121,12 +123,39 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						}
 						group = 'com.example'
 						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
 						"""));
 	}
 
 	@Test
 	void testGroovyAppendPlugin() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),
+				Assertions.buildGradle("""
+						plugins {
+							id 'checkstyle'
+							id 'java'
+						}
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'checkstyle'
+							id 'java'
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
+						"""));
+	}
+
+	@Test
+	void testGroovyAppendDefaultPlugin() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("checkstyle", null, false, false)),
 				Assertions.buildGradle("""
 						plugins {
 						    id 'java'
@@ -136,7 +165,7 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						""", """
 						plugins {
 						    id 'java'
-						    id 'org.springframework.boot' version '3.4.3'
+						    id 'checkstyle'
 						}
 						group = 'com.example'
 						version = '1.0'
