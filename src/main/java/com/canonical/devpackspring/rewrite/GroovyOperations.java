@@ -19,6 +19,7 @@ package com.canonical.devpackspring.rewrite;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.groovy.GroovyIsoVisitor;
@@ -34,10 +35,14 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 	@Override
 	public G.@NonNull CompilationUnit insertAfterStatement(G.@NonNull CompilationUnit cu, @NonNull Statement target,
 			@NonNull Statement toInsert) {
-		var ret = (G.CompilationUnit) new GroovyIsoVisitor<Statement>() {
+		AtomicBoolean updated = new AtomicBoolean(false);
+		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
 			@Override
-			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull Statement target) {
-				J.Block b = super.visitBlock(block, target);
+			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull AtomicBoolean context) {
+				if (context.get()) {
+					return block;
+				}
+				J.Block b = super.visitBlock(block, context);
 				List<Statement> newStatements = new ArrayList<>();
 				boolean inserted = false;
 				for (Statement stmt : b.getStatements()) {
@@ -47,12 +52,14 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 						newStatements.add(call.withPrefix(ret.getPrefix()));
 						newStatements.add(ret.withExpression(toInsert.withPrefix(call.getPrefix())));
 						inserted = true;
+						context.set(true);
 					}
 					else {
 						newStatements.add(stmt);
 						if (stmt == target) {
 							newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
 							inserted = true;
+							context.set(true);
 						}
 					}
 				}
@@ -61,22 +68,33 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				}
 				return b;
 			}
-		}.visit(cu, target);
+		}.visit(cu, updated);
+		if (!updated.get()) {
+			throw new IllegalArgumentException("Expected " + target + " to be found in " + cu + " but it was not.");
+		}
 		return Objects.requireNonNull(ret);
 	}
 
 	@Override
 	public G.@NonNull CompilationUnit replaceStatement(G.@NonNull CompilationUnit cu, @NonNull Statement target,
 			@NonNull Statement replacement) {
-		var ret = (G.CompilationUnit) new GroovyIsoVisitor<Statement>() {
+		AtomicBoolean updated = new AtomicBoolean(false);
+		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
 			@Override
-			public @NonNull Statement visitStatement(@NonNull Statement statement, @NonNull Statement target) {
+			public @NonNull Statement visitStatement(@NonNull Statement statement, @NonNull AtomicBoolean context) {
+				if (context.get()) {
+					return statement;
+				}
 				if (statement == target) {
+					context.set(true);
 					return replacement;
 				}
-				return super.visitStatement(statement, target);
+				return super.visitStatement(statement, context);
 			}
-		}.visit(cu, target);
+		}.visit(cu, updated);
+		if (!updated.get()) {
+			throw new IllegalArgumentException("Expected " + target + " to be found in " + cu + " but it was not.");
+		}
 		return Objects.requireNonNull(ret);
 	}
 
