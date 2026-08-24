@@ -233,7 +233,8 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 		if (expr instanceof J.Literal literal && literal.getValue() != null) {
 			return pluginName.equals(literal.getValue().toString());
 		}
-		// Cannot determine plugin name from non-literal expression; conservatively return false
+		// Cannot determine plugin name from non-literal expression; conservatively return
+		// false
 		return false;
 	}
 

@@ -28,6 +28,7 @@ import org.openrewrite.java.tree.J;
 public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> {
 
 	private final String methodName;
+
 	private boolean recursive;
 
 	public FindMethodVisitor(@NonNull String methodName, boolean recursive) {
