@@ -37,8 +37,7 @@ public abstract class Operations<C extends SourceFile> {
 		if (!treeStatements.isEmpty()) {
 			Statement first = treeStatements.getFirst();
 			Space prefix = first.getPrefix();
-			// preserve leading comments
-			treeStatements.set(0, treeStatements.getFirst().withPrefix(Space.build("\n", prefix.getComments())));
+			treeStatements.set(0, first.withPrefix(Space.build("\n", prefix.getComments())));
 		}
 		statements.addAll(treeStatements);
 		return withStatements(cu, statements);
