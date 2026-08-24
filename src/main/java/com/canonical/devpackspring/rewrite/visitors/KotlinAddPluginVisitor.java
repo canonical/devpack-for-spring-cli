@@ -174,7 +174,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		}
 
 		if (pluginBlocks.size() != 1) {
-			throw new IllegalArgumentException("Malformed build.gradle.kts - more than only plugin block found");
+			throw new IllegalArgumentException("Malformed build.gradles - more than one plugin block found");
 		}
 
 		var pluginBlock = pluginBlocks.getFirst();
