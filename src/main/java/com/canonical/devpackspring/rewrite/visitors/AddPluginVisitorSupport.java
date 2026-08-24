@@ -18,12 +18,10 @@ package com.canonical.devpackspring.rewrite.visitors;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
 import com.canonical.devpackspring.rewrite.Operations;
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
@@ -145,8 +143,6 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 		// If we have a subprojects block that does not apply our plugin
 		// then add a new one.
 		if (subprojectsBlocks.isEmpty() || subprojectsBlocks.stream()
-			.map(FindMethodVisitor::findApply)
-			.flatMap(Collection::stream)
 			.allMatch(x -> FindMethodVisitor.findSubprojectApply(x, pluginName).isEmpty())) {
 			var statements = new ArrayList<>(operations.getStatements(cu));
 			statements.add(subprojectsTemplateCall.withPrefix(Space.build("\n", List.of())));
@@ -200,7 +196,7 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 		return handleMissingPlugin(cu, matchingPlugins, plugins, pluginBlock);
 	}
 
-	private @NotNull C handleMissingPlugin(@NonNull C cu, List<J.MethodInvocation> matchingPlugins,
+	private @NonNull C handleMissingPlugin(@NonNull C cu, List<J.MethodInvocation> matchingPlugins,
 			List<J.MethodInvocation> plugins, J.MethodInvocation pluginBlock) {
 		if (matchingPlugins.isEmpty()) {
 			if (plugins.isEmpty()) {
