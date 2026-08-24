@@ -36,11 +36,11 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		this.recursive = recursive;
 	}
 
-	public static @NonNull List<J.MethodInvocation> findPluginBlock(J subtree) {
+	public static @NonNull List<J.MethodInvocation> findPluginBlock(@NonNull J subtree) {
 		return find(subtree, PluginMethodNames.METHOD_PLUGINS, false);
 	}
 
-	public static @NonNull List<J.MethodInvocation> findPluginId(J subtree) {
+	public static @NonNull List<J.MethodInvocation> findPluginId(@NonNull J subtree) {
 		return find(subtree, PluginMethodNames.METHOD_ID, true);
 	}
 
@@ -49,15 +49,16 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		return possibleMatches.stream().filter(x -> FindMethodVisitor.containsLiteral(x, pluginId)).toList();
 	}
 
-	public static @NonNull List<J.MethodInvocation> findPluginVersion(J subtree) {
+	public static @NonNull List<J.MethodInvocation> findPluginVersion(@NonNull J subtree) {
 		return find(subtree, PluginMethodNames.METHOD_VERSION, true);
 	}
 
-	public static @NonNull List<J.MethodInvocation> findSubprojects(J subtree) {
+	public static @NonNull List<J.MethodInvocation> findSubprojects(@NonNull J subtree) {
 		return find(subtree, PluginMethodNames.METHOD_SUBPROJECTS, false);
 	}
 
-	public static @NonNull List<J.MethodInvocation> find(J subtree, String methodName, boolean recursive) {
+	public static @NonNull List<J.MethodInvocation> find(@NonNull J subtree, @NonNull String methodName,
+			boolean recursive) {
 		return List.copyOf(new FindMethodVisitor(methodName, recursive).reduce(subtree, new ArrayList<>()));
 	}
 
