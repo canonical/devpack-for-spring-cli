@@ -40,7 +40,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
 
 			@Override
-			public J preVisit(J tree, AtomicBoolean context) {
+			public J preVisit(@NonNull J tree, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					stopAfterPreVisit();
 					return tree;
@@ -57,7 +57,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				List<Statement> newStatements = new ArrayList<>();
 				for (Statement stmt : unit.getStatements()) {
 					newStatements.add(stmt);
-					if (stmt == target) {
+					if (stmt.getId().equals(target.getId())) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
 						context.set(true);
 					}
@@ -78,7 +78,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				for (Statement stmt : b.getStatements()) {
 					// Groovy treats the last plugin as return value, expand the statement
 					if (stmt instanceof J.Return retStatement && retStatement.getExpression() instanceof Statement call
-							&& call == target) {
+							&& target.getId().equals(call.getId())) {
 						if (toInsert instanceof Expression exprInsert) {
 							newStatements.add(call.withPrefix(retStatement.getPrefix()));
 							newStatements.add(retStatement.withExpression(exprInsert.withPrefix(call.getPrefix())));
@@ -92,7 +92,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 					}
 					else {
 						newStatements.add(stmt);
-						if (stmt == target) {
+						if (stmt.getId().equals(target.getId())) {
 							newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
 							context.set(true);
 						}
@@ -117,7 +117,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
 
 			@Override
-			public J preVisit(J tree, AtomicBoolean context) {
+			public J preVisit(@NonNull J tree, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					stopAfterPreVisit();
 					return tree;
@@ -132,7 +132,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				}
 				// This will match any statement in the tree
 				// so there is no need to unwrap implicit return
-				if (statement == target) {
+				if (statement.getId().equals(target.getId())) {
 					context.set(true);
 					return replacement;
 				}

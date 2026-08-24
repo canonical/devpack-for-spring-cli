@@ -56,7 +56,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				List<Statement> newStatements = new ArrayList<>();
 				for (Statement stmt : unit.getStatements()) {
 					newStatements.add(stmt);
-					if (stmt == target) {
+					if (stmt.getId().equals(target.getId())) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
 						context.set(true);
 					}
@@ -76,7 +76,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				List<Statement> newStatements = new ArrayList<>();
 				for (Statement stmt : b.getStatements()) {
 					newStatements.add(stmt);
-					if (stmt == target) {
+					if (stmt.getId().equals(target.getId())) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
 						context.set(true);
 					}
@@ -100,7 +100,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 		var ret = (K.CompilationUnit) new KotlinIsoVisitor<AtomicBoolean>() {
 
 			@Override
-			public J preVisit(J tree, AtomicBoolean context) {
+			public J preVisit(@NonNull J tree, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					stopAfterPreVisit();
 					return tree;
@@ -113,7 +113,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return statement;
 				}
-				if (statement == target) {
+				if (statement.getId().equals(target.getId())) {
 					context.set(true);
 					return replacement;
 				}
