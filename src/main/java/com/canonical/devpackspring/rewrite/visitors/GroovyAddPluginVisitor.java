@@ -58,8 +58,6 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private final @NonNull Statement subprojectsTemplateCall;
 
-	private final J.@NonNull MethodInvocation subProjectApply;
-
 	private final J.@NonNull MethodInvocation pluginCall;
 
 	public GroovyAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
@@ -76,11 +74,6 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		this.pluginsTemplateCall = getPluginsTemplateCall(pluginUnit);
 		var subprojectsUnit = parseSubprojectsTemplateCall(parser, tempDir, context);
 		this.subprojectsTemplateCall = getSubprojectsTemplateCall(subprojectsUnit);
-		var applyCalls = FindMethodVisitor.findApply(subprojectsTemplateCall);
-		if (applyCalls.size() != 1) {
-			throw new IllegalArgumentException("Subprojects block should contain a single apply call");
-		}
-		this.subProjectApply = applyCalls.getFirst();
 		var pluginCalls = FindMethodVisitor.findPluginVersion(pluginsTemplateCall);
 		if (pluginCalls.isEmpty()) {
 			pluginCalls = FindMethodVisitor.findPluginId(pluginsTemplateCall);

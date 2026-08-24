@@ -58,8 +58,6 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private final @NonNull Statement subprojectsTemplateCall;
 
-	private final J.@NonNull MethodInvocation subProjectApply;
-
 	private final J.@NonNull MethodInvocation pluginCall;
 
 	public KotlinAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
@@ -76,11 +74,6 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		this.pluginsTemplateCall = getPluginsTemplateCall(pluginUnit);
 		var subprojectsUnit = parseSubprojectsTemplateCall(pluginName, parser, tempDir, context);
 		this.subprojectsTemplateCall = parseSubprojectsTemplateCall(subprojectsUnit);
-		var applyCalls = FindMethodVisitor.findApply(subprojectsTemplateCall);
-		if (applyCalls.size() != 1) {
-			throw new IllegalArgumentException("Subprojects block should contain a single apply call");
-		}
-		this.subProjectApply = applyCalls.getFirst();
 		var pluginCalls = FindMethodVisitor.findPluginVersion(pluginsTemplateCall);
 		if (pluginCalls.isEmpty()) {
 			pluginCalls = FindMethodVisitor.findPluginId(pluginsTemplateCall);
