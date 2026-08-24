@@ -53,14 +53,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return unit;
 				}
-				List<Statement> newStatements = new ArrayList<>();
-				for (Statement stmt : unit.getStatements()) {
-					newStatements.add(stmt);
-					if (stmt.getId().equals(target.getId())) {
-						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-						context.set(true);
-					}
-				}
+				List<Statement> newStatements = KotlinOperations.replaceStatement(unit.getStatements(), target, toInsert, context);
 				if (context.get()) {
 					return unit.withStatements(newStatements);
 				}
@@ -72,14 +65,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return block;
 				}
-				List<Statement> newStatements = new ArrayList<>();
-				for (Statement stmt : block.getStatements()) {
-					newStatements.add(stmt);
-					if (stmt.getId().equals(target.getId())) {
-						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-						context.set(true);
-					}
-				}
+				List<Statement> newStatements = KotlinOperations.replaceStatement(block.getStatements(), target, toInsert, context);
 				if (context.get()) {
 					return block.withStatements(newStatements);
 				}
@@ -90,6 +76,18 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 			throw new IllegalArgumentException("Expected " + target + " to be found in " + cu + " but it was not.");
 		}
 		return Objects.requireNonNull(ret);
+	}
+
+	private static List<Statement> replaceStatement(List<Statement> statements, Statement target, Statement toInsert, AtomicBoolean context) {
+		List<Statement> newStatements = new ArrayList<>();
+		for (Statement stmt : statements) {
+			newStatements.add(stmt);
+			if (stmt.getId().equals(target.getId())) {
+				newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
+				context.set(true);
+			}
+		}
+		return newStatements;
 	}
 
 	@Override
