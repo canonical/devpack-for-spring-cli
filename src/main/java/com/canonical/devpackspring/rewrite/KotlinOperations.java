@@ -53,7 +53,8 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return unit;
 				}
-				List<Statement> newStatements = KotlinOperations.replaceStatement(unit.getStatements(), target, toInsert, context);
+				List<Statement> newStatements = KotlinOperations.replaceStatement(unit.getStatements(), target,
+						toInsert, context);
 				if (context.get()) {
 					return unit.withStatements(newStatements);
 				}
@@ -65,7 +66,8 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return block;
 				}
-				List<Statement> newStatements = KotlinOperations.replaceStatement(block.getStatements(), target, toInsert, context);
+				List<Statement> newStatements = KotlinOperations.replaceStatement(block.getStatements(), target,
+						toInsert, context);
 				if (context.get()) {
 					return block.withStatements(newStatements);
 				}
@@ -78,7 +80,8 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 		return Objects.requireNonNull(ret);
 	}
 
-	private static List<Statement> replaceStatement(List<Statement> statements, Statement target, Statement toInsert, AtomicBoolean context) {
+	private static List<Statement> replaceStatement(List<Statement> statements, Statement target, Statement toInsert,
+			AtomicBoolean context) {
 		List<Statement> newStatements = new ArrayList<>();
 		for (Statement stmt : statements) {
 			newStatements.add(stmt);
