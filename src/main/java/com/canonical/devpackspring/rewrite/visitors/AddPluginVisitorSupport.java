@@ -50,13 +50,13 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 
 	private static final Log LOG = LogFactory.getLog(AddPluginVisitorSupport.class);
 
-	private final String pluginName;
+	private final @NonNull String pluginName;
 
 	private final @Nullable String pluginVersion;
 
 	private final boolean subprojects;
 
-	private final String buildFileName;
+	private final @NonNull String buildFileName;
 
 	private final Operations<C> operations;
 
@@ -230,9 +230,11 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 			return false;
 		}
 		Expression expr = method.getArguments().getFirst();
-		String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
-				? literal.getValue().toString() : expr.toString();
-		return pluginName.equals(pluginNameStr);
+		if (expr instanceof J.Literal literal && literal.getValue() != null) {
+			return pluginName.equals(literal.getValue().toString());
+		}
+		// Cannot determine plugin name from non-literal expression; conservatively return false
+		return false;
 	}
 
 }
