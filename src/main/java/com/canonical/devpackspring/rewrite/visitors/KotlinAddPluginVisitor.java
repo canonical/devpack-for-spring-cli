@@ -218,14 +218,6 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 			}
 			return updatedCu;
 		}
-		else if (pluginBlocks.stream()
-			.map(FindMethodVisitor::findPluginId)
-			.flatMap(Collection::stream)
-			.noneMatch(this::pluginNameFilter)) {
-			// prepend plugin block, none of existing one contains the
-			// required plugin
-			return StatementUtil.prependStatement(cu, pluginsTemplateCall);
-		}
 		return cu;
 	}
 
