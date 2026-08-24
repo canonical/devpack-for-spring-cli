@@ -42,11 +42,11 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private static final Log LOG = LogFactory.getLog(GroovyAddPluginVisitor.class);
 
-	private static String pluginTemplateGroovy = "plugins {\n\tid '%s' version '%s'\n}\n";
+	private static final String PLUGIN_TEMPLATE_GROOVY = "plugins {\n\tid '%s' version '%s'\n}\n";
 
-	private static String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
+	private static final  String BUILT_IN_TEMPLATE_GROOVY = "plugins {\n\tid '%s'\n}\n";
 
-	private static String subprojectsTemplateGroovy = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
+	private static final  String SUBPROJECTS_TEMPLATE_GROOVY = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
 
 	private final String pluginName;
 
@@ -70,6 +70,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		this.pluginName = pluginName;
 		this.pluginVersion = pluginVersion;
 		this.subprojects = subprojects;
+
 		var pluginUnit = parsePluginsTemplateCall(parser, tempDir, context);
 		this.pluginsTemplateCall = getPluginsTemplateCall(pluginUnit);
 		var subprojectsUnit = parseSubprojectsTemplateCall(parser, tempDir, context);
@@ -86,8 +87,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private G.@NonNull CompilationUnit parsePluginsTemplateCall(Parser parser, Path tempDir,
 			InMemoryExecutionContext context) {
-		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
-				: String.format(builtInTemplateGroovy, pluginName);
+		var pluginDefinition = (pluginVersion != null) ? String.format(PLUGIN_TEMPLATE_GROOVY, pluginName, pluginVersion)
+				: String.format(BUILT_IN_TEMPLATE_GROOVY, pluginName);
 		var templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)), tempDir,
 					context)
@@ -105,7 +106,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 	private G.@NonNull CompilationUnit parseSubprojectsTemplateCall(Parser parser, Path tempDir,
 			InMemoryExecutionContext context) {
-		var source = String.format(subprojectsTemplateGroovy, pluginName);
+		var source = String.format(SUBPROJECTS_TEMPLATE_GROOVY, pluginName);
 		var templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), source)), tempDir, context)
 			.findFirst()

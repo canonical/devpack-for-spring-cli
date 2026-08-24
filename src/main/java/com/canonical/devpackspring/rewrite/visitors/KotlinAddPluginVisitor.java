@@ -42,11 +42,11 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private static final Log LOG = LogFactory.getLog(KotlinAddPluginVisitor.class);
 
-	private static String pluginTemplateKotlin = "plugins {\n\tid(\"%s\") version \"%s\"\n}\n";
+	private static final String PLUGIN_TEMPLATE_KOTLIN = "plugins {\n\tid(\"%s\") version \"%s\"\n}\n";
 
-	private static String builtInTemplateKotlin = "plugins {\n\tid(\"%s\")\n}\n";
+	private static final String BUILT_IN_TEMPLATE_KOTLIN = "plugins {\n\tid(\"%s\")\n}\n";
 
-	private static String subprojectsTemplateKotlin = "subprojects {\n" + "    apply(plugin = \"%s\")\n" + "}";
+	private static final String SUBPROJECTS_TEMPLATE_KOTLIN = "subprojects {\n" + "    apply(plugin = \"%s\")\n" + "}";
 
 	private final String pluginName;
 
@@ -86,8 +86,8 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private K.@NonNull CompilationUnit parsePluginsTemplateCall(String pluginName, Parser parser, Path tempDir,
 			InMemoryExecutionContext context) {
-		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateKotlin, pluginName, pluginVersion)
-				: String.format(builtInTemplateKotlin, pluginName);
+		var pluginDefinition = (pluginVersion != null) ? String.format(PLUGIN_TEMPLATE_KOTLIN, pluginName, pluginVersion)
+				: String.format(BUILT_IN_TEMPLATE_KOTLIN, pluginName);
 		var templateSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), pluginDefinition)),
 					tempDir, context)
@@ -105,7 +105,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 	private K.@NonNull CompilationUnit parseSubprojectsTemplateCall(String pluginName, Parser parser, Path tempDir,
 			InMemoryExecutionContext context) {
-		var source = String.format(subprojectsTemplateKotlin, pluginName);
+		var source = String.format(SUBPROJECTS_TEMPLATE_KOTLIN, pluginName);
 		var subProjectsSource = parser
 			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle.kts"), source)), tempDir,
 					context)
