@@ -35,7 +35,10 @@ public abstract class Operations<C extends SourceFile> {
 		var statements = new ArrayList<>(List.of(statement));
 		var treeStatements = new ArrayList<>(getStatements(cu));
 		if (!treeStatements.isEmpty()) {
-			treeStatements.set(0, treeStatements.getFirst().withPrefix(Space.build("\n", List.of())));
+			Statement first = treeStatements.getFirst();
+			Space prefix = first.getPrefix();
+			// preserve leading comments
+			treeStatements.set(0, treeStatements.getFirst().withPrefix(Space.build("\n", prefix.getComments())));
 		}
 		statements.addAll(treeStatements);
 		return withStatements(cu, statements);
