@@ -132,8 +132,10 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				}
 				// This will match any statement in the tree
 				// so there is no need to unwrap implicit return
-				// ----J.Return | "returnid( 'org.springframework.boot') .version( '3.0.0')"
-				//    \---J.MethodInvocation | "id( 'org.springframework.boot') .version( '3.0.0') <-- we are here
+				// ----J.Return | "returnid( 'org.springframework.boot') .version(
+				// '3.0.0')"
+				// \---J.MethodInvocation | "id( 'org.springframework.boot') .version(
+				// '3.0.0') <-- we are here
 				// This is dispatched through this visitStatement call
 				if (statement.getId().equals(target.getId())) {
 					context.set(true);
