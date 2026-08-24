@@ -66,8 +66,8 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 
 	private final J.@NonNull MethodInvocation pluginCall;
 
-	public AddPluginVisitorSupport(String pluginName, @Nullable String pluginVersion, boolean subprojects,
-			Parser parser, String buildFileName, String pluginTemplate, String builtInTemplate,
+	public AddPluginVisitorSupport(@NonNull String pluginName, @Nullable String pluginVersion, boolean subprojects,
+			Parser parser, @NonNull String buildFileName, String pluginTemplate, String builtInTemplate,
 			String subprojectsTemplate, Operations<C> operations) {
 		InMemoryExecutionContext context = new InMemoryExecutionContext();
 		Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
@@ -107,7 +107,7 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse source"));
 		if (templateSource instanceof ParseError error) {
 			LOG.error("Unable to parse: " + source);
-			throw new RuntimeException("Parser Error:" + error.printAll());
+			throw new IllegalStateException("Parser error: " + error.printAll());
 		}
 		if (!(templateSource instanceof J tree)) {
 			throw new IllegalArgumentException("The template is not a JavaSourceFile " + templateSource);
