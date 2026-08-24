@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.canonical.devpackspring.rewrite.Operations;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
@@ -46,8 +44,6 @@ import org.openrewrite.tree.ParseError;
  * @param <C> compilation unit type (Groovy or Kotlin)
  */
 public class AddPluginVisitorSupport<C extends JavaSourceFile> {
-
-	private static final Log LOG = LogFactory.getLog(AddPluginVisitorSupport.class);
 
 	private final @NonNull String pluginName;
 
