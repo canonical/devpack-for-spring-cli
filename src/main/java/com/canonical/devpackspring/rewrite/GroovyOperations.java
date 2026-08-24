@@ -48,11 +48,11 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				boolean inserted = false;
 				for (Statement stmt : b.getStatements()) {
 					// Groovy treats the last plugin as return value, expand the statement
-					if (stmt instanceof J.Return ret && ret.getExpression() instanceof Statement call
+					if (stmt instanceof J.Return retStatement && retStatement.getExpression() instanceof Statement call
 							&& call == target) {
 						if (toInsert instanceof Expression exprInsert) {
-							newStatements.add(call.withPrefix(ret.getPrefix()));
-							newStatements.add(ret.withExpression(exprInsert.withPrefix(call.getPrefix())));
+							newStatements.add(call.withPrefix(retStatement.getPrefix()));
+							newStatements.add(retStatement.withExpression(exprInsert.withPrefix(call.getPrefix())));
 							inserted = true;
 							context.set(true);
 						}
