@@ -204,16 +204,24 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 		if (pluginVersion != null) {
 			var updatedCu = cu;
-			var versionMismatch = FindMethodVisitor.findPluginVersion(pluginBlock)
-				.stream()
-				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
+			var foundPlugins = FindMethodVisitor.findPluginVersion(pluginBlock)
 					.stream()
-					.anyMatch(this::pluginNameFilter))
+					.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
+							.stream()
+							.anyMatch(this::pluginNameFilter)).toList();
+			var versionMismatch = foundPlugins.stream()
 				.filter(x -> !versionMatches(x))
 				.toList();
 			for (var versionCall : versionMismatch) {
 				updatedCu = StatementUtil.replaceStatement(updatedCu, versionCall,
 						pluginCall.withPrefix(versionCall.getPrefix()));
+			}
+			if (foundPlugins.isEmpty()) {
+				for (var plugin : matchingPlugins ) {
+					updatedCu = StatementUtil.replaceStatement(updatedCu, plugin,
+							pluginCall.withPrefix(plugin.getPrefix()));
+
+				}
 			}
 			return updatedCu;
 		}
