@@ -32,7 +32,7 @@ import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public abstract class RecipeUtil {
 
@@ -55,7 +55,7 @@ public abstract class RecipeUtil {
 		return !results.isEmpty();
 	}
 
-	public static void pluginAlreadyConfigured(TerminalMessage message, PluginDescriptor desc) {
+	public static void pluginAlreadyConfigured(ITerminalMessage message, PluginDescriptor desc) {
 		message
 			.print(new AttributedString("Plugin " + desc.id() + " is already configured. Using project configuration.",
 					AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)));

@@ -27,13 +27,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.canonical.devpackspring.TerminalStyles;
-import com.canonical.devpackspring.snap.GradleSetup;
+import com.canonical.devpackspring.snap.IGradleSetup;
+import com.canonical.devpackspring.snap.IMavenSetup;
 import com.canonical.devpackspring.snap.Manifest;
-import com.canonical.devpackspring.snap.MavenSetup;
 import com.canonical.devpackspring.snap.Snap;
 import org.xml.sax.SAXException;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
@@ -60,9 +60,9 @@ public class SnapCommands {
 
 	private final ComponentFlow.Builder componentFlowBuilder;
 
-	private final TerminalMessage terminalMessage;
+	private final ITerminalMessage terminalMessage;
 
-	public SnapCommands(ComponentFlow.Builder componentFlowBuilder, TerminalMessage terminalMessage) {
+	public SnapCommands(ComponentFlow.Builder componentFlowBuilder, ITerminalMessage terminalMessage) {
 		this.componentFlowBuilder = componentFlowBuilder;
 		this.terminalMessage = terminalMessage;
 	}
@@ -112,8 +112,8 @@ public class SnapCommands {
 			return String.format("Failed to install %s.", toInstall.name());
 		}
 
-		terminalMessage.print(MavenSetup.setupMaven(toInstall));
-		terminalMessage.print(GradleSetup.setupGradle(toInstall));
+		terminalMessage.print(IMavenSetup.setupMaven(toInstall));
+		terminalMessage.print(IGradleSetup.setupGradle(toInstall));
 
 		return TerminalStyles.ok(String.format("Installed %s.", toInstall.name())).toAnsi();
 	}
@@ -124,7 +124,7 @@ public class SnapCommands {
 		var snaps = manifest.load(loadManifest());
 		snaps.stream().filter(x -> x.installed()).forEach(x -> {
 			try {
-				terminalMessage.print(GradleSetup.setupGradle(x));
+				terminalMessage.print(IGradleSetup.setupGradle(x));
 			}
 			catch (IOException ex) {
 				throw new RuntimeException(ex);
@@ -138,7 +138,7 @@ public class SnapCommands {
 		var snaps = manifest.load(loadManifest());
 		snaps.stream().filter(x -> x.installed()).forEach(x -> {
 			try {
-				terminalMessage.print(MavenSetup.setupMaven(x));
+				terminalMessage.print(IMavenSetup.setupMaven(x));
 			}
 			catch (Exception ex) {
 				throw new RuntimeException(ex);

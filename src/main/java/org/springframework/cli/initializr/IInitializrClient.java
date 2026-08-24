@@ -35,7 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @author Janne Valkealahti
  */
-public interface InitializrClient {
+public interface IInitializrClient {
 
 	/**
 	 * Connect with a system.
@@ -87,7 +87,7 @@ public interface InitializrClient {
 		 * Builds an initializr client.
 		 * @return the initializr client
 		 */
-		InitializrClient build();
+		IInitializrClient build();
 
 	}
 
@@ -106,14 +106,14 @@ public interface InitializrClient {
 			return this;
 		}
 
-		public InitializrClient build() {
+		public IInitializrClient build() {
 			WebClient client = webClientBuilder.baseUrl(this.baseUrl).build();
 			return new DefaultInitializrClient(client, this.baseUrl);
 		}
 
 	}
 
-	class DefaultInitializrClient implements InitializrClient {
+	class DefaultInitializrClient implements IInitializrClient {
 
 		private static final MediaType INITIALIZER_MEDIA_TYPE = new MediaType("application",
 				"vnd.initializr.v2.2+json");

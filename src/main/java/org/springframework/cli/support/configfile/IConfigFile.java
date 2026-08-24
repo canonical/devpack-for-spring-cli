@@ -25,7 +25,7 @@ import java.nio.file.Path;
  *
  * @author Janne Valkealahti
  */
-public interface ConfigFile {
+public interface IConfigFile {
 
 	/**
 	 * Read typed mapped class from a config.

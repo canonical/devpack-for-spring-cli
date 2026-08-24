@@ -28,7 +28,7 @@ import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 
 import org.springframework.cli.config.SpringCliProperties;
-import org.springframework.cli.initializr.InitializrClient;
+import org.springframework.cli.initializr.IInitializrClient;
 import org.springframework.cli.initializr.InitializrClientCache;
 import org.springframework.cli.initializr.InitializrUtils;
 import org.springframework.cli.initializr.model.Metadata;
@@ -144,7 +144,7 @@ public class InitializerCommands {
 			@Option(description = "Dependencies") List<String> dependencies,
 			@Option(description = "Packaging") String packaging,
 			@Option(longName = "java-version", description = "Java") String javaVersion) {
-		InitializrClient client = buildClient();
+		IInitializrClient client = buildClient();
 		Metadata metadata = client.getMetadata();
 
 		Map<String, String> projectSelectItems = metadata.getType()
@@ -348,7 +348,7 @@ public class InitializerCommands {
 		return String.format("Extracted to %s", outFile.getAbsolutePath());
 	}
 
-	private InitializrClient buildClient() {
+	private IInitializrClient buildClient() {
 		String cacheKey = this.springCliProperties.getInitializr().getBaseUrl();
 		return clientCache.get(cacheKey);
 	}

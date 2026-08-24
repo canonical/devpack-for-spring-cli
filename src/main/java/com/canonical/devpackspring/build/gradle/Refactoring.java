@@ -40,7 +40,7 @@ import org.openrewrite.tree.ParseError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public final class Refactoring {
 
@@ -49,7 +49,7 @@ public final class Refactoring {
 	private Refactoring() {
 	}
 
-	public static void configurePlugin(@NonNull TerminalMessage message, @NonNull PluginDescriptor descriptor,
+	public static void configurePlugin(@NonNull ITerminalMessage message, @NonNull PluginDescriptor descriptor,
 			@NonNull Path buildFile) throws IOException {
 		boolean kotlin = buildFile.getFileName().toString().endsWith(".kts");
 		String configuration = kotlin ? descriptor.configuration().gradleKotlinSnippet()

@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-public interface GradleSetup {
+public interface IGradleSetup {
 
 	static String setupGradle(Snap snap) throws IOException {
 		File gradleInitDir = new File(String.valueOf(Paths.get(System.getProperty("user.home"), ".gradle", "init.d")));

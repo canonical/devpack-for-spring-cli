@@ -28,7 +28,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 
-public interface MavenSetup {
+public interface IMavenSetup {
 
 	static String setupMaven(Snap snap) throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, TransformerException {

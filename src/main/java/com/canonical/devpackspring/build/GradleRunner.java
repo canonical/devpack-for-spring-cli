@@ -29,18 +29,18 @@ import com.canonical.devpackspring.build.gradle.Refactoring;
 import org.jline.utils.AttributedStyle;
 import org.jspecify.annotations.NonNull;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public abstract class GradleRunner {
 
 	public static boolean run(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
-			@NonNull TerminalMessage message) throws IOException {
+			@NonNull ITerminalMessage message) throws IOException {
 		Path projectDir = locateProjectDir(baseDir);
 		return runInternal(projectDir, desc, taskArgs, message);
 	}
 
 	private static boolean runInternal(Path baseDir, PluginDescriptor desc, List<String> taskArgs,
-			@NonNull TerminalMessage message) throws IOException {
+			@NonNull ITerminalMessage message) throws IOException {
 
 		Path projectDir = locateProjectDir(baseDir);
 
@@ -93,7 +93,7 @@ public abstract class GradleRunner {
 		return baseDir;
 	}
 
-	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
+	private static void appendPlugin(@NonNull ITerminalMessage message, Path sourceProject, Path targetProject,
 			PluginDescriptor desc) throws IOException {
 		for (var file : new String[] { "build.gradle", "build.gradle.kts" }) {
 			if (Files.exists(sourceProject.resolve(file))) {

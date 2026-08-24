@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 /**
  * Utility class to write to the terminal
  */
-public class SpringCliTerminal implements org.springframework.cli.util.TerminalMessage {
+public class SpringCliTerminal implements org.springframework.cli.util.ITerminalMessage {
 
 	private Terminal terminal;
 

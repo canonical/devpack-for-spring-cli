@@ -24,16 +24,16 @@ import org.apache.commons.logging.LogFactory;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 /**
- * Runs process and sends output to TerminalMessage
+ * Runs process and sends output to ITerminalMessage
  */
 public abstract class ProcessUtil {
 
 	private static final Log LOG = LogFactory.getLog(ProcessUtil.class);
 
-	public static int runProcess(final TerminalMessage message, boolean inheritIO, String... args) throws IOException {
+	public static int runProcess(final ITerminalMessage message, boolean inheritIO, String... args) throws IOException {
 		ProcessBuilder pb = new ProcessBuilder(args);
 		if (inheritIO) {
 			pb = pb.inheritIO();
@@ -51,12 +51,12 @@ public abstract class ProcessUtil {
 
 	/**
 	 * Starts the process and outputs to the provided terminal message
-	 * @param message - TerminalMessage
+	 * @param message - ITerminalMessage
 	 * @param pb - ProcessBuilder
 	 * @return process execution error code
 	 * @throws IOException - unable to start the process
 	 */
-	public static int runProcess(final TerminalMessage message, ProcessBuilder pb) throws IOException {
+	public static int runProcess(final ITerminalMessage message, ProcessBuilder pb) throws IOException {
 		final Process p = pb.start();
 		Thread stdout = new Thread(() -> {
 			AttributedStyle style = new AttributedStyle().foregroundDefault();
@@ -106,7 +106,7 @@ public abstract class ProcessUtil {
 		return ret;
 	}
 
-	private static void readOutput(BufferedReader r, TerminalMessage message, AttributedStyle style)
+	private static void readOutput(BufferedReader r, ITerminalMessage message, AttributedStyle style)
 			throws IOException {
 		r.lines().forEach(line -> {
 			message.print(new AttributedString(line, style));

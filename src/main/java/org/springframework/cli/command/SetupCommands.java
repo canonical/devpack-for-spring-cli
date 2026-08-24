@@ -37,7 +37,7 @@ import com.canonical.devpackspring.setup.SetupModel;
 import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
 import org.springframework.shell.core.command.annotation.Option;
@@ -53,14 +53,14 @@ public class SetupCommands {
 
 	public static final String SETUP_CONFIGURATION = "SPRING_CLI_SETUP_COMMANDS_CONFIGURATION";
 
-	private final TerminalMessage terminalMessage;
+	private final ITerminalMessage terminalMessage;
 
 	private final ComponentFlow.Builder componentFlowBuilder;
 
 	private final IProcessUtil processUtil;
 
 	@Autowired
-	public SetupCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder,
+	public SetupCommands(ITerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder,
 			IProcessUtil processUtil) {
 		this.terminalMessage = terminalMessage;
 		this.componentFlowBuilder = componentFlowBuilder;
@@ -172,7 +172,7 @@ public class SetupCommands {
 	private void headlessSetup(String[] add, SetupModel model, boolean uninstall, boolean retry, boolean saveOnly)
 			throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
-		ArrayList<Operation> operators = new ArrayList<>();
+		ArrayList<IOperation> operators = new ArrayList<>();
 		for (SetupCategory cat : model.getCategories()) {
 			for (SetupEntry entry : cat.getSetupEntries()) {
 				if (toAdd.contains(entry.item())) {
@@ -200,7 +200,7 @@ public class SetupCommands {
 		return ConfigUtil.openConfigurationFile(SETUP_CONFIGURATION, "setup-configuration.yaml");
 	}
 
-	private interface Operation {
+	private interface IOperation {
 
 		void run() throws IOException;
 
