@@ -85,8 +85,7 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 							context.set(true);
 						}
 						else {
-							throw new IllegalArgumentException(
-									"The statement " + toInsert + " must be also an Expression");
+							throw new IllegalArgumentException("The statement " + toInsert + " must be an Expression");
 						}
 
 					}
