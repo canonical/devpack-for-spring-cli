@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.canonical.devpackspring.rewrite.Operations;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
@@ -173,6 +174,30 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 			.toList();
 		var matchingPlugins = plugins.stream().filter(this::pluginNameFilter).toList();
 
+		if (pluginVersion != null) {
+			var foundPlugins = FindMethodVisitor.findPluginVersion(pluginBlock)
+				.stream()
+				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
+					.stream()
+					.anyMatch(this::pluginNameFilter))
+				.toList();
+			var versionMismatch = foundPlugins.stream().filter(x -> !versionMatches(x)).toList();
+			if (!versionMismatch.isEmpty()) {
+				return operations.replaceStatement(cu, versionMismatch.getFirst(),
+						pluginCall.withPrefix(versionMismatch.getFirst().getPrefix()));
+			}
+			if (foundPlugins.isEmpty()) {
+				if (!matchingPlugins.isEmpty()) {
+					return operations.replaceStatement(cu, matchingPlugins.getFirst(),
+							pluginCall.withPrefix(matchingPlugins.getFirst().getPrefix()));
+				}
+			}
+			return handleMissingPlugin(cu, matchingPlugins, plugins, pluginBlock);
+		}
+		return handleMissingPlugin(cu, matchingPlugins, plugins, pluginBlock);
+	}
+
+	private @NotNull C handleMissingPlugin(@NonNull C cu, List<J.MethodInvocation> matchingPlugins, List<J.MethodInvocation> plugins, J.MethodInvocation pluginBlock) {
 		if (matchingPlugins.isEmpty()) {
 			if (plugins.isEmpty()) {
 				// reconstruct plugins container
@@ -188,29 +213,12 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 				}
 				return operations.insertAfterStatement(cu, block.getStatements().getLast(), pluginCall);
 			}
-			return operations.insertAfterStatement(cu, plugins.getLast(), pluginCall);
-		}
+			if (!(pluginBlock.getArguments().getFirst() instanceof J.Lambda lambda
+					&& lambda.getBody() instanceof J.Block block)) {
+				throw new IllegalArgumentException("Unable to parse existing plugin block " + pluginBlock);
+			}
+			return operations.insertAfterStatement(cu, block.getStatements().getLast(), pluginCall);
 
-		if (pluginVersion != null) {
-			var updatedCu = cu;
-			var foundPlugins = FindMethodVisitor.findPluginVersion(pluginBlock)
-				.stream()
-				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
-					.stream()
-					.anyMatch(this::pluginNameFilter))
-				.toList();
-			var versionMismatch = foundPlugins.stream().filter(x -> !versionMatches(x)).toList();
-			for (var versionCall : versionMismatch) {
-				updatedCu = operations.replaceStatement(updatedCu, versionCall,
-						pluginCall.withPrefix(versionCall.getPrefix()));
-			}
-			if (foundPlugins.isEmpty()) {
-				for (var plugin : matchingPlugins) {
-					updatedCu = operations.replaceStatement(updatedCu, plugin,
-							pluginCall.withPrefix(plugin.getPrefix()));
-				}
-			}
-			return updatedCu;
 		}
 		return cu;
 	}

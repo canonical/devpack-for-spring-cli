@@ -129,6 +129,24 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 	}
 
 	@Test
+	void testAddPluginAfterVersionBlock() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.foo", "3.4.3", false, false)),
+				Assertions.buildGradle("""
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+							id 'org.springframework.foo' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						"""));
+	}
+	@Test
 	void testGroovyDoNotDuplicateSubprojectsBlock() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),
 				Assertions.buildGradle("""
