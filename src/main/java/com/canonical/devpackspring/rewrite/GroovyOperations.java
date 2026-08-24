@@ -49,6 +49,24 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 			}
 
 			@Override
+			public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+				List<Statement> newStatements = new ArrayList<>();
+				boolean inserted = false;
+				for (Statement stmt : unit.getStatements()) {
+					newStatements.add(stmt);
+					if (stmt == target) {
+						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
+						inserted = true;
+						context.set(true);
+					}
+				}
+				if (inserted) {
+					return unit.withStatements(newStatements);
+				}
+				return super.visitCompilationUnit(unit, context);
+			}
+
+			@Override
 			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					return block;

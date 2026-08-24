@@ -39,12 +39,30 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 		var ret = (K.CompilationUnit) new KotlinIsoVisitor<AtomicBoolean>() {
 
 			@Override
-			public J preVisit(J tree, AtomicBoolean context) {
+			public J preVisit(@NonNull J tree, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					stopAfterPreVisit();
 					return tree;
 				}
 				return super.preVisit(tree, context);
+			}
+
+			@Override
+			public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+				List<Statement> newStatements = new ArrayList<>();
+				boolean inserted = false;
+				for (Statement stmt : unit.getStatements()) {
+					newStatements.add(stmt);
+					if (stmt == target) {
+						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
+						inserted = true;
+						context.set(true);
+					}
+				}
+				if (inserted) {
+					return unit.withStatements(newStatements);
+				}
+				return super.visitCompilationUnit(unit, context);
 			}
 
 			@Override
