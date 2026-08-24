@@ -102,13 +102,13 @@ public abstract class StatementUtil {
 				boolean inserted = false;
 				for (Statement stmt : b.getStatements()) {
 					// Groovy treats the last plugin as return value, expand the statement
-					if (stmt instanceof J.Return ret
-							&& ret.getExpression() instanceof Statement call
+					if (stmt instanceof J.Return ret && ret.getExpression() instanceof Statement call
 							&& call == target) {
 						newStatements.add(call.withPrefix(ret.getPrefix()));
 						newStatements.add(ret.withExpression(toInsert.withPrefix(call.getPrefix())));
 						inserted = true;
-					} else {
+					}
+					else {
 						newStatements.add(stmt);
 						if (stmt == target) {
 							newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
