@@ -16,7 +16,10 @@
 
 package com.canonical.devpackspring.snap;
 
-public record Snap(String name, String version, String channel, String mount, String summary, boolean installed) {
+import org.jspecify.annotations.NonNull;
+
+public record Snap(@NonNull String name, String version, String channel, String mount, String summary,
+		boolean installed) {
 
 	@Override
 	public int hashCode() {

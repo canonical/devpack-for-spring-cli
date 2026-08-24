@@ -25,6 +25,7 @@ import java.nio.file.Path;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Opens configuration stream
@@ -43,10 +44,9 @@ public abstract class ConfigUtil {
 	 * @param environment - environment variable specifying path to the file
 	 * @param fileName - configuration file name
 	 * @return configuration file InputStream
-	 * @throws FileNotFoundException - configuration file not found
 	 */
-	public static InputStream openConfigurationFile(String environment, String fileName) throws FileNotFoundException {
-
+	public static @NonNull InputStream openConfigurationFile(String environment, String fileName)
+			throws FileNotFoundException {
 		String pluginConfigurationFile = System.getProperty(environment);
 		if (pluginConfigurationFile == null) {
 			pluginConfigurationFile = System.getenv(environment);
@@ -81,7 +81,8 @@ public abstract class ConfigUtil {
 		}
 
 		LOG.info("Reading default configuration " + fileName);
-		return ConfigUtil.class.getResourceAsStream(String.format("/com/canonical/devpackspring/%s", fileName));
+		String resource = String.format("/com/canonical/devpackspring/%s", fileName);
+		return java.util.Objects.requireNonNull(ConfigUtil.class.getResourceAsStream(resource));
 	}
 
 	public static void writeInstallConfig(Path filePath, String content) throws IOException {

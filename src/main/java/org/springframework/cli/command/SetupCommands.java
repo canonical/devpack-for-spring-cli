@@ -34,6 +34,7 @@ import com.canonical.devpackspring.setup.SetupCategory;
 import com.canonical.devpackspring.setup.SetupEntry;
 import com.canonical.devpackspring.setup.SetupEntryFactory;
 import com.canonical.devpackspring.setup.SetupModel;
+import org.jspecify.annotations.NonNull;
 import org.yaml.snakeyaml.Yaml;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,7 +197,7 @@ public class SetupCommands {
 		}
 	}
 
-	private InputStream getSetupConfiguration() throws FileNotFoundException {
+	private @NonNull InputStream getSetupConfiguration() throws FileNotFoundException {
 		return ConfigUtil.openConfigurationFile(SETUP_CONFIGURATION, "setup-configuration.yaml");
 	}
 

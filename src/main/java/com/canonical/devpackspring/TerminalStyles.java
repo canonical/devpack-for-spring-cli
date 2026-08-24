@@ -18,6 +18,7 @@ package com.canonical.devpackspring;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.jspecify.annotations.NonNull;
 
 public final class TerminalStyles {
 
@@ -28,11 +29,11 @@ public final class TerminalStyles {
 	private TerminalStyles() {
 	}
 
-	public static AttributedString error(String message) {
+	public static AttributedString error(@NonNull String message) {
 		return new AttributedString(message, STYLE_ERROR);
 	}
 
-	public static AttributedString ok(String message) {
+	public static AttributedString ok(@NonNull String message) {
 		return new AttributedString(message, STYLE_OK);
 	}
 

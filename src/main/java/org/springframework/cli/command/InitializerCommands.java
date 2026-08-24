@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 
@@ -324,7 +325,7 @@ public class InitializerCommands {
 		ComponentFlowResult result = wizard.run();
 		ComponentContext<?> context = result.getContext();
 
-		Path pathValue = result.getContext().get(PATH_ID);
+		@NonNull Path pathValue = result.getContext().get(PATH_ID);
 		List<String> dependenciesValue = result.getContext().get(DEPENDENCIES_ID);
 		Path generated = client.generate(context.get(PROJECT_ID, String.class), context.get(LANGUAGE_ID, String.class),
 				context.get(BOOT_VERSION_ID, String.class), dependenciesValue, context.get(VERSION_ID, String.class),

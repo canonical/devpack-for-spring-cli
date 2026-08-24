@@ -26,11 +26,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.jspecify.annotations.NonNull;
 import org.xml.sax.SAXException;
 
 public interface IMavenSetup {
 
-	static String setupMaven(Snap snap) throws ParserConfigurationException, SAXException, IOException,
+	static String setupMaven(@NonNull Snap snap) throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, TransformerException {
 		File m2settings = new File(String.valueOf(Paths.get(System.getProperty("user.home"), ".m2")));
 		Settings settings = new Settings(m2settings);

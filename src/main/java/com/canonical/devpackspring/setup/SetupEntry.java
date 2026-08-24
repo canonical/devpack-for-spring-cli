@@ -23,6 +23,7 @@ import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.TerminalStyles;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.text.StringSubstitutor;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
@@ -43,7 +44,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		return super.name() + suffix;
 	}
 
-	public void setSuffix(String suffix) {
+	public void setSuffix(@NonNull String suffix) {
 		this.suffix = suffix;
 	}
 
