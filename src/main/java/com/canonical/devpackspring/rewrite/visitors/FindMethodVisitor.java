@@ -28,44 +28,49 @@ import org.openrewrite.java.tree.J;
 public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> {
 
 	private final String methodName;
+	private boolean recursive;
 
-	public FindMethodVisitor(@NonNull String methodName) {
+	public FindMethodVisitor(@NonNull String methodName, boolean recursive) {
 		this.methodName = methodName;
+		this.recursive = recursive;
 	}
 
 	public static @NonNull List<J.MethodInvocation> findPluginBlock(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_PLUGINS);
+		return find(subtree, PluginMethodNames.METHOD_PLUGINS, false);
 	}
 
 	public static @NonNull List<J.MethodInvocation> findPluginId(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_ID);
+		return find(subtree, PluginMethodNames.METHOD_ID, true);
 	}
 
 	public static @NonNull List<J.MethodInvocation> findApply(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_APPLY);
+		return find(subtree, PluginMethodNames.METHOD_APPLY, true);
 	}
 
 	public static @NonNull List<J.MethodInvocation> findSubprojectApply(J subtree, String pluginId) {
-		var possibleMatches = find(subtree, PluginMethodNames.METHOD_APPLY);
+		var possibleMatches = find(subtree, PluginMethodNames.METHOD_APPLY, true);
 		return possibleMatches.stream().filter(x -> FindMethodVisitor.containsLiteral(x, pluginId)).toList();
 	}
 
 	public static @NonNull List<J.MethodInvocation> findPluginVersion(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_VERSION);
+		return find(subtree, PluginMethodNames.METHOD_VERSION, true);
 	}
 
 	public static @NonNull List<J.MethodInvocation> findSubprojects(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_SUBPROJECTS);
+		return find(subtree, PluginMethodNames.METHOD_SUBPROJECTS, false);
 	}
 
-	public static @NonNull List<J.MethodInvocation> find(J subtree, String methodName) {
-		return new FindMethodVisitor(methodName).reduce(subtree, new ArrayList<>());
+	public static @NonNull List<J.MethodInvocation> find(J subtree, String methodName, boolean recursive) {
+		return new FindMethodVisitor(methodName, recursive).reduce(subtree, new ArrayList<>());
 	}
 
 	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			@NonNull List<J.MethodInvocation> context) {
-		var result = super.visitMethodInvocation(method, context);
+		var result = method;
+		if (recursive) {
+			result = super.visitMethodInvocation(method, context);
+		}
 		if (methodName.equals(result.getSimpleName())) {
 			context.add(result);
 		}
