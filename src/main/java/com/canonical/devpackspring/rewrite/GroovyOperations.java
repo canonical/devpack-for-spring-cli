@@ -38,11 +38,22 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 			@NonNull Statement toInsert) {
 		AtomicBoolean updated = new AtomicBoolean(false);
 		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
+
+			@Override
+			public J preVisit(J tree, AtomicBoolean context) {
+				if (context.get()) {
+					stopAfterPreVisit();
+					return tree;
+				}
+				return super.preVisit(tree, context);
+			}
+
 			@Override
 			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull AtomicBoolean context) {
 				if (context.get()) {
 					return block;
 				}
+				stopAfterPreVisit();
 				J.Block b = super.visitBlock(block, context);
 				List<Statement> newStatements = new ArrayList<>();
 				boolean inserted = false;
@@ -88,6 +99,16 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 			@NonNull Statement replacement) {
 		AtomicBoolean updated = new AtomicBoolean(false);
 		var ret = (G.CompilationUnit) new GroovyIsoVisitor<AtomicBoolean>() {
+
+			@Override
+			public J preVisit(J tree, AtomicBoolean context) {
+				if (context.get()) {
+					stopAfterPreVisit();
+					return tree;
+				}
+				return super.preVisit(tree, context);
+			}
+
 			@Override
 			public @NonNull Statement visitStatement(@NonNull Statement statement, @NonNull AtomicBoolean context) {
 				if (context.get()) {

@@ -37,6 +37,16 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 			@NonNull Statement toInsert) {
 		AtomicBoolean updated = new AtomicBoolean(false);
 		var ret = (K.CompilationUnit) new KotlinIsoVisitor<AtomicBoolean>() {
+
+			@Override
+			public J preVisit(J tree, AtomicBoolean context) {
+				if (context.get()) {
+					stopAfterPreVisit();
+					return tree;
+				}
+				return super.preVisit(tree, context);
+			}
+
 			@Override
 			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull AtomicBoolean context) {
 				J.Block b = super.visitBlock(block, context);
@@ -67,6 +77,16 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 			@NonNull Statement replacement) {
 		AtomicBoolean updated = new AtomicBoolean(false);
 		var ret = (K.CompilationUnit) new KotlinIsoVisitor<AtomicBoolean>() {
+
+			@Override
+			public J preVisit(J tree, AtomicBoolean context) {
+				if (context.get()) {
+					stopAfterPreVisit();
+					return tree;
+				}
+				return super.preVisit(tree, context);
+			}
+
 			@Override
 			public @NonNull Statement visitStatement(@NonNull Statement statement, @NonNull AtomicBoolean context) {
 				if (context.get()) {
