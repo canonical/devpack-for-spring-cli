@@ -29,7 +29,7 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 
 	private final String methodName;
 
-	private boolean recursive;
+	private final boolean recursive;
 
 	public FindMethodVisitor(@NonNull String methodName, boolean recursive) {
 		this.methodName = methodName;
@@ -48,7 +48,7 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		return find(subtree, PluginMethodNames.METHOD_APPLY, true);
 	}
 
-	public static @NonNull List<J.MethodInvocation> findSubprojectApply(J subtree, String pluginId) {
+	public static @NonNull List<J.MethodInvocation> findSubprojectApply(@NonNull J subtree, @NonNull String pluginId) {
 		var possibleMatches = find(subtree, PluginMethodNames.METHOD_APPLY, true);
 		return possibleMatches.stream().filter(x -> FindMethodVisitor.containsLiteral(x, pluginId)).toList();
 	}
@@ -95,6 +95,6 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		AtomicBoolean context = new AtomicBoolean(false);
 		visitor.visit(tree, context);
 		return context.get();
-	};
+	}
 
 }
