@@ -31,7 +31,6 @@ import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.groovy.tree.G;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.Statement;
 
 public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
@@ -110,9 +109,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		if (!tree.getSourcePath().endsWith(Path.of("build.gradle"))) {
 			return tree;
 		}
-		List<Statement> statements = StatementUtil.prependTemplate(((G.CompilationUnit) templateSource).getStatements(),
-				tree.getStatements());
-		return tree.withStatements(statements);
+
+		return StatementUtil.prependStatement(tree, ((G.CompilationUnit) templateSource).getStatements());
 	}
 
 }
