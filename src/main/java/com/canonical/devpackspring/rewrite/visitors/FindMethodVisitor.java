@@ -44,10 +44,6 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		return find(subtree, PluginMethodNames.METHOD_ID, true);
 	}
 
-	public static @NonNull List<J.MethodInvocation> findApply(J subtree) {
-		return find(subtree, PluginMethodNames.METHOD_APPLY, true);
-	}
-
 	public static @NonNull List<J.MethodInvocation> findSubprojectApply(@NonNull J subtree, @NonNull String pluginId) {
 		var possibleMatches = find(subtree, PluginMethodNames.METHOD_APPLY, true);
 		return possibleMatches.stream().filter(x -> FindMethodVisitor.containsLiteral(x, pluginId)).toList();
