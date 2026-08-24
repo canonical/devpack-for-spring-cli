@@ -18,10 +18,10 @@ package com.canonical.devpackspring;
 
 import java.io.IOException;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public interface IProcessUtil {
 
-	int runProcess(TerminalMessage message, boolean inheritIO, String... args) throws IOException;
+	int runProcess(ITerminalMessage message, boolean inheritIO, String... args) throws IOException;
 
 }

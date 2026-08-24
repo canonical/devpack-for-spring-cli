@@ -29,7 +29,7 @@ public class ManifestTests extends Manifest {
 
 	@Test
 	public void testLoadManifest() throws Exception {
-		Set<Snap> snaps = super.load(Util.resourceToString("manifest.yaml"));
+		Set<Snap> snaps = super.load(IUtil.resourceToString("manifest.yaml"));
 		HashSet<Snap> expected = new HashSet<Snap>();
 		expected.add(new Snap("content-for-spring-boot-33", "6.2.2", "latest/edge", "/foo", "foobar", false));
 		expected.add(new Snap("content-for-spring-framework-61", "6.2.2", "latest/edge", "/foo", "foobar", false));

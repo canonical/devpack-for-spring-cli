@@ -31,11 +31,11 @@ import com.canonical.devpackspring.build.BuildSystem;
 import com.canonical.devpackspring.build.PluginDescriptor;
 import com.canonical.devpackspring.build.PluginDescriptorContainer;
 import com.canonical.devpackspring.build.PluginRunner;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.cli.util.IoUtils;
-import org.springframework.cli.util.TerminalMessage;
 import org.springframework.shell.core.command.annotation.Argument;
 import org.springframework.shell.core.command.annotation.Command;
 import org.springframework.shell.core.command.annotation.CommandGroup;
@@ -67,14 +67,14 @@ public class BuildCommands {
 
 	private final Path workingDir;
 
-	private final TerminalMessage terminalMessage;
+	private final ITerminalMessage terminalMessage;
 
 	private final ComponentFlow.Builder componentFlowBuilder;
 
 	private final PluginDescriptorContainer container;
 
 	@Autowired
-	public BuildCommands(TerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder)
+	public BuildCommands(ITerminalMessage terminalMessage, ComponentFlow.Builder componentFlowBuilder)
 			throws IOException {
 		this.terminalMessage = terminalMessage;
 		this.componentFlowBuilder = componentFlowBuilder;
@@ -84,7 +84,7 @@ public class BuildCommands {
 		}
 	}
 
-	private InputStream getPluginConfiguration() throws IOException {
+	private @NonNull InputStream getPluginConfiguration() throws IOException {
 		return ConfigUtil.openConfigurationFile(PLUGIN_CONFIGURATION, "plugin-configuration.yaml");
 	}
 
@@ -230,7 +230,7 @@ public class BuildCommands {
 		terminalMessage.print(tableBuilder.addFullBorder(BorderStyle.fancy_light).build().render(terminalMessage.width()));
 	}
 
-	private @NotNull Stream<String[]> getPlugins(BuildSystem buildSystem) {
+	private @NonNull Stream<String[]> getPlugins(BuildSystem buildSystem) {
 		return container.plugins(buildSystem).stream().sorted().map(x -> {
 			var desc = container.get(x, buildSystem);
 			return new String[] { x, desc.id(), desc.description(), buildSystem.name() };

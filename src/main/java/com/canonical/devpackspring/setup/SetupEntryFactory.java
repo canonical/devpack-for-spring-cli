@@ -23,7 +23,7 @@ import java.util.Map;
 import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.TerminalStyles;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public class SetupEntryFactory {
 
@@ -51,7 +51,7 @@ public class SetupEntryFactory {
 
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would install snap %s.", item()));
 					return true;
@@ -86,7 +86,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would remove snap %s.", item()));
 					return true;
@@ -117,7 +117,7 @@ public class SetupEntryFactory {
 				String.format("dpkg -s %s | grep -q \"Status: install ok installed\"", itemId));
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would install package %s.", item()));
 					return true;
@@ -146,7 +146,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would remove package %s.", item()));
 					return true;
@@ -166,7 +166,7 @@ public class SetupEntryFactory {
 	}
 
 	private boolean isInstalled(String... args) {
-		TerminalMessage message = TerminalMessage.noop();
+		ITerminalMessage message = ITerminalMessage.noop();
 		try {
 			int exitCode = processUtil.runProcess(message, false, args);
 			return exitCode == 0;

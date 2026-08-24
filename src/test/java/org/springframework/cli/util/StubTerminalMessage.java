@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jline.utils.AttributedString;
 
-public class StubTerminalMessage implements TerminalMessage {
+public class StubTerminalMessage implements ITerminalMessage {
 
 	private List<String> printMessages = new ArrayList<>();
 

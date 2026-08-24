@@ -27,8 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.cli.util.StubTerminalMessage;
-import org.springframework.cli.util.TerminalMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -109,12 +109,12 @@ public class SetupEntryTests {
 		}
 
 		@Override
-		public boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+		public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 			return true;
 		}
 
 		@Override
-		public boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+		public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
 			return true;
 		}
 

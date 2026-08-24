@@ -23,8 +23,9 @@ import com.canonical.devpackspring.IProcessUtil;
 import com.canonical.devpackspring.TerminalStyles;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.text.StringSubstitutor;
+import org.jspecify.annotations.NonNull;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
 
 public abstract class SetupEntry extends DefaultSelectItem {
@@ -43,15 +44,15 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		return super.name() + suffix;
 	}
 
-	public void setSuffix(String suffix) {
+	public void setSuffix(@NonNull String suffix) {
 		this.suffix = suffix;
 	}
 
-	public abstract boolean install(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
+	public abstract boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
 
-	public abstract boolean remove(TerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
+	public abstract boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
 
-	protected boolean executeExtraCommands(TerminalMessage msg, boolean retry, IProcessUtil ipc) throws IOException {
+	protected boolean executeExtraCommands(ITerminalMessage msg, boolean retry, IProcessUtil ipc) throws IOException {
 		if (extraCommands == null) {
 			return true;
 		}
@@ -73,7 +74,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 	 * @param args Command to run
 	 * @return true if the command succeeded, false otherwise
 	 */
-	protected boolean runWithBackoff(boolean retry, TerminalMessage msg, IProcessUtil ipc, String... args)
+	protected boolean runWithBackoff(boolean retry, ITerminalMessage msg, IProcessUtil ipc, String... args)
 			throws IOException {
 		int backoff = 5;
 		while (ipc.runProcess(msg, true, args) != 0) {

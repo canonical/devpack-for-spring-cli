@@ -22,20 +22,20 @@ import java.io.OutputStream;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 /**
- * Outputs messages to the TerminalMessage using specified style
+ * Outputs messages to the ITerminalMessage using specified style
  */
 public class TerminalOutputStream extends OutputStream {
 
-	private TerminalMessage message;
+	private ITerminalMessage message;
 
 	private AttributedStyle style;
 
 	private StringBuilder buffer;
 
-	public TerminalOutputStream(TerminalMessage message, AttributedStyle style) {
+	public TerminalOutputStream(ITerminalMessage message, AttributedStyle style) {
 		this.message = message;
 		this.style = style;
 		this.buffer = new StringBuilder();

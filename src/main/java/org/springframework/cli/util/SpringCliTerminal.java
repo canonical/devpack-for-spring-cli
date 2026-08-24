@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.shell.jline.tui.style.ThemeResolver;
 import org.springframework.util.StringUtils;
@@ -28,7 +29,7 @@ import org.springframework.util.StringUtils;
 /**
  * Utility class to write to the terminal
  */
-public class SpringCliTerminal implements org.springframework.cli.util.TerminalMessage {
+public class SpringCliTerminal implements org.springframework.cli.util.ITerminalMessage {
 
 	private Terminal terminal;
 
@@ -43,14 +44,14 @@ public class SpringCliTerminal implements org.springframework.cli.util.TerminalM
 		return terminal.getWidth();
 	}
 
-	public void print(String... text) {
+	public void print(@NonNull String... text) {
 		for (String t : text) {
 			this.terminal.writer().println(t);
 		}
 		shellFlush();
 	}
 
-	public void print(AttributedString... text) {
+	public void print(@NonNull AttributedString... text) {
 		for (AttributedString t : text) {
 			terminal.writer().println(t.toAnsi(terminal));
 		}

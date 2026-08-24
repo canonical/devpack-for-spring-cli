@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 
 import org.springframework.cli.command.BuildCommands;
 import org.springframework.cli.config.SpringCliUserConfig;
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.shell.jline.tui.style.ThemeResolver;
@@ -51,7 +51,7 @@ public class MockConfigurations {
 
 		@Bean
 		BuildCommands buildCommands() throws IOException {
-			return new BuildCommands(TerminalMessage.noop(), null);
+			return new BuildCommands(ITerminalMessage.noop(), null);
 		}
 
 	}

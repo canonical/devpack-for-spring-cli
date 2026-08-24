@@ -21,6 +21,7 @@ import java.util.Collections;
 import io.spring.initializr.generator.version.Version;
 import io.spring.initializr.generator.version.VersionParser;
 import io.spring.initializr.generator.version.VersionRange;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.cli.initializr.model.Dependency;
 import org.springframework.util.StringUtils;
@@ -29,7 +30,7 @@ public abstract class InitializrUtils {
 
 	private static final VersionParser VERSION_PARSER_INSTANCE = new VersionParser(Collections.emptyList());
 
-	public static boolean isDependencyCompatible(Dependency dependency, String version) {
+	public static boolean isDependencyCompatible(@NonNull Dependency dependency, String version) {
 		if (!StringUtils.hasText(version) || !StringUtils.hasText(dependency.getVersionRange())) {
 			return true;
 		}

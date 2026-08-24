@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ConfigUtilTests {
 
@@ -47,7 +48,7 @@ public class ConfigUtilTests {
 	@Test
 	public void testEmbeddedConfig() throws IOException {
 		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml")).isNotNull().actual().close();
-		assertThat(ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml1")).isNull();
+		assertThatThrownBy(() -> ConfigUtil.openConfigurationFile("foo", "plugin-configuration.yaml1"));
 	}
 
 	@Test
