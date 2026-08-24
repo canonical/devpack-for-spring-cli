@@ -180,6 +180,10 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 					.stream()
 					.anyMatch(this::pluginNameFilter))
 				.toList();
+			// exact match found, return
+			if (foundPlugins.stream().anyMatch(this::versionMatches)) {
+				return cu;
+			}
 			var versionMismatch = foundPlugins.stream().filter(x -> !versionMatches(x)).toList();
 			if (!versionMismatch.isEmpty()) {
 				return operations.replaceStatement(cu, versionMismatch.getFirst(),
