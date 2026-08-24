@@ -73,9 +73,9 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				if (context.get()) {
 					return block;
 				}
-				J.Block b = super.visitBlock(block, context);
+
 				List<Statement> newStatements = new ArrayList<>();
-				for (Statement stmt : b.getStatements()) {
+				for (Statement stmt : block.getStatements()) {
 					// Groovy treats the last plugin as return value, expand the statement
 					if (stmt instanceof J.Return retStatement && retStatement.getExpression() instanceof Statement call
 							&& target.getId().equals(call.getId())) {
@@ -99,9 +99,9 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 					}
 				}
 				if (context.get()) {
-					return b.withStatements(newStatements);
+					return block.withStatements(newStatements);
 				}
-				return b;
+				return super.visitBlock(block, context);
 			}
 		}.visit(cu, updated);
 		if (!updated.get()) {
@@ -132,9 +132,12 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				}
 				// This will match any statement in the tree
 				// so there is no need to unwrap implicit return
+				// ----J.Return | "returnid( 'org.springframework.boot') .version( '3.0.0')"
+				//    \---J.MethodInvocation | "id( 'org.springframework.boot') .version( '3.0.0') <-- we are here
+				// This is dispatched through this visitStatement call
 				if (statement.getId().equals(target.getId())) {
 					context.set(true);
-					return replacement;
+					return replacement.withPrefix(statement.getPrefix());
 				}
 				return super.visitStatement(statement, context);
 			}

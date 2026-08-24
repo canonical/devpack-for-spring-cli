@@ -72,9 +72,8 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				if (context.get()) {
 					return block;
 				}
-				J.Block b = super.visitBlock(block, context);
 				List<Statement> newStatements = new ArrayList<>();
-				for (Statement stmt : b.getStatements()) {
+				for (Statement stmt : block.getStatements()) {
 					newStatements.add(stmt);
 					if (stmt.getId().equals(target.getId())) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
@@ -82,9 +81,9 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 					}
 				}
 				if (context.get()) {
-					return b.withStatements(newStatements);
+					return block.withStatements(newStatements);
 				}
-				return b;
+				return super.visitBlock(block, context);
 			}
 		}.visit(cu, updated);
 		if (!updated.get()) {
@@ -115,7 +114,7 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 				}
 				if (statement.getId().equals(target.getId())) {
 					context.set(true);
-					return replacement;
+					return replacement.withPrefix(statement.getPrefix());
 				}
 				return super.visitStatement(statement, context);
 			}
