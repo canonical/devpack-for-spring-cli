@@ -140,6 +140,10 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 
 		var subprojectsBlocks = FindMethodVisitor.findSubprojects(cu);
 
+		// Gradle allows duplicate subprojects blocks, so
+		// subprojects{} subprojects{ apply = "foo"} is valid
+		// If we have a subprojects block that does not apply our plugin
+		// then add a new one.
 		if (subprojectsBlocks.isEmpty() || subprojectsBlocks.stream()
 			.map(FindMethodVisitor::findApply)
 			.flatMap(Collection::stream)
