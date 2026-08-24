@@ -107,7 +107,6 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse source"));
 		if (templateSource instanceof ParseError error) {
-			LOG.error("Unable to parse: " + source);
 			throw new IllegalStateException("Parser error: " + error.printAll());
 		}
 		if (!(templateSource instanceof J tree)) {
@@ -156,7 +155,7 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 		return cu;
 	}
 
-	public @NonNull C handlePluginBlock(@NonNull C cu) {
+	private @NonNull C handlePluginBlock(@NonNull C cu) {
 		var pluginBlocks = FindMethodVisitor.findPluginBlock(cu);
 		if (pluginBlocks.isEmpty()) {
 			return operations.prependStatement(cu, pluginsTemplateCall);
@@ -202,7 +201,8 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 			if (plugins.isEmpty()) {
 				// reconstruct plugins container
 				if (pluginBlock.getArguments().isEmpty()) {
-					return operations.replaceStatement(cu, pluginBlock, pluginsTemplateCall);
+					return operations.replaceStatement(cu, pluginBlock,
+						 pluginsTemplateCall.withPrefix(pluginBlock.getPrefix()));
 				}
 				if (!(pluginBlock.getArguments().getFirst() instanceof J.Lambda lambda
 						&& lambda.getBody() instanceof J.Block block)) {
