@@ -18,6 +18,7 @@ package com.canonical.devpackspring.rewrite.visitors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.canonical.devpackspring.rewrite.PluginMethodNames;
 import org.jspecify.annotations.NonNull;
@@ -44,24 +45,50 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 		return find(subtree, PluginMethodNames.METHOD_APPLY);
 	}
 
+	public static @NonNull List<J.MethodInvocation> findSubprojectApply(J subtree, String pluginId) {
+		var possibleMatches = find(subtree, PluginMethodNames.METHOD_APPLY);
+		return possibleMatches.stream().filter(x -> FindMethodVisitor.containsLiteral(x, pluginId)).toList();
+	}
+
 	public static @NonNull List<J.MethodInvocation> findPluginVersion(J subtree) {
 		return find(subtree, PluginMethodNames.METHOD_VERSION);
 	}
 
 	public static @NonNull List<J.MethodInvocation> findSubprojects(J subtree) {
-		return find(subtree, PluginMethodNames.SUBPROJECTS);
+		return find(subtree, PluginMethodNames.METHOD_SUBPROJECTS);
 	}
 
 	public static @NonNull List<J.MethodInvocation> find(J subtree, String methodName) {
 		return new FindMethodVisitor(methodName).reduce(subtree, new ArrayList<>());
 	}
 
+	@Override
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			List<J.MethodInvocation> context) {
+			@NonNull List<J.MethodInvocation> context) {
 		var result = super.visitMethodInvocation(method, context);
 		if (methodName.equals(result.getSimpleName())) {
-			context.add(method);
+			context.add(result);
 		}
-		return method;
+		return result;
 	}
+
+	private static boolean containsLiteral(@NonNull J tree, @NonNull String toMatch) {
+		var visitor = new JavaIsoVisitor<AtomicBoolean>() {
+			@Override
+			public J.@NonNull Literal visitLiteral(J.@NonNull Literal literal, AtomicBoolean p) {
+				if (p.get()) {
+					return literal;
+				}
+				var ret = super.visitLiteral(literal, p);
+				if (toMatch.equals(ret.getValue())) {
+					p.set(true);
+				}
+				return ret;
+			}
+		};
+		AtomicBoolean context = new AtomicBoolean(false);
+		visitor.visit(tree, context);
+		return context.get();
+	};
+
 }

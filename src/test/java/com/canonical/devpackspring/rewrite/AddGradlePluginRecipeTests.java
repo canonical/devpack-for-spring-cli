@@ -74,6 +74,28 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 	}
 
 	@Test
+	void testKotlinDoNotDuplicateSubprojects() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, true)),
+				Assertions.buildGradleKts("""
+						group = "com.example"
+						version = "1.0"
+						subprojects {
+						    apply(plugin = "java")
+						}
+						""", """
+						plugins {
+							id("java")
+						}
+						group = "com.example"
+						version = "1.0"
+						subprojects {
+						    apply(plugin = "java")
+						}
+						"""));
+
+	}
+
+	@Test
 	void testKotlinAddBuiltInPluginNoSubprojects() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, false)),
 				Assertions.buildGradleKts("""
@@ -94,6 +116,27 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 				Assertions.buildGradle("""
 						group = 'com.example'
 						version = '1.0'
+						""", """
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
+						"""));
+	}
+
+	@Test
+	void testGroovyDoNotDuplicateSubprojectsBlock() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),
+				Assertions.buildGradle("""
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
 						""", """
 						plugins {
 							id 'org.springframework.boot' version '3.4.3'

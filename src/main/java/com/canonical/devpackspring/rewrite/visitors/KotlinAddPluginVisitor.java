@@ -59,6 +59,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 	private final @NonNull Statement subprojectsTemplateCall;
 
 	private final J.@NonNull MethodInvocation subProjectApply;
+
 	private final J.@NonNull MethodInvocation pluginCall;
 
 	public KotlinAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
@@ -165,7 +166,7 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 		if (subprojectsBlocks.isEmpty() || subprojectsBlocks.stream()
 			.map(FindMethodVisitor::findApply)
 			.flatMap(Collection::stream)
-			.noneMatch(x -> x.equals(subProjectApply))) {
+			.allMatch(x -> FindMethodVisitor.findSubprojectApply(x, pluginName).isEmpty())) {
 			var statements = new ArrayList<>(updatedCu.getStatements());
 			statements.add(subprojectsTemplateCall.withPrefix(Space.build("\n", List.of())));
 			updatedCu = updatedCu.withStatements(statements);
@@ -185,11 +186,11 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 		var pluginBlock = pluginBlocks.getFirst();
 
-		var plugins = FindMethodVisitor.findPluginId(pluginBlock).stream()
-			.filter(method -> !method.getArguments().isEmpty()).toList();
-		var matchingPlugins = plugins.stream()
-			.filter(this::pluginNameFilter)
+		var plugins = FindMethodVisitor.findPluginId(pluginBlock)
+			.stream()
+			.filter(method -> !method.getArguments().isEmpty())
 			.toList();
+		var matchingPlugins = plugins.stream().filter(this::pluginNameFilter).toList();
 
 		if (matchingPlugins.isEmpty()) {
 			if (plugins.isEmpty()) {
@@ -198,8 +199,8 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 					return StatementUtil.replaceStatement(cu, pluginBlock, pluginsTemplateCall);
 				}
 				if (!(pluginBlock.getArguments().getFirst() instanceof J.Lambda lambda
-					&& lambda.getBody() instanceof J.Block block)) {
-					throw new IllegalArgumentException("Unable to parse existing plugin block "+ pluginBlock);
+						&& lambda.getBody() instanceof J.Block block)) {
+					throw new IllegalArgumentException("Unable to parse existing plugin block " + pluginBlock);
 				}
 				if (block.getStatements().isEmpty()) {
 					return StatementUtil.replaceStatement(cu, pluginBlock, pluginsTemplateCall);
@@ -211,7 +212,8 @@ public class KotlinAddPluginVisitor extends KotlinIsoVisitor<ExecutionContext> {
 
 		if (pluginVersion != null) {
 			var updatedCu = cu;
-			var versionMismatch =  FindMethodVisitor.findPluginVersion(pluginBlock).stream()
+			var versionMismatch = FindMethodVisitor.findPluginVersion(pluginBlock)
+				.stream()
 				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
 					.stream()
 					.anyMatch(this::pluginNameFilter))

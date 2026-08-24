@@ -165,7 +165,7 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 		if (subprojectsBlocks.isEmpty() || subprojectsBlocks.stream()
 			.map(FindMethodVisitor::findApply)
 			.flatMap(Collection::stream)
-			.noneMatch(x -> x.equals(subProjectApply))) {
+				.allMatch(x -> FindMethodVisitor.findSubprojectApply(x, pluginName).isEmpty())) {
 			var statements = new ArrayList<>(updatedCu.getStatements());
 			statements.add(subprojectsTemplateCall.withPrefix(Space.build("\n", List.of())));
 			updatedCu = updatedCu.withStatements(statements);
@@ -185,7 +185,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 		var pluginBlock = pluginBlocks.getFirst();
 
-		var plugins = FindMethodVisitor.findPluginId(pluginBlock).stream()
+		var plugins = FindMethodVisitor.findPluginId(pluginBlock)
+			.stream()
 			.filter(method -> !method.getArguments().isEmpty())
 			.toList();
 		var matchingPlugins = plugins.stream().filter(this::pluginNameFilter).toList();
@@ -210,7 +211,8 @@ public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
 		if (pluginVersion != null) {
 			var updatedCu = cu;
-			var versionMismatch = FindMethodVisitor.findPluginVersion(pluginBlock).stream()
+			var versionMismatch = FindMethodVisitor.findPluginVersion(pluginBlock)
+				.stream()
 				.filter(versionCall -> FindMethodVisitor.findPluginId(versionCall)
 					.stream()
 					.anyMatch(this::pluginNameFilter))
