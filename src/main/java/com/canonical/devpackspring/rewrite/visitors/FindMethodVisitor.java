@@ -69,6 +69,7 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
 			@NonNull List<J.MethodInvocation> context) {
 		var result = method;
+		// do not traverse below the top-level method calls if recursive is off
 		if (recursive) {
 			result = super.visitMethodInvocation(method, context);
 		}
