@@ -62,7 +62,7 @@ public class FindMethodVisitor extends JavaIsoVisitor<List<J.MethodInvocation>> 
 	}
 
 	public static @NonNull List<J.MethodInvocation> find(J subtree, String methodName, boolean recursive) {
-		return new FindMethodVisitor(methodName, recursive).reduce(subtree, new ArrayList<>());
+		return List.copyOf(new FindMethodVisitor(methodName, recursive).reduce(subtree, new ArrayList<>()));
 	}
 
 	@Override
