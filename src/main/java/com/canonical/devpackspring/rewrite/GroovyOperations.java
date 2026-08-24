@@ -49,7 +49,8 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 			}
 
 			@Override
-			public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+			public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit unit,
+					@NonNull AtomicBoolean context) {
 				if (context.get()) {
 					return unit;
 				}

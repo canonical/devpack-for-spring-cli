@@ -196,13 +196,14 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 		return handleMissingPlugin(cu, matchingPlugins, plugins, pluginBlock);
 	}
 
-	private @NotNull C handleMissingPlugin(@NonNull C cu, List<J.MethodInvocation> matchingPlugins, List<J.MethodInvocation> plugins, J.MethodInvocation pluginBlock) {
+	private @NotNull C handleMissingPlugin(@NonNull C cu, List<J.MethodInvocation> matchingPlugins,
+			List<J.MethodInvocation> plugins, J.MethodInvocation pluginBlock) {
 		if (matchingPlugins.isEmpty()) {
 			if (plugins.isEmpty()) {
 				// reconstruct plugins container
 				if (pluginBlock.getArguments().isEmpty()) {
 					return operations.replaceStatement(cu, pluginBlock,
-						 pluginsTemplateCall.withPrefix(pluginBlock.getPrefix()));
+							pluginsTemplateCall.withPrefix(pluginBlock.getPrefix()));
 				}
 				if (!(pluginBlock.getArguments().getFirst() instanceof J.Lambda lambda
 						&& lambda.getBody() instanceof J.Block block)) {

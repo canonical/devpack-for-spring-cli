@@ -146,6 +146,7 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						version = '1.0'
 						"""));
 	}
+
 	@Test
 	void testGroovyDoNotDuplicateSubprojectsBlock() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),

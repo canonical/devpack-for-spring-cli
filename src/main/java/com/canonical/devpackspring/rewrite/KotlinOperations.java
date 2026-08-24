@@ -48,7 +48,8 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 			}
 
 			@Override
-			public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+			public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit unit,
+					@NonNull AtomicBoolean context) {
 				if (context.get()) {
 					return unit;
 				}
