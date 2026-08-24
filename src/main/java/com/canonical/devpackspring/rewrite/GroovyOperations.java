@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.tree.G;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 
@@ -49,10 +50,17 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 					// Groovy treats the last plugin as return value, expand the statement
 					if (stmt instanceof J.Return ret && ret.getExpression() instanceof Statement call
 							&& call == target) {
-						newStatements.add(call.withPrefix(ret.getPrefix()));
-						newStatements.add(ret.withExpression(toInsert.withPrefix(call.getPrefix())));
-						inserted = true;
-						context.set(true);
+						if (toInsert instanceof Expression exprInsert) {
+							newStatements.add(call.withPrefix(ret.getPrefix()));
+							newStatements.add(ret.withExpression(exprInsert.withPrefix(call.getPrefix())));
+							inserted = true;
+							context.set(true);
+						}
+						else {
+							throw new IllegalArgumentException(
+									"The statement " + toInsert + " must be also an Expression");
+						}
+
 					}
 					else {
 						newStatements.add(stmt);
