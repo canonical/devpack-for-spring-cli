@@ -49,17 +49,18 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 
 			@Override
 			public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+				if (context.get()) {
+					return unit;
+				}
 				List<Statement> newStatements = new ArrayList<>();
-				boolean inserted = false;
 				for (Statement stmt : unit.getStatements()) {
 					newStatements.add(stmt);
 					if (stmt == target) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-						inserted = true;
 						context.set(true);
 					}
 				}
-				if (inserted) {
+				if (context.get()) {
 					return unit.withStatements(newStatements);
 				}
 				return super.visitCompilationUnit(unit, context);
@@ -67,18 +68,19 @@ public class KotlinOperations extends Operations<K.CompilationUnit> {
 
 			@Override
 			public J.@NonNull Block visitBlock(J.@NonNull Block block, @NonNull AtomicBoolean context) {
+				if (context.get()) {
+					return block;
+				}
 				J.Block b = super.visitBlock(block, context);
 				List<Statement> newStatements = new ArrayList<>();
-				boolean inserted = false;
 				for (Statement stmt : b.getStatements()) {
 					newStatements.add(stmt);
 					if (stmt == target) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-						inserted = true;
 						context.set(true);
 					}
 				}
-				if (inserted) {
+				if (context.get()) {
 					return b.withStatements(newStatements);
 				}
 				return b;

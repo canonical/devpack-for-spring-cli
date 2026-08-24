@@ -50,17 +50,18 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 
 			@Override
 			public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit unit, @NonNull AtomicBoolean context) {
+				if (context.get()) {
+					return unit;
+				}
 				List<Statement> newStatements = new ArrayList<>();
-				boolean inserted = false;
 				for (Statement stmt : unit.getStatements()) {
 					newStatements.add(stmt);
 					if (stmt == target) {
 						newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-						inserted = true;
 						context.set(true);
 					}
 				}
-				if (inserted) {
+				if (context.get()) {
 					return unit.withStatements(newStatements);
 				}
 				return super.visitCompilationUnit(unit, context);
@@ -71,10 +72,8 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				if (context.get()) {
 					return block;
 				}
-				stopAfterPreVisit();
 				J.Block b = super.visitBlock(block, context);
 				List<Statement> newStatements = new ArrayList<>();
-				boolean inserted = false;
 				for (Statement stmt : b.getStatements()) {
 					// Groovy treats the last plugin as return value, expand the statement
 					if (stmt instanceof J.Return retStatement && retStatement.getExpression() instanceof Statement call
@@ -82,7 +81,6 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 						if (toInsert instanceof Expression exprInsert) {
 							newStatements.add(call.withPrefix(retStatement.getPrefix()));
 							newStatements.add(retStatement.withExpression(exprInsert.withPrefix(call.getPrefix())));
-							inserted = true;
 							context.set(true);
 						}
 						else {
@@ -95,12 +93,11 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 						newStatements.add(stmt);
 						if (stmt == target) {
 							newStatements.add(toInsert.withPrefix(stmt.getPrefix()));
-							inserted = true;
 							context.set(true);
 						}
 					}
 				}
-				if (inserted) {
+				if (context.get()) {
 					return b.withStatements(newStatements);
 				}
 				return b;
