@@ -93,6 +93,8 @@ public class GroovyOperations extends Operations<G.CompilationUnit> {
 				if (context.get()) {
 					return statement;
 				}
+				// This will match any statement in the tree
+				// so there is no need to unwrap implicit return
 				if (statement == target) {
 					context.set(true);
 					return replacement;
