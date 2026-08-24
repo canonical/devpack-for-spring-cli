@@ -45,7 +45,7 @@ public class UserConfig<T> {
 
 	private final String name;
 
-	private final ConfigFile file;
+	private final IConfigFile file;
 
 	private final Class<T> type;
 

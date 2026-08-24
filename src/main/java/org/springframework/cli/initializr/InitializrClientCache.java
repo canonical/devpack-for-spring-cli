@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Simple cache/factory implementation for {@link InitializrClient}.
+ * Simple cache/factory implementation for {@link IInitializrClient}.
  *
  * @author Janne Valkealahti
  */
@@ -31,7 +31,7 @@ public class InitializrClientCache {
 
 	private final WebClient.Builder webClientBuilder;
 
-	private final Map<String, InitializrClient> cache = new HashMap<>();
+	private final Map<String, IInitializrClient> cache = new HashMap<>();
 
 	public InitializrClientCache(WebClient.Builder webClientBuilder) {
 		Assert.notNull(webClientBuilder, "webClientBuilder must be set");
@@ -39,13 +39,13 @@ public class InitializrClientCache {
 	}
 
 	/**
-	 * Get {@link InitializrClient} with a given url and cache it for next use.
+	 * Get {@link IInitializrClient} with a given url and cache it for next use.
 	 * @param url the initializr url
 	 * @return initializr client
 	 */
-	public InitializrClient get(String url) {
+	public IInitializrClient get(String url) {
 		return cache.computeIfAbsent(url, baseUrl -> {
-			return InitializrClient.builder(webClientBuilder).target(baseUrl).build();
+			return IInitializrClient.builder(webClientBuilder).target(baseUrl).build();
 		});
 	}
 

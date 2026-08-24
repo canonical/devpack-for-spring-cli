@@ -20,6 +20,7 @@ import com.canonical.devpackspring.rewrite.visitors.GroovyAddPluginVisitor;
 import com.canonical.devpackspring.rewrite.visitors.KotlinAddPluginVisitor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.NlsRewrite;
 import org.openrewrite.Recipe;
@@ -33,7 +34,7 @@ public class AddGradlePluginRecipe extends Recipe {
 	@JsonIgnore
 	private final TreeVisitor<?, ExecutionContext> visitor;
 
-	public AddGradlePluginRecipe(@JsonProperty("pluginId") String pluginId,
+	public AddGradlePluginRecipe(@JsonProperty("pluginId") @NonNull String pluginId,
 			@JsonProperty("pluginVersion") String pluginVersion, @JsonProperty("kotlin") boolean kotlin,
 			@JsonProperty("subprojects") boolean subprojects) {
 		this.pluginId = pluginId;

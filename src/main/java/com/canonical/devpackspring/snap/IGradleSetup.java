@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-public interface GradleSetup {
+import org.jspecify.annotations.NonNull;
 
-	static String setupGradle(Snap snap) throws IOException {
+public interface IGradleSetup {
+
+	static String setupGradle(@NonNull Snap snap) throws IOException {
 		File gradleInitDir = new File(String.valueOf(Paths.get(System.getProperty("user.home"), ".gradle", "init.d")));
 		GradleInit gradleInit = new GradleInit(gradleInitDir);
 		if (!gradleInit.addGradleInitFile(snap)) {

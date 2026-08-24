@@ -21,13 +21,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.NonNull;
 import org.yaml.snakeyaml.Yaml;
 
 public class SetupModel {
 
 	private final ArrayList<SetupCategory> categories;
 
-	public SetupModel(InputStreamReader reader, SetupEntryFactory factory) {
+	public SetupModel(@NonNull InputStreamReader reader, @NonNull SetupEntryFactory factory) {
 		this.categories = new ArrayList<>();
 
 		Yaml yaml = new Yaml();

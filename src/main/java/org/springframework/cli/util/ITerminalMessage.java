@@ -23,7 +23,7 @@ import org.jline.utils.AttributedString;
  *
  * @author Janne Valkealahti
  */
-public interface TerminalMessage {
+public interface ITerminalMessage {
 
 	/**
 	 * Retrieve terminal width
@@ -47,8 +47,8 @@ public interface TerminalMessage {
 	 * Gets an implementation which does nothing.
 	 * @return a noop implementation
 	 */
-	static TerminalMessage noop() {
-		return new TerminalMessage() {
+	static ITerminalMessage noop() {
+		return new ITerminalMessage() {
 
 			@Override
 			public int width() {

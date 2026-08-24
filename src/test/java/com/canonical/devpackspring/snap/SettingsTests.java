@@ -33,7 +33,7 @@ public class SettingsTests {
 		File settingsFile = new File(f, "settings.xml");
 
 		Settings settings = new Settings(f);
-		assertThat(Util.resourceToString("settings.xml")).isEqualTo(settings.toXml());
+		assertThat(IUtil.resourceToString("settings.xml")).isEqualTo(settings.toXml());
 		try (BufferedWriter wr = new BufferedWriter(new FileWriter(settingsFile))) {
 			wr.write(settings.toXml());
 		}

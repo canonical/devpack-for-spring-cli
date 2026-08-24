@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.NonNull;
 import org.yaml.snakeyaml.Yaml;
 
 public class Manifest {
@@ -32,11 +33,11 @@ public class Manifest {
 
 	private static final String CONTENT_SNAPS = "content-snaps";
 
-	private boolean isInstalled(String name) {
+	private boolean isInstalled(@NonNull String name) {
 		return new File(SNAP + name + "/current/").exists();
 	}
 
-	public Set<Snap> load(String manifest) throws IOException {
+	public Set<Snap> load(@NonNull String manifest) throws IOException {
 		HashSet<Snap> snapList = new HashSet<Snap>();
 		Yaml yaml = new Yaml();
 		try (InputStream is = new ByteArrayInputStream(manifest.getBytes())) {

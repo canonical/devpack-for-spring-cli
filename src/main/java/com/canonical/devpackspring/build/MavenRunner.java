@@ -41,20 +41,20 @@ import org.openrewrite.maven.search.FindPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public abstract class MavenRunner {
 
 	private static final Logger logger = LoggerFactory.getLogger(MavenRunner.class);
 
 	public static boolean run(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
-			@NonNull TerminalMessage message) throws IOException {
+			@NonNull ITerminalMessage message) throws IOException {
 		Path projectDir = locateProjectDir(baseDir);
 		return runInternal(projectDir, plugin, goalArgs, message);
 	}
 
 	private static boolean runInternal(Path baseDir, PluginDescriptor plugin, List<String> goalArgs,
-			@NonNull TerminalMessage message) throws IOException {
+			@NonNull ITerminalMessage message) throws IOException {
 		Path projectDir = locateProjectDir(baseDir);
 		ShadowProjectAdapter projectAdapter = new ShadowProjectAdapter(projectDir, plugin.resources());
 
@@ -83,7 +83,7 @@ public abstract class MavenRunner {
 		return ProcessUtil.runProcess(message, pb) == 0;
 	}
 
-	private static void appendPlugin(@NonNull TerminalMessage message, Path sourceProject, Path targetProject,
+	private static void appendPlugin(@NonNull ITerminalMessage message, Path sourceProject, Path targetProject,
 			PluginDescriptor desc) throws IOException {
 		var source = sourceProject.resolve("pom.xml");
 		if (!Files.exists(source)) {
@@ -105,7 +105,7 @@ public abstract class MavenRunner {
 
 		FindPlugin find = new FindPlugin(groupAndArtifact[0], groupAndArtifact[1]);
 		RecipeRun run = find.run(new InMemoryLargeSourceSet(files), context);
-		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class.getName());
+		var dataTableRows = run.getDataTableRows(org.openrewrite.table.SearchResults.class);
 		if (!dataTableRows.isEmpty()) {
 			RecipeUtil.pluginAlreadyConfigured(message, desc);
 			return;

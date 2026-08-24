@@ -62,8 +62,14 @@ public class SpringCliUserConfig {
 	}
 
 	public Map<String, Initializr> getInitializrs() {
-		Initializrs initializrs = initializrsUserConfig.getConfig();
-		return (initializrs != null) ? initializrs.getInitializrs() : new HashMap<>();
+		Initializrs config = initializrsUserConfig.getConfig();
+
+		if (config == null) {
+			return new HashMap<>();
+		}
+
+		Map<String, Initializr> initializrs = config.getInitializrs();
+		return (initializrs != null) ? initializrs : new HashMap<>();
 	}
 
 	public void setInitializrs(Initializrs initializrs) {

@@ -22,7 +22,7 @@ import java.nio.file.Path;
 
 import org.jspecify.annotations.NonNull;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public class PluginRunner {
 
@@ -52,7 +52,7 @@ public class PluginRunner {
 	}
 
 	public boolean run(BuildSystem buildSystem, PluginDescriptor desc, java.util.List<String> args,
-			@NonNull TerminalMessage message) throws IOException {
+			@NonNull ITerminalMessage message) throws IOException {
 		return switch (buildSystem) {
 			case gradle -> GradleRunner.run(workDir, desc, args, message);
 			case maven -> MavenRunner.run(workDir, desc, args, message);

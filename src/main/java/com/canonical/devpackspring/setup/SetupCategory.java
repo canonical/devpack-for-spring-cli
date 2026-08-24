@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+
 public class SetupCategory {
 
 	private String name;
@@ -30,12 +32,12 @@ public class SetupCategory {
 
 	private final ArrayList<SetupEntry> setupEntries;
 
-	public SetupCategory(SetupEntryFactory factory, String name, Map<String, Object> data) {
+	public SetupCategory(@NonNull SetupEntryFactory factory, String name, @NonNull Map<String, Object> data) {
 		this.name = name;
+		this.description = name;
 
-		this.description = (String) data.get("description");
-		if (this.description == null) {
-			this.description = name;
+		if (data.get("description") instanceof String description) {
+			this.description = description;
 		}
 
 		Object o = data.get("multiselect");

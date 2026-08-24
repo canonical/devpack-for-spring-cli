@@ -38,7 +38,7 @@ import org.gradle.tooling.internal.consumer.Distribution;
 import org.gradle.tooling.internal.consumer.DistributionFactory;
 import org.gradle.tooling.internal.protocol.InternalBuildProgressListener;
 
-import org.springframework.cli.util.TerminalMessage;
+import org.springframework.cli.util.ITerminalMessage;
 
 public class GradleAdapter {
 
@@ -46,9 +46,9 @@ public class GradleAdapter {
 
 	private final Path projectDir;
 
-	private final TerminalMessage terminalMessage;
+	private final ITerminalMessage terminalMessage;
 
-	public GradleAdapter(TerminalMessage terminalMessage, Path projectDir) throws IOException {
+	public GradleAdapter(ITerminalMessage terminalMessage, Path projectDir) throws IOException {
 		String gradleHome = System.getenv("GRADLE_USER_HOME");
 		if (gradleHome == null) {
 			gradleHome = System.getProperty("user.home") + "/.gradle";
