@@ -16,103 +16,37 @@
 
 package com.canonical.devpackspring.rewrite.visitors;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import com.canonical.devpackspring.rewrite.StatementUtil;
+import com.canonical.devpackspring.rewrite.GroovyOperations;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
 import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.groovy.tree.G;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.Statement;
 
 public class GroovyAddPluginVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
-	private final String pluginTemplateGroovy = "plugins {\n\tid '%s' version '%s'\n}\n";
+	private static final String PLUGIN_TEMPLATE_GROOVY = "plugins {\n\tid '%s' version '%s'\n}\n";
 
-	private final String builtInTemplateGroovy = "plugins {\n\tid '%s'\n}\n";
+	private static final String BUILT_IN_TEMPLATE_GROOVY = "plugins {\n\tid '%s'\n}\n";
 
-	private final String withSubprojectsTemplate = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
+	private static final String SUBPROJECTS_TEMPLATE_GROOVY = "subprojects {\n" + "    apply plugin: '%s'\n" + "}";
 
-	private final AddPluginVisitor visitor;
-
-	private final SourceFile templateSource;
+	private final AddPluginVisitorSupport<G.CompilationUnit> support;
 
 	public GroovyAddPluginVisitor(String pluginName, String pluginVersion, boolean subprojects) {
-		Parser.Builder builder = GradleParser.builder()
-			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false));
-		Parser parser = builder.build();
-		InMemoryExecutionContext context = new InMemoryExecutionContext();
-		var pluginDefinition = (pluginVersion != null) ? String.format(pluginTemplateGroovy, pluginName, pluginVersion)
-				: String.format(builtInTemplateGroovy, pluginName);
-		if (subprojects) {
-			pluginDefinition += String.format(withSubprojectsTemplate, pluginName);
-		}
-		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-		templateSource = parser
-			.parseInputs(List.of(Parser.Input.fromString(tempDir.resolve("build.gradle"), pluginDefinition)),
-					Paths.get("/tmp"), context)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Could not parse as Gradle"));
-
-		visitor = new AddPluginVisitor(pluginName, getTemplateCall());
-	}
-
-	private J.@NonNull MethodInvocation getTemplateCall() {
-		if (!(templateSource instanceof G.CompilationUnit unit)) {
-			throw new IllegalArgumentException("Unit is not G.CompilationUnit " + templateSource);
-		}
-		if (unit.getStatements().isEmpty()) {
-			throw new IllegalArgumentException("Template: no statements found " + unit);
-		}
-		if (!(unit.getStatements().getFirst() instanceof J.MethodInvocation stm)) {
-			throw new IllegalArgumentException("Template: first statement is not method call " + unit);
-		}
-		if (stm.getArguments().isEmpty()) {
-			throw new IllegalArgumentException("Template: statement has no arguments " + stm);
-		}
-		if (!(stm.getArguments().getFirst() instanceof G.Lambda lambda && lambda.getBody() instanceof G.Block blk)) {
-			throw new IllegalArgumentException("Template: statement argument is not lambda " + stm);
-		}
-		if (blk.getStatements().isEmpty()) {
-			throw new IllegalArgumentException("Template: no statements found in block " + blk);
-		}
-		if (!(blk.getStatements().getFirst() instanceof J.Return jReturn)) {
-			throw new IllegalArgumentException("Template: first statement does not return value " + blk);
-		}
-		if (!(jReturn.getExpression() instanceof J.MethodInvocation templateCall)) {
-			throw new IllegalArgumentException("Template: the statement is not a method call " + jReturn);
-		}
-		return templateCall;
-	}
-
-	@Override
-	public J.@NonNull MethodInvocation visitMethodInvocation(J.@NonNull MethodInvocation method,
-			@NonNull ExecutionContext executionContext) {
-		return visitor.visitMethodInvocation(method, executionContext, getCursor(), super::visitMethodInvocation);
+		Parser parser = GradleParser.builder()
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(false))
+			.build();
+		this.support = new AddPluginVisitorSupport<>(pluginName, pluginVersion, subprojects, parser, "build.gradle",
+				PLUGIN_TEMPLATE_GROOVY, BUILT_IN_TEMPLATE_GROOVY, SUBPROJECTS_TEMPLATE_GROOVY, new GroovyOperations());
 	}
 
 	@Override
 	public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
 			@NonNull ExecutionContext executionContext) {
-		var tree = super.visitCompilationUnit(cu, executionContext);
-		if (Boolean.TRUE.equals(getCursor().getRoot().getMessage(AddPluginVisitor.HAS_PLUGIN_BLOCK))) {
-			return tree;
-		}
-
-		if (!tree.getSourcePath().endsWith(Path.of("build.gradle"))) {
-			return tree;
-		}
-		List<Statement> statements = StatementUtil.prependTemplate(((G.CompilationUnit) templateSource).getStatements(),
-				tree.getStatements());
-		return tree.withStatements(statements);
+		return support.update(cu);
 	}
 
 }

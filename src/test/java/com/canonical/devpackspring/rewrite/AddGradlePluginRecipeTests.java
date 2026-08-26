@@ -31,11 +31,12 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 				plugins {
 					id 'java'
 				}
+				group = 'com.example'
+				version = '1.0'
 				subprojects {
 				    apply plugin: 'java'
 				}
-				group = 'com.example'
-				version = '1.0'"""));
+				"""));
 
 	}
 
@@ -63,11 +64,33 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						plugins {
 							id("java")
 						}
+						group = "com.example"
+						version = "1.0"
 						subprojects {
 						    apply(plugin = "java")
 						}
+						"""));
+
+	}
+
+	@Test
+	void testKotlinDoNotDuplicateSubprojects() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("java", null, true, true)),
+				Assertions.buildGradleKts("""
 						group = "com.example"
 						version = "1.0"
+						subprojects {
+						    apply(plugin = "java")
+						}
+						""", """
+						plugins {
+							id("java")
+						}
+						group = "com.example"
+						version = "1.0"
+						subprojects {
+						    apply(plugin = "java")
+						}
 						"""));
 
 	}
@@ -97,11 +120,70 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						plugins {
 							id 'org.springframework.boot' version '3.4.3'
 						}
+						group = 'com.example'
+						version = '1.0'
 						subprojects {
 						    apply plugin: 'org.springframework.boot'
 						}
+						"""));
+	}
+
+	@Test
+	void testAddPluginAfterVersionBlock() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.foo", "3.4.3", false, false)),
+				Assertions.buildGradle("""
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+						}
 						group = 'com.example'
-						version = '1.0'"""));
+						version = '1.0'
+						""", """
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+							id 'org.springframework.foo' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						"""));
+	}
+
+	@Test
+	void testGroovyDoNotDuplicateSubprojectsBlock() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),
+				Assertions.buildGradle("""
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
+						""", """
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
+						"""));
+	}
+
+	@Test
+	void testGroovyAddPluginVersion() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, false)),
+				Assertions.buildGradle("""
+						plugins {
+							id 'org.springframework.boot'
+						}
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						"""));
 	}
 
 	@Test
@@ -121,12 +203,39 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						}
 						group = 'com.example'
 						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
 						"""));
 	}
 
 	@Test
 	void testGroovyAppendPlugin() {
 		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", false, true)),
+				Assertions.buildGradle("""
+						plugins {
+							id 'checkstyle'
+							id 'java'
+						}
+						group = 'com.example'
+						version = '1.0'
+						""", """
+						plugins {
+							id 'checkstyle'
+							id 'java'
+							id 'org.springframework.boot' version '3.4.3'
+						}
+						group = 'com.example'
+						version = '1.0'
+						subprojects {
+						    apply plugin: 'org.springframework.boot'
+						}
+						"""));
+	}
+
+	@Test
+	void testGroovyAppendDefaultPlugin() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("checkstyle", null, false, false)),
 				Assertions.buildGradle("""
 						plugins {
 						    id 'java'
@@ -136,7 +245,7 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						""", """
 						plugins {
 						    id 'java'
-						    id 'org.springframework.boot' version '3.4.3'
+						    id 'checkstyle'
 						}
 						group = 'com.example'
 						version = '1.0'
@@ -153,8 +262,28 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						plugins {
 							id("org.springframework.boot") version "3.4.3"
 						}
+						group = "com.example"
+						version = "1.0"
 						subprojects {
 						    apply(plugin = "org.springframework.boot")
+						}
+						"""));
+	}
+
+	@Test
+	void testKotlinReplacePluginVersion() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", true, false)),
+				Assertions.buildGradleKts("""
+						plugins {
+						    id("org.springframework.boot") version "3.0.0"
+						    kotlin("jvm") version "1.9.22"
+						}
+						group = "com.example"
+						version = "1.0"
+						""", """
+						plugins {
+						    id("org.springframework.boot") version "3.4.3"
+						    kotlin("jvm") version "1.9.22"
 						}
 						group = "com.example"
 						version = "1.0"
@@ -162,11 +291,11 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 	}
 
 	@Test
-	void testKotlinReplacePluginVersion() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", true, true)),
+	void testKotlinAddPluginVersion() {
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("org.springframework.boot", "3.4.3", true, false)),
 				Assertions.buildGradleKts("""
 						plugins {
-						    id("org.springframework.boot") version "3.0.0"
+						    id("org.springframework.boot")
 						    kotlin("jvm") version "1.9.22"
 						}
 						group = "com.example"
@@ -197,12 +326,15 @@ public class AddGradlePluginRecipeTests implements RewriteTest {
 						}
 						group = "com.example"
 						version = "1.0"
+						subprojects {
+						    apply(plugin = "org.springframework.boot")
+						}
 						"""));
 	}
 
 	@Test
 	void testKotlinAppendDefaultPlugin() {
-		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("checkstyle", null, true, true)),
+		rewriteRun(spec -> spec.recipe(new AddGradlePluginRecipe("checkstyle", null, true, false)),
 				Assertions.buildGradleKts("""
 						plugins {
 						    kotlin("jvm") version "1.9.22"
