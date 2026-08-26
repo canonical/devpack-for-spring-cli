@@ -21,10 +21,14 @@ public final class PluginMethodNames {
 	private PluginMethodNames() {
 	}
 
+	public static final String METHOD_APPLY = "apply";
+
 	public static final String METHOD_ID = "id";
 
 	public static final String METHOD_VERSION = "version";
 
 	public static final String METHOD_PLUGINS = "plugins";
+
+	public static final String METHOD_SUBPROJECTS = "subprojects";
 
 }
