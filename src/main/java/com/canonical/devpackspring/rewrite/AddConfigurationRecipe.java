@@ -56,13 +56,16 @@ public class AddConfigurationRecipe extends Recipe {
 	private final boolean kotlin;
 
 	@JsonIgnore
-	@Nullable private volatile SourceFile configSource;
+	@Nullable private SourceFile configSource;
 
 	@JsonCreator
 	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
 			@JsonProperty("kotlin") boolean kotlin) {
 		this.configuration = configuration;
 		this.kotlin = kotlin;
+		if (this.configuration != null) {
+			this.configSource = parseConfiguration(configuration, kotlin);
+		}
 	}
 
 	private @NonNull SourceFile parseConfiguration(String configuration, boolean isKotlin) {
@@ -101,13 +104,6 @@ public class AddConfigurationRecipe extends Recipe {
 	@Override
 	public @NonNull Validated<Object> validate() {
 		Validated<Object> validated = Validated.required("configuration", getConfiguration());
-		if (validated.isValid()) {
-			synchronized (this) {
-				if (configSource == null) {
-					configSource = parseConfiguration(getConfiguration(), isKotlin());
-				}
-			}
-		}
 		validated = validated.and(Validated.test("configuration", "Unable to parse configuration", configSource,
 				val -> isKotlin() ? (val instanceof K.CompilationUnit) : (val instanceof G.CompilationUnit)));
 		return validated.and(super.validate());

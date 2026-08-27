@@ -48,7 +48,7 @@ public abstract class RecipeUtil {
 				sb.append(failure.getMessage());
 				sb.append("\n");
 			}
-			throw new IllegalArgumentException("Invalid recipe: "+ sb);
+			throw new IllegalArgumentException("Invalid recipe: " + sb);
 		}
 
 		RecipeRun run = r.run(new InMemoryLargeSourceSet(sourceFiles), context);
