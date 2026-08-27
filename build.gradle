@@ -3,7 +3,7 @@ buildscript {
 		resolutionStrategy {
 			eachDependency {
 				if (requested.group == "org.jetbrains.kotlin" && requested.name == "kotlin-compiler-embeddable") {
-					useTarget("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.3.20")
+					useTarget("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.4.10")
 				}
 			}
 		}
