@@ -18,7 +18,7 @@ package com.canonical.devpackspring.rewrite;
 
 import com.canonical.devpackspring.rewrite.visitors.GroovyAddPluginVisitor;
 import com.canonical.devpackspring.rewrite.visitors.KotlinAddPluginVisitor;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
@@ -28,37 +28,56 @@ import org.openrewrite.TreeVisitor;
 
 public class AddGradlePluginRecipe extends Recipe {
 
-	@JsonIgnore
 	private final String pluginId;
 
-	@JsonIgnore
-	private final TreeVisitor<?, ExecutionContext> visitor;
+	private final boolean kotlin;
 
+	private final boolean subprojects;
+
+	private final String pluginVersion;
+
+	@JsonCreator
 	public AddGradlePluginRecipe(@JsonProperty("pluginId") @NonNull String pluginId,
 			@JsonProperty("pluginVersion") String pluginVersion, @JsonProperty("kotlin") boolean kotlin,
 			@JsonProperty("subprojects") boolean subprojects) {
 		this.pluginId = pluginId;
-		if (kotlin) {
-			this.visitor = new KotlinAddPluginVisitor(pluginId, pluginVersion, subprojects);
-		}
-		else {
-			this.visitor = new GroovyAddPluginVisitor(pluginId, pluginVersion, subprojects);
-		}
+		this.pluginVersion = pluginVersion;
+		this.kotlin = kotlin;
+		this.subprojects = subprojects;
+	}
+
+	public boolean isKotlin() {
+		return kotlin;
+	}
+
+	public String getPluginId() {
+		return pluginId;
+	}
+
+	public String getPluginVersion() {
+		return pluginVersion;
+	}
+
+	public boolean isSubprojects() {
+		return subprojects;
 	}
 
 	@Override
-	public @NlsRewrite.DisplayName String getDisplayName() {
+	public @NlsRewrite.DisplayName @NonNull String getDisplayName() {
 		return "Add " + this.pluginId + " plugin";
 	}
 
 	@Override
-	public @NlsRewrite.Description String getDescription() {
+	public @NlsRewrite.Description @NonNull String getDescription() {
 		return "Add " + this.pluginId + " plugin support to the project.";
 	}
 
 	@Override
-	public TreeVisitor<?, ExecutionContext> getVisitor() {
-		return visitor;
+	public @NonNull TreeVisitor<?, ExecutionContext> getVisitor() {
+		if (kotlin) {
+			return new KotlinAddPluginVisitor(pluginId, pluginVersion, subprojects);
+		}
+		return new GroovyAddPluginVisitor(pluginId, pluginVersion, subprojects);
 	}
 
 }
