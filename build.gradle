@@ -94,7 +94,7 @@ dependencies {
 	implementation "org.openrewrite:rewrite-gradle:${openrewriteVersion}"
 	implementation "org.openrewrite:rewrite-kotlin:${openrewriteVersion}"
 	implementation "org.eclipse.jgit:org.eclipse.jgit:7.7.1.202607240634-r"
-	implementation "org.apache.groovy:groovy:4.0.33"
+	implementation "org.apache.groovy:groovy:5.1.1"
 	implementation "org.gradle:gradle-tooling-api:9.7.1"
 
     testImplementation 'com.google.jimfs:jimfs'
