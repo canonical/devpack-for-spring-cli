@@ -16,13 +16,17 @@
 
 package com.canonical.devpackspring.rewrite;
 
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.NlsRewrite;
 import org.openrewrite.Option;
 import org.openrewrite.ScanningRecipe;
+import org.openrewrite.SourceFile;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.Expression;
@@ -35,16 +39,16 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 	@Option(displayName = "Plugin", description = "Plugin ID", example = "io.kotest")
 	String plugin;
 
-	private final AtomicBoolean found = new AtomicBoolean(false);
+	private final AtomicBoolean found = new AtomicBoolean();
 
+	@JsonCreator
 	public FindGradlePluginRecipe(@JsonProperty("plugin") String plugin) {
 		this.plugin = plugin;
 	}
 
 	@Override
-	public AtomicBoolean getInitialValue(ExecutionContext ctx) {
-		found.set(false);
-		return found;
+	public @NonNull AtomicBoolean getInitialValue(ExecutionContext ctx) {
+		return new AtomicBoolean(false);
 	}
 
 	public boolean isFound() {
@@ -52,7 +56,7 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 	}
 
 	@Override
-	public TreeVisitor<?, ExecutionContext> getScanner(AtomicBoolean acc) {
+	public @NonNull TreeVisitor<?, ExecutionContext> getScanner(@NonNull AtomicBoolean acc) {
 		return new JavaIsoVisitor<>() {
 			@Override
 			public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method,
@@ -66,7 +70,7 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 						String pluginNameStr = (expr instanceof J.Literal literal && literal.getValue() != null)
 								? literal.getValue().toString() : expr.toString();
 						if (plugin.equals(pluginNameStr)) {
-							found.set(true);
+							acc.set(true);
 						}
 					}
 				}
@@ -80,12 +84,19 @@ public class FindGradlePluginRecipe extends ScanningRecipe<AtomicBoolean> {
 	}
 
 	@Override
-	public @NlsRewrite.DisplayName String getDisplayName() {
+	public @NonNull Collection<? extends SourceFile> generate(@NonNull AtomicBoolean acc,
+			@NonNull ExecutionContext ctx) {
+		found.set(acc.get());
+		return super.generate(acc, ctx);
+	}
+
+	@Override
+	public @NlsRewrite.DisplayName @NonNull String getDisplayName() {
 		return "Find gradle plugin";
 	}
 
 	@Override
-	public @NlsRewrite.Description String getDescription() {
+	public @NlsRewrite.Description @NonNull String getDescription() {
 		return "Find a named gradle plugin in build.gradle.(kts)";
 	}
 
