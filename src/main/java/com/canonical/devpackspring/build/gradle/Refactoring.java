@@ -70,14 +70,7 @@ public final class Refactoring {
 						: String.format("plugins.withId('%s'){\n%s\n}\n", id, configuration);
 				configuration = String.format("%s\nsubprojects {\n%s\n}", configuration, withId);
 			}
-			var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-			Path dummyPath = tempDir.resolve(kotlin ? "build.gradle.kts" : "build.gradle");
-			SourceFile configSourceFile = parser
-				.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), tempDir,
-						new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
-			recipes.add(new AddConfigurationRecipe(configSourceFile, kotlin));
+			recipes.add(new AddConfigurationRecipe(configuration, kotlin));
 		}
 		InMemoryExecutionContext context = new InMemoryExecutionContext(
 				throwable -> logger.debug(throwable.getMessage(), throwable));
