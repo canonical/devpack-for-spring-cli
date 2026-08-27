@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,6 +41,7 @@ import org.openrewrite.java.tree.Statement;
 import org.openrewrite.kotlin.KotlinIsoVisitor;
 import org.openrewrite.kotlin.KotlinParser;
 import org.openrewrite.kotlin.tree.K;
+import org.openrewrite.tree.ParseError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public class AddConfigurationRecipe extends Recipe {
 	@JsonCreator
 	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
 			@JsonProperty("kotlin") boolean kotlin) {
-		this.configuration = configuration;
+		this.configuration = Objects.requireNonNull(configuration, "Configuration must not be empty");
 		this.kotlin = kotlin;
 	}
 
@@ -65,11 +67,15 @@ public class AddConfigurationRecipe extends Recipe {
 			.build();
 		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
 		Path dummyPath = tempDir.resolve(isKotlin ? "build.gradle.kts" : "build.gradle");
-		return parser
+		SourceFile result = parser
 			.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), tempDir,
 					new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
+		if (result instanceof ParseError error) {
+			throw new IllegalArgumentException("Could not parse configuration", error.toException());
+		}
+		return result;
 	}
 
 	public String getConfiguration() {
