@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
 import org.openrewrite.ExecutionContext;
@@ -53,11 +54,15 @@ public class AddConfigurationRecipe extends Recipe {
 
 	private final boolean kotlin;
 
+	@JsonIgnore
+	private final SourceFile configSource;
+
 	@JsonCreator
 	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
 			@JsonProperty("kotlin") boolean kotlin) {
-		this.configuration = Objects.requireNonNull(configuration, "Configuration must not be empty");
+		this.configuration = Objects.requireNonNull(configuration, "Configuration must not be null");
 		this.kotlin = kotlin;
+		this.configSource = parseConfiguration(getConfiguration(), isKotlin());
 	}
 
 	private SourceFile parseConfiguration(String configuration, boolean isKotlin) {
@@ -98,7 +103,6 @@ public class AddConfigurationRecipe extends Recipe {
 
 	@Override
 	public @NonNull TreeVisitor<?, ExecutionContext> getVisitor() {
-		final SourceFile configSource = parseConfiguration(getConfiguration(), isKotlin());
 		if (kotlin) {
 			return new KotlinIsoVisitor<>() {
 				@Override
