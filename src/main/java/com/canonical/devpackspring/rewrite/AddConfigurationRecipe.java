@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -55,14 +56,19 @@ public class AddConfigurationRecipe extends Recipe {
 	private final boolean kotlin;
 
 	@JsonIgnore
-	private final SourceFile configSource;
+	@Nullable private final SourceFile configSource;
 
 	@JsonCreator
 	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
 			@JsonProperty("kotlin") boolean kotlin) {
-		this.configuration = Objects.requireNonNull(configuration, "Configuration must not be null");
+		this.configuration = configuration;
 		this.kotlin = kotlin;
-		this.configSource = parseConfiguration(getConfiguration(), isKotlin());
+		if (configuration != null) {
+			this.configSource = parseConfiguration(getConfiguration(), isKotlin());
+		}
+		else {
+			this.configSource = null;
+		}
 	}
 
 	private SourceFile parseConfiguration(String configuration, boolean isKotlin) {
@@ -109,7 +115,7 @@ public class AddConfigurationRecipe extends Recipe {
 				public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
 						@NonNull ExecutionContext executionContext) {
 					K.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configSource instanceof K.CompilationUnit configCu) {
+					if (configSource != null && configSource instanceof K.CompilationUnit configCu) {
 
 						List<Statement> configStatements = getKStatements(configCu);
 						List<Statement> buildStatements = getKStatements(c);
@@ -149,7 +155,7 @@ public class AddConfigurationRecipe extends Recipe {
 				public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
 						@NonNull ExecutionContext executionContext) {
 					G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configSource instanceof G.CompilationUnit configCu) {
+					if (configSource != null && configSource instanceof G.CompilationUnit configCu) {
 						List<Statement> newStatements = new ArrayList<>(c.getStatements());
 						var lookup = buildStatementLookup(newStatements, c);
 						boolean anyChanged = false;
