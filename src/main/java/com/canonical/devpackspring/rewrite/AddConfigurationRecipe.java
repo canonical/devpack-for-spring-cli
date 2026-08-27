@@ -74,7 +74,7 @@ public class AddConfigurationRecipe extends Recipe {
 		Path dummyPath = tempDir.resolve(isKotlin ? "build.gradle.kts" : "build.gradle");
 		SourceFile result = parser
 			.parseInputs(List.of(Parser.Input.fromString(dummyPath, configuration)), tempDir,
-					new InMemoryExecutionContext(throwable -> logger.debug(throwable.getMessage(), throwable)))
+					new InMemoryExecutionContext(throwable -> logger.warn(throwable.getMessage(), throwable)))
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Could not parse configuration"));
 		if (result instanceof ParseError error) {
