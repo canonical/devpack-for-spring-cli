@@ -56,7 +56,7 @@ public class AddConfigurationRecipe extends Recipe {
 	private final boolean kotlin;
 
 	@JsonIgnore
-	@Nullable private SourceFile configSource;
+	@Nullable private volatile SourceFile configSource;
 
 	@JsonCreator
 	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
