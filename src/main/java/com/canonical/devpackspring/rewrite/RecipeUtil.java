@@ -38,6 +38,19 @@ public abstract class RecipeUtil {
 
 	public static boolean applyRecipe(Path baseDir, Recipe r, List<SourceFile> sourceFiles, ExecutionContext context)
 			throws IOException {
+		var validatedList = r.validateAll();
+		for (var validated : validatedList) {
+			if (validated.isValid()) {
+				continue;
+			}
+			StringBuilder sb = new StringBuilder();
+			for (var failure : validated.failures()) {
+				sb.append(failure.getMessage());
+				sb.append("\n");
+			}
+			throw new IllegalArgumentException("Invalid recipe: " + sb);
+		}
+
 		RecipeRun run = r.run(new InMemoryLargeSourceSet(sourceFiles), context);
 		List<Result> results = run.getChangeset().getAllResults();
 		for (Result result : results) {

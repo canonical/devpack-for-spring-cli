@@ -16,56 +16,108 @@
 
 package com.canonical.devpackspring.rewrite;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.Validated;
+import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.groovy.GroovyIsoVisitor;
+import org.openrewrite.groovy.GroovyParser;
 import org.openrewrite.groovy.tree.G;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.Statement;
 import org.openrewrite.kotlin.KotlinIsoVisitor;
+import org.openrewrite.kotlin.KotlinParser;
 import org.openrewrite.kotlin.tree.K;
+import org.openrewrite.tree.ParseError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddConfigurationRecipe extends Recipe {
 
-	@JsonIgnore
-	private final SourceFile configuration;
+	private static final Logger logger = LoggerFactory.getLogger(AddConfigurationRecipe.class);
 
-	@JsonIgnore
+	private final String configuration;
+
 	private final boolean kotlin;
 
-	public AddConfigurationRecipe(@JsonProperty("configuration") SourceFile configuration,
+	@JsonIgnore
+	@Nullable private SourceFile configSource;
+
+	@JsonCreator
+	public AddConfigurationRecipe(@JsonProperty("configuration") String configuration,
 			@JsonProperty("kotlin") boolean kotlin) {
 		this.configuration = configuration;
 		this.kotlin = kotlin;
+		if (this.configuration != null) {
+			this.configSource = parseConfiguration(configuration, kotlin);
+		}
+	}
+
+	private @NonNull SourceFile parseConfiguration(String configuration, boolean isKotlin) {
+		Parser parser = GradleParser.builder()
+			.groovyParser(GroovyParser.builder().logCompilationWarningsAndErrors(true))
+			.kotlinParser(KotlinParser.builder().logCompilationWarningsAndErrors(true))
+			.build();
+		var tempDir = Path.of(System.getProperty("java.io.tmpdir"));
+		Path dummyPath = tempDir.resolve(isKotlin ? "build.gradle.kts" : "build.gradle");
+		var input = Parser.Input.fromString(dummyPath, configuration);
+		var context = new InMemoryExecutionContext(throwable -> logger.warn(throwable.getMessage(), throwable));
+		return parser.parseInputs(List.of(input), tempDir, context)
+			.findFirst()
+			.orElse(ParseError.build(parser, input, null, context,
+					new IllegalArgumentException("Unable to parse configuration")));
+	}
+
+	public String getConfiguration() {
+		return configuration;
+	}
+
+	public boolean isKotlin() {
+		return kotlin;
 	}
 
 	@Override
-	public String getDisplayName() {
+	public @NonNull String getDisplayName() {
 		return "Add configuration";
 	}
 
 	@Override
-	public String getDescription() {
+	public @NonNull String getDescription() {
 		return "Adds statements from the configuration settings.";
 	}
 
 	@Override
-	public TreeVisitor<?, ExecutionContext> getVisitor() {
+	public @NonNull Validated<Object> validate() {
+		Validated<Object> validated = Validated.required("configuration", getConfiguration());
+		validated = validated.and(Validated.test("configuration", "Unable to parse configuration", configSource,
+				val -> isKotlin() ? (val instanceof K.CompilationUnit) : (val instanceof G.CompilationUnit)));
+		return validated.and(super.validate());
+	}
+
+	@Override
+	public @NonNull TreeVisitor<?, ExecutionContext> getVisitor() {
 		if (kotlin) {
 			return new KotlinIsoVisitor<>() {
 				@Override
-				public K.CompilationUnit visitCompilationUnit(K.CompilationUnit cu, ExecutionContext executionContext) {
+				public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
+						@NonNull ExecutionContext executionContext) {
 					K.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configuration instanceof K.CompilationUnit configCu) {
+					if (configSource instanceof K.CompilationUnit configCu) {
 
 						List<Statement> configStatements = getKStatements(configCu);
 						List<Statement> buildStatements = getKStatements(c);
@@ -100,11 +152,12 @@ public class AddConfigurationRecipe extends Recipe {
 			};
 		}
 		else {
-			return new GroovyIsoVisitor<ExecutionContext>() {
+			return new GroovyIsoVisitor<>() {
 				@Override
-				public G.CompilationUnit visitCompilationUnit(G.CompilationUnit cu, ExecutionContext executionContext) {
+				public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
+						@NonNull ExecutionContext executionContext) {
 					G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configuration instanceof G.CompilationUnit configCu) {
+					if (configSource instanceof G.CompilationUnit configCu) {
 						List<Statement> newStatements = new ArrayList<>(c.getStatements());
 						var lookup = buildStatementLookup(newStatements, c);
 						boolean anyChanged = false;

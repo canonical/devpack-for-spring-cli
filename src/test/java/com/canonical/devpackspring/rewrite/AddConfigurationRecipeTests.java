@@ -16,48 +16,16 @@
 
 package com.canonical.devpackspring.rewrite;
 
-import java.io.ByteArrayInputStream;
-import java.nio.file.Paths;
-import java.util.Collections;
-
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
 import org.openrewrite.gradle.Assertions;
-import org.openrewrite.groovy.GroovyParser;
-import org.openrewrite.groovy.tree.G;
-import org.openrewrite.kotlin.KotlinParser;
-import org.openrewrite.kotlin.tree.K;
 import org.openrewrite.test.RewriteTest;
 
 public class AddConfigurationRecipeTests implements RewriteTest {
 
-	private G.CompilationUnit parseGroovyConfig(String dsl) {
-		Parser.Input input = new Parser.Input(Paths.get("build.gradle"),
-				() -> new ByteArrayInputStream(dsl.getBytes()));
-		return GroovyParser.builder()
-			.build()
-			.parseInputs(Collections.singletonList(input), null, new InMemoryExecutionContext())
-			.findFirst()
-			.map(G.CompilationUnit.class::cast)
-			.orElseThrow();
-	}
-
-	private K.CompilationUnit parseKotlinConfig(String dsl) {
-		Parser.Input input = new Parser.Input(Paths.get("build.gradle.kts"),
-				() -> new ByteArrayInputStream(dsl.getBytes()));
-		return KotlinParser.builder()
-			.build()
-			.parseInputs(Collections.singletonList(input), null, new InMemoryExecutionContext())
-			.findFirst()
-			.map(K.CompilationUnit.class::cast)
-			.orElseThrow();
-	}
-
 	@Test
 	void testGroovyConfigurationAppend() {
-		G.CompilationUnit cu = prepareGroovyConfig();
+		var cu = prepareGroovyConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
 				group = 'com.example'
@@ -81,7 +49,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testGroovyConfigurationAppendExtension() {
-		G.CompilationUnit cu = prepareGroovyConfig();
+		var cu = prepareGroovyConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
 				group = 'com.example'
@@ -122,8 +90,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 		String config = """
 				version = '1.2'
 				""";
-		G.CompilationUnit cu = parseGroovyConfig(config);
-		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(config, false)), Assertions.buildGradle("""
 				group = 'com.example'
 				version = '1.0'
 				""", """
@@ -135,7 +102,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testGroovyConfigurationAppendProperty() {
-		G.CompilationUnit cu = prepareGroovyConfig();
+		var cu = prepareGroovyConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
 				group = 'com.example'
@@ -161,7 +128,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testGroovyConfigurationAppendNewProperty() {
-		G.CompilationUnit cu = prepareGroovyConfig();
+		var cu = prepareGroovyConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
 				group = 'com.example'
@@ -185,8 +152,8 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				"""));
 	}
 
-	private G.@NonNull CompilationUnit prepareGroovyConfig() {
-		String config = """
+	private @NonNull String prepareGroovyConfig() {
+		return """
 				checkstyle {
 				    toolVersion = '13.3.0'
 				}
@@ -198,12 +165,10 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				    }
 				}
 				project.ext.set("foo", "bar")""";
-
-		return parseGroovyConfig(config);
 	}
 
-	private K.@NonNull CompilationUnit prepareKotlinConfig() {
-		String config = """
+	private @NonNull String prepareKotlinConfig() {
+		return """
 				checkstyle {
 				    toolVersion = "13.3.0"
 				}
@@ -215,13 +180,11 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				    }
 				}
 				project.extra.set("foo", "bar")""";
-		return parseKotlinConfig(config);
 	}
 
 	@Test
 	void testKotlinConfigurationAppend() {
-		K.CompilationUnit cu = prepareKotlinConfig();
-
+		var cu = prepareKotlinConfig();
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
 				group = "com.example"
 				version = "1.0"
@@ -244,7 +207,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testKotlinConfigurationAppendExtension() {
-		K.CompilationUnit cu = prepareKotlinConfig();
+		var cu = prepareKotlinConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
 				group = "com.example"
@@ -285,8 +248,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 		String config = """
 				version = "1.2"
 				""";
-		K.CompilationUnit cu = parseKotlinConfig(config);
-		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(config, true)), Assertions.buildGradleKts("""
 				group = "com.example"
 				version = "1.0"
 				""", """
@@ -298,7 +260,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testKotlinConfigurationAppendProperty() {
-		K.CompilationUnit cu = prepareKotlinConfig();
+		var cu = prepareKotlinConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
 				group = "com.example"
@@ -324,7 +286,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 
 	@Test
 	void testKotlinConfigurationAppendNewProperty() {
-		K.CompilationUnit cu = prepareKotlinConfig();
+		var cu = prepareKotlinConfig();
 
 		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, true)), Assertions.buildGradleKts("""
 				group = "com.example"
@@ -356,8 +318,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
 				}
 				""";
-		G.CompilationUnit cu = parseGroovyConfig(config);
-		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(config, false)), Assertions.buildGradle("""
 				dependencies {
 				    implementation 'org.springframework.boot:spring-boot-starter:3.3.0'
 				    runtimeOnly 'org.postgresql:postgresql:42.7.0'
@@ -371,7 +332,7 @@ public class AddConfigurationRecipeTests implements RewriteTest {
 				    implementation 'org.springframework.boot:spring-boot-starter:3.5.0'
 				    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
 				}"""));
-		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(cu, false)), Assertions.buildGradle("""
+		rewriteRun(spec -> spec.recipe(new AddConfigurationRecipe(config, false)), Assertions.buildGradle("""
 				dependencies {
 				}
 				""", """
