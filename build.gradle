@@ -15,7 +15,7 @@ plugins {
 	id 'org.springframework.boot.aot' version '4.1.1' apply false
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
-	id 'io.spring.javaformat' version '0.0.47' apply false
+	id 'io.spring.javaformat' version '0.0.48' apply false
 }
 
 def useChecks = project.hasProperty('cliChecks') ? cliChecks.toBoolean() : true
