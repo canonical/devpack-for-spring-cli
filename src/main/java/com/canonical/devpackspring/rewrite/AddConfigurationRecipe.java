@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2025, 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,84 +112,36 @@ public class AddConfigurationRecipe extends Recipe {
 	@Override
 	public @NonNull TreeVisitor<?, ExecutionContext> getVisitor() {
 		if (kotlin) {
-			return new KotlinIsoVisitor<>() {
-				@Override
-				public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
-						@NonNull ExecutionContext executionContext) {
-					K.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configSource instanceof K.CompilationUnit configCu) {
-
-						List<Statement> configStatements = getKStatements(configCu);
-						List<Statement> buildStatements = getKStatements(c);
-
-						List<Statement> newStatements = new ArrayList<>(buildStatements);
-						var lookup = buildStatementLookup(newStatements, c);
-						boolean anyChanged = false;
-						for (Statement configStmt : configStatements) {
-							if (addStatement(lookup, newStatements, configStmt, configCu)) {
-								anyChanged = true;
-							}
-						}
-						return anyChanged ? buildKUnit(c, newStatements) : c;
-					}
-					return c;
-				}
-
-				private K.CompilationUnit buildKUnit(K.CompilationUnit c, List<Statement> newStatements) {
-					if (!c.getStatements().isEmpty() && c.getStatements().getFirst() instanceof J.Block block) {
-						return c.withStatements(List.of(block.withStatements(newStatements)));
-					}
-					return c.withStatements(newStatements);
-				}
-
-				private List<Statement> getKStatements(K.CompilationUnit configCu) {
-					if (configCu.getStatements().size() == 1
-							&& configCu.getStatements().getFirst() instanceof J.Block block) {
-						return block.getStatements();
-					}
-					return configCu.getStatements();
-				}
-			};
+			return new KotlinConfigurationVisitor();
 		}
 		else {
-			return new GroovyIsoVisitor<>() {
-				@Override
-				public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
-						@NonNull ExecutionContext executionContext) {
-					G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
-					if (configSource instanceof G.CompilationUnit configCu) {
-						List<Statement> newStatements = new ArrayList<>(c.getStatements());
-						var lookup = buildStatementLookup(newStatements, c);
-						boolean anyChanged = false;
-						for (Statement configStmt : configCu.getStatements()) {
-							if (addStatement(lookup, newStatements, configStmt, c)) {
-								anyChanged = true;
-							}
-						}
-						return anyChanged ? c.withStatements(newStatements) : c;
-					}
-					return c;
-				}
-			};
+			return new GroovyConfigurationVisitor();
 		}
 	}
 
-	private HashSet<String> buildStatementLookup(List<Statement> targetStatements, SourceFile targetCu) {
+	private List<Statement> mergeStatements(List<Statement> buildStatements, SourceFile buildSourceFile, List<Statement> configStatements) {
+		List<Statement> newStatements = new ArrayList<>(buildStatements);
+		var lookup = buildStatementLookup(newStatements, buildSourceFile);
+		boolean anyChanged = false;
+		for (Statement configStmt : configStatements) {
+			if (addStatement(lookup, newStatements, configStmt)) {
+				anyChanged = true;
+			}
+		}
+		return anyChanged ? newStatements : null;
+	}
+
+	private HashSet<String> buildStatementLookup(List<Statement> targetStatements, SourceFile targetSourceFile) {
 		HashSet<String> lookup = new HashSet<>();
 		for (Statement stm : targetStatements) {
-			org.openrewrite.Cursor targetCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, targetCu),
-					stm);
-			String targetText = stm.printTrimmed(targetCursor).trim();
+			String targetText = Operations.getTrimmedText(stm, targetSourceFile);
 			lookup.add(targetText);
 		}
 		return lookup;
 	}
 
-	private boolean addStatement(HashSet<String> lookup, List<Statement> targetStatements, Statement configStmt,
-			SourceFile configCu) {
-		org.openrewrite.Cursor configCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, configCu),
-				configStmt);
-		String configText = configStmt.printTrimmed(configCursor).trim();
+	private boolean addStatement(HashSet<String> lookup, List<Statement> targetStatements, Statement configStmt) {
+		String configText = Operations.getTrimmedText(configStmt, configSource);
 		if (lookup.contains(configText)) {
 			return false;
 		}
@@ -197,4 +149,48 @@ public class AddConfigurationRecipe extends Recipe {
 		return true;
 	}
 
+	private class KotlinConfigurationVisitor extends KotlinIsoVisitor<ExecutionContext> {
+		@Override
+		public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
+															   @NonNull ExecutionContext executionContext) {
+			K.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
+			if (configSource instanceof K.CompilationUnit configCu) {
+				List<Statement> configStatements = getKStatements(configCu);
+				List<Statement> buildStatements = getKStatements(c);
+				List<Statement> modifiedStatements = mergeStatements(buildStatements, c, configStatements);
+				return (modifiedStatements != null) ? buildKUnit(c, modifiedStatements) : c;
+			}
+			return c;
+		}
+
+		private K.CompilationUnit buildKUnit(K.CompilationUnit c, List<Statement> newStatements) {
+			if (!c.getStatements().isEmpty() && c.getStatements().getFirst() instanceof J.Block block) {
+				return c.withStatements(List.of(block.withStatements(newStatements)));
+			}
+			return c.withStatements(newStatements);
+		}
+
+		private List<Statement> getKStatements(K.CompilationUnit configCu) {
+			if (configCu.getStatements().size() == 1
+					&& configCu.getStatements().getFirst() instanceof J.Block block) {
+				return block.getStatements();
+			}
+			return configCu.getStatements();
+		}
+	}
+
+	private class GroovyConfigurationVisitor extends GroovyIsoVisitor<ExecutionContext> {
+		@Override
+		public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
+															   @NonNull ExecutionContext executionContext) {
+			G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
+			if (configSource instanceof G.CompilationUnit configCu) {
+				List<Statement> configStatements =  configCu.getStatements();
+				List<Statement> buildStatements = c.getStatements();
+				List<Statement> modifiedStatements = mergeStatements(buildStatements, c, configStatements);
+				return (modifiedStatements != null) ? c.withStatements(modifiedStatements) : c;
+			}
+			return c;
+		}
+	}
 }
