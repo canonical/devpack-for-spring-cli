@@ -119,7 +119,8 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 	}
 
-	private List<Statement> mergeStatements(List<Statement> buildStatements, SourceFile buildSourceFile, List<Statement> configStatements) {
+	private List<Statement> mergeStatements(List<Statement> buildStatements, SourceFile buildSourceFile,
+			List<Statement> configStatements) {
 		List<Statement> newStatements = new ArrayList<>(buildStatements);
 		var lookup = buildStatementLookup(newStatements, buildSourceFile);
 		boolean anyChanged = false;
@@ -150,9 +151,10 @@ public class AddConfigurationRecipe extends Recipe {
 	}
 
 	private class KotlinConfigurationVisitor extends KotlinIsoVisitor<ExecutionContext> {
+
 		@Override
 		public K.@NonNull CompilationUnit visitCompilationUnit(K.@NonNull CompilationUnit cu,
-															   @NonNull ExecutionContext executionContext) {
+				@NonNull ExecutionContext executionContext) {
 			K.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
 			if (configSource instanceof K.CompilationUnit configCu) {
 				List<Statement> configStatements = getKStatements(configCu);
@@ -171,26 +173,29 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 
 		private List<Statement> getKStatements(K.CompilationUnit configCu) {
-			if (configCu.getStatements().size() == 1
-					&& configCu.getStatements().getFirst() instanceof J.Block block) {
+			if (configCu.getStatements().size() == 1 && configCu.getStatements().getFirst() instanceof J.Block block) {
 				return block.getStatements();
 			}
 			return configCu.getStatements();
 		}
+
 	}
 
 	private class GroovyConfigurationVisitor extends GroovyIsoVisitor<ExecutionContext> {
+
 		@Override
 		public G.@NonNull CompilationUnit visitCompilationUnit(G.@NonNull CompilationUnit cu,
-															   @NonNull ExecutionContext executionContext) {
+				@NonNull ExecutionContext executionContext) {
 			G.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
 			if (configSource instanceof G.CompilationUnit configCu) {
-				List<Statement> configStatements =  configCu.getStatements();
+				List<Statement> configStatements = configCu.getStatements();
 				List<Statement> buildStatements = c.getStatements();
 				List<Statement> modifiedStatements = mergeStatements(buildStatements, c, configStatements);
 				return (modifiedStatements != null) ? c.withStatements(modifiedStatements) : c;
 			}
 			return c;
 		}
+
 	}
+
 }

@@ -46,21 +46,26 @@ public abstract class Operations<C extends SourceFile> {
 	public static @NonNull String getTrimmedText(Statement stmt, SourceFile sourceFile) {
 		var visitor = new JavaVisitor<>() {
 			@Override
-			public @NonNull Space visitSpace(@Nullable Space space, Space.@NonNull Location loc, @NonNull Object unused) {
+			public @NonNull Space visitSpace(@Nullable Space space, Space.@NonNull Location loc,
+					@NonNull Object unused) {
 				// Drop all comments, newlines, tabs, and spaces.
-				// Return Space.EMPTY to prevent OpenRewrite from printing existing layout.
+				// Return Space.EMPTY to prevent OpenRewrite from printing existing
+				// layout.
 				return Space.EMPTY;
 			}
 
 			@Override
-			public @Nullable <T> JLeftPadded<T> visitLeftPadded(@Nullable JLeftPadded<T> left, JLeftPadded.@NonNull Location loc, @NonNull Object unused) {
-                if (left != null) {
+			public @Nullable <T> JLeftPadded<T> visitLeftPadded(@Nullable JLeftPadded<T> left,
+					JLeftPadded.@NonNull Location loc, @NonNull Object unused) {
+				if (left != null) {
 					left = left.withBefore(Space.EMPTY);
 				}
 				return super.visitLeftPadded(left, loc, unused);
 			}
+
 			@Override
-			public @Nullable <T> JRightPadded<T> visitRightPadded(@Nullable JRightPadded<T> right, JRightPadded.@NonNull Location loc, @NonNull Object p) {
+			public @Nullable <T> JRightPadded<T> visitRightPadded(@Nullable JRightPadded<T> right,
+					JRightPadded.@NonNull Location loc, @NonNull Object p) {
 				if (right != null) {
 					right = right.withAfter(Space.EMPTY);
 				}
@@ -68,16 +73,18 @@ public abstract class Operations<C extends SourceFile> {
 			}
 
 			@Override
-			public @Nullable <J2 extends J> JContainer<J2> visitContainer(@Nullable JContainer<J2> container, JContainer.@NonNull Location loc, @NonNull Object unused) {
+			public @Nullable <J2 extends J> JContainer<J2> visitContainer(@Nullable JContainer<J2> container,
+					JContainer.@NonNull Location loc, @NonNull Object unused) {
 				if (container != null) {
 					container = container.withBefore(Space.EMPTY);
-					container = container.getPadding().withElements(
-							container.getPadding().getElements().stream()
-									.map(element -> element.withAfter(Space.EMPTY))
-									.collect(java.util.stream.Collectors.toList())
-					);
+					container = container.getPadding()
+						.withElements(container.getPadding()
+							.getElements()
+							.stream()
+							.map(element -> element.withAfter(Space.EMPTY))
+							.collect(java.util.stream.Collectors.toList()));
 				}
-                return super.visitContainer(container, loc, unused);
+				return super.visitContainer(container, loc, unused);
 			}
 		};
 
