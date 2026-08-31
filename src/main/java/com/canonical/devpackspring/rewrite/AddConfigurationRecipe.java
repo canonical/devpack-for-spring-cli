@@ -123,13 +123,10 @@ public class AddConfigurationRecipe extends Recipe {
 			List<Statement> configStatements) {
 		List<Statement> newStatements = new ArrayList<>(buildStatements);
 		var lookup = buildStatementLookup(newStatements, buildSourceFile);
-		boolean anyChanged = false;
 		for (Statement configStmt : configStatements) {
-			if (addStatement(lookup, newStatements, configStmt)) {
-				anyChanged = true;
-			}
+			addStatement(lookup, newStatements, configStmt);
 		}
-		return anyChanged ? newStatements : null;
+		return newStatements.size() > buildStatements.size() ? newStatements : buildStatements;
 	}
 
 	private HashSet<String> buildStatementLookup(List<Statement> targetStatements, SourceFile targetSourceFile) {
@@ -141,13 +138,12 @@ public class AddConfigurationRecipe extends Recipe {
 		return lookup;
 	}
 
-	private boolean addStatement(HashSet<String> lookup, List<Statement> targetStatements, Statement configStmt) {
+	private void addStatement(HashSet<String> lookup, List<Statement> targetStatements, Statement configStmt) {
 		String configText = Operations.getTrimmedText(configStmt, configSource);
 		if (lookup.contains(configText)) {
-			return false;
+			return;
 		}
 		targetStatements.add(configStmt.withPrefix(Space.format("\n")));
-		return true;
 	}
 
 	private class KotlinConfigurationVisitor extends KotlinIsoVisitor<ExecutionContext> {
@@ -160,7 +156,7 @@ public class AddConfigurationRecipe extends Recipe {
 				List<Statement> configStatements = getKStatements(configCu);
 				List<Statement> buildStatements = getKStatements(c);
 				List<Statement> modifiedStatements = mergeStatements(buildStatements, c, configStatements);
-				return (modifiedStatements != null) ? buildKUnit(c, modifiedStatements) : c;
+				return (modifiedStatements != buildStatements) ? buildKUnit(c, modifiedStatements) : c;
 			}
 			return c;
 		}
@@ -172,11 +168,11 @@ public class AddConfigurationRecipe extends Recipe {
 			return c.withStatements(newStatements);
 		}
 
-		private List<Statement> getKStatements(K.CompilationUnit configCu) {
-			if (configCu.getStatements().size() == 1 && configCu.getStatements().getFirst() instanceof J.Block block) {
+		private List<Statement> getKStatements(K.CompilationUnit unit) {
+			if (unit.getStatements().size() == 1 && unit.getStatements().getFirst() instanceof J.Block block) {
 				return block.getStatements();
 			}
-			return configCu.getStatements();
+			return unit.getStatements();
 		}
 
 	}
@@ -191,7 +187,7 @@ public class AddConfigurationRecipe extends Recipe {
 				List<Statement> configStatements = configCu.getStatements();
 				List<Statement> buildStatements = c.getStatements();
 				List<Statement> modifiedStatements = mergeStatements(buildStatements, c, configStatements);
-				return (modifiedStatements != null) ? c.withStatements(modifiedStatements) : c;
+				return (modifiedStatements != buildStatements) ? c.withStatements(modifiedStatements) : c;
 			}
 			return c;
 		}
