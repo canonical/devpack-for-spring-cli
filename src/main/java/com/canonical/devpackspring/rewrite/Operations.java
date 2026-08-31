@@ -23,10 +23,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaVisitor;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JContainer;
-import org.openrewrite.java.tree.JLeftPadded;
-import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.Statement;
 
@@ -48,43 +44,10 @@ public abstract class Operations<C extends SourceFile> {
 			@Override
 			public @NonNull Space visitSpace(@Nullable Space space, Space.@NonNull Location loc,
 					@NonNull Object unused) {
-				// Drop all comments, newlines, tabs, and spaces.
-				// Return Space.EMPTY to prevent OpenRewrite from printing existing
-				// layout.
-				return Space.EMPTY;
-			}
-
-			@Override
-			public @Nullable <T> JLeftPadded<T> visitLeftPadded(@Nullable JLeftPadded<T> left,
-					JLeftPadded.@NonNull Location loc, @NonNull Object unused) {
-				if (left != null) {
-					left = left.withBefore(Space.EMPTY);
+				if (space == null || space.getWhitespace().isEmpty()) {
+					return Space.EMPTY;
 				}
-				return super.visitLeftPadded(left, loc, unused);
-			}
-
-			@Override
-			public @Nullable <T> JRightPadded<T> visitRightPadded(@Nullable JRightPadded<T> right,
-					JRightPadded.@NonNull Location loc, @NonNull Object p) {
-				if (right != null) {
-					right = right.withAfter(Space.EMPTY);
-				}
-				return super.visitRightPadded(right, loc, p);
-			}
-
-			@Override
-			public @Nullable <J2 extends J> JContainer<J2> visitContainer(@Nullable JContainer<J2> container,
-					JContainer.@NonNull Location loc, @NonNull Object unused) {
-				if (container != null) {
-					container = container.withBefore(Space.EMPTY);
-					container = container.getPadding()
-						.withElements(container.getPadding()
-							.getElements()
-							.stream()
-							.map(element -> element.withAfter(Space.EMPTY))
-							.collect(java.util.stream.Collectors.toList()));
-				}
-				return super.visitContainer(container, loc, unused);
+				return Space.SINGLE_SPACE;
 			}
 		};
 
@@ -92,10 +55,8 @@ public abstract class Operations<C extends SourceFile> {
 		if (statement == null) {
 			throw new IllegalArgumentException("Unable to get trimmed text of " + stmt);
 		}
-		org.openrewrite.Cursor configCursor = new org.openrewrite.Cursor(new org.openrewrite.Cursor(null, sourceFile),
-				statement);
-
-		return statement.printTrimmed(configCursor).trim();
+		org.openrewrite.Cursor cursor = new org.openrewrite.Cursor(null, sourceFile);
+		return statement.printTrimmed(cursor).trim();
 	}
 
 	public @NonNull C prependStatement(@NonNull C cu, @NonNull Statement statement) {
