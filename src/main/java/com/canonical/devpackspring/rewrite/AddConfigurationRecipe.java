@@ -162,7 +162,7 @@ public class AddConfigurationRecipe extends Recipe {
 		}
 
 		private K.CompilationUnit buildKUnit(K.CompilationUnit c, List<Statement> newStatements) {
-			if (!c.getStatements().isEmpty() && c.getStatements().getFirst() instanceof J.Block block) {
+			if (c.getStatements().size() == 1 && c.getStatements().getFirst() instanceof J.Block block) {
 				return c.withStatements(List.of(block.withStatements(newStatements)));
 			}
 			return c.withStatements(newStatements);
