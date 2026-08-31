@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, 2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ public class AddConfigurationRecipe extends Recipe {
 		for (Statement configStmt : configStatements) {
 			addStatement(lookup, newStatements, configStmt);
 		}
-		return newStatements.size() > buildStatements.size() ? newStatements : buildStatements;
+		return (newStatements.size() > buildStatements.size()) ? newStatements : buildStatements;
 	}
 
 	private HashSet<String> buildStatementLookup(List<Statement> targetStatements, SourceFile targetSourceFile) {
