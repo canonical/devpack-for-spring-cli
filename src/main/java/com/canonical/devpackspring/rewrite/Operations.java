@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.Statement;
 
@@ -30,6 +32,32 @@ import org.openrewrite.java.tree.Statement;
  * @param <C> compilation unit type (Groovy or Kotlin)
  */
 public abstract class Operations<C extends SourceFile> {
+
+	/**
+	 * Strip all formatting
+	 * @param stmt - statement
+	 * @param sourceFile - owning source file
+	 * @return statement text without any formatting or comments
+	 */
+	public static @NonNull String getTrimmedText(Statement stmt, SourceFile sourceFile) {
+		var visitor = new JavaVisitor<>() {
+			@Override
+			public @NonNull Space visitSpace(@Nullable Space space, Space.@NonNull Location loc,
+					@NonNull Object unused) {
+				if (space == null || space.getWhitespace().isEmpty()) {
+					return Space.EMPTY;
+				}
+				return Space.SINGLE_SPACE;
+			}
+		};
+
+		var statement = visitor.visit(stmt, new Object());
+		if (statement == null) {
+			throw new IllegalArgumentException("Unable to get trimmed text of " + stmt);
+		}
+		org.openrewrite.Cursor cursor = new org.openrewrite.Cursor(null, sourceFile);
+		return statement.printTrimmed(cursor).trim();
+	}
 
 	public @NonNull C prependStatement(@NonNull C cu, @NonNull Statement statement) {
 		var statements = new ArrayList<>(List.of(statement));
