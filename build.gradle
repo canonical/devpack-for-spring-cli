@@ -30,7 +30,7 @@ if (useChecks) {
 	apply plugin: 'checkstyle'
 
 	checkstyle {
-		toolVersion = '14.0.0'
+		toolVersion = '14.1.0'
 		configDirectory = file("src/checkstyle")
 	}
 }
