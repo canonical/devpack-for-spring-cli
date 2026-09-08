@@ -21,6 +21,7 @@ import org.jline.terminal.Terminal;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.ApplicationContext;
@@ -44,12 +45,15 @@ public class SpringCliExceptionResolver
 
 	@Override
 	public ExitStatus apply(Exception e) {
+		// ensure if we have a status we can unwrap to a suitable code
+		int exitCode = (e instanceof ExitCodeGenerator exitCodeGenerator) ? exitCodeGenerator.getExitCode() : 1;
+
 		if (debug) {
 			e.printStackTrace(getTerminal().writer());
-			return new ExitStatus(1, "");
+			return new ExitStatus(exitCode, "");
 		}
 		if (e instanceof CommandNotFoundException cmd) {
-			return new ExitStatus(1,
+			return new ExitStatus(exitCode,
 					AnsiOutput.encode(AnsiColor.BRIGHT_RED)
 							+ String.format("Command not found: %s", cmd.getCommandName())
 							+ AnsiOutput.encode(AnsiColor.DEFAULT));
@@ -59,7 +63,7 @@ public class SpringCliExceptionResolver
 		String message = e.getMessage(); // message may be null
 		message = (message != null) ? message : e.getClass().getSimpleName();
 
-		return new ExitStatus(1,
+		return new ExitStatus(exitCode,
 				AnsiOutput.encode(AnsiColor.BRIGHT_RED) + message + AnsiOutput.encode(AnsiColor.DEFAULT));
 	}
 

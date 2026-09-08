@@ -227,16 +227,16 @@ public class DevpackShellRunner implements ShellRunner {
 	 */
 	private static class ShellExitException extends RuntimeException implements ExitCodeGenerator {
 
-		private final ExitStatus status;
+		private final int exitCode;
 
 		ShellExitException(ExitStatus status) {
 			super(status.description());
-			this.status = status;
+			this.exitCode = status.code();
 		}
 
 		@Override
 		public int getExitCode() {
-			return status.code();
+			return exitCode;
 		}
 
 	}
