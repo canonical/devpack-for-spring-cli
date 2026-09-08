@@ -121,16 +121,11 @@ public class DevpackShellRunner implements ShellRunner {
 				// ignore empty lines
 				continue;
 			}
-			ParsedInput parsedInput;
+
+			ParsedInput parsedInput = null;
 			try {
 				parsedInput = this.commandParser.parse(input);
-				CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
-						this.inputReader);
-
-				ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
-				if (ExitStatus.OK.code() != exitStatus.code()) {
-					throw new ShellExitException(exitStatus);
-				}
+				executeInput(parsedInput);
 			}
 			catch (Exception ex) {
 				ExitStatus status = exitCodeMapper.apply(ex);
@@ -145,19 +140,7 @@ public class DevpackShellRunner implements ShellRunner {
 		ParsedInput parsedInput = null;
 		try {
 			parsedInput = this.commandParser.parse(primaryCommand);
-			if (!isLikeHelp(parsedInput.commandName())) {
-				commandValidator.validateOptions(parsedInput);
-				if (commandValidator.hasHelpOption(parsedInput)) {
-					contextHelp(parsedInput);
-					return;
-				}
-			}
-			CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
-					this.inputReader);
-			ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
-			if (ExitStatus.OK.code() != exitStatus.code()) {
-				throw new ShellExitException(exitStatus);
-			}
+			executeInput(parsedInput);
 		}
 		catch (Exception ex) {
 			if (primaryCommand != null && (primaryCommand.startsWith(HELP + " ") || primaryCommand.equals(HELP))) {
@@ -177,6 +160,22 @@ public class DevpackShellRunner implements ShellRunner {
 			outputWriter.flush();
 		}
 
+	}
+
+	private void executeInput(ParsedInput parsedInput) throws Exception {
+		if (!isLikeHelp(parsedInput.commandName())) {
+			commandValidator.validateOptions(parsedInput);
+			if (commandValidator.hasHelpOption(parsedInput)) {
+				contextHelp(parsedInput);
+				return;
+			}
+		}
+		CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
+				this.inputReader);
+		ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
+		if (ExitStatus.OK.code() != exitStatus.code()) {
+			throw new ShellExitException(exitStatus);
+		}
 	}
 
 	private void reportError(String description, String primaryCommand, Exception reportException,
