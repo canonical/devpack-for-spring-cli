@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.canonical.devpackspring.TerminalStyles;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -47,8 +45,6 @@ import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
 import org.springframework.util.ObjectUtils;
 
 public class DevpackShellRunner implements ShellRunner {
-
-	private static final Log log = LogFactory.getLog(DevpackShellRunner.class);
 
 	public static final String HELP = "help";
 
