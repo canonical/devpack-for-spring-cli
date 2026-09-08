@@ -7,8 +7,17 @@ on:
     branches:
       - 'main'
 
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+
 jobs:
   build:
+    timeout-minutes: 20
     runs-on: ['self-hosted', 'amd64', 'noble']
     name: CI Build
     steps:
