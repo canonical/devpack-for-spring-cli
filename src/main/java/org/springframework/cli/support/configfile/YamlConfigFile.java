@@ -16,8 +16,6 @@
 
 package org.springframework.cli.support.configfile;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -43,7 +41,7 @@ public class YamlConfigFile implements IConfigFile {
 	@Override
 	public <T> T read(Path path, Class<T> type) {
 		try {
-			InputStream in = new DataInputStream(Files.newInputStream(path));
+			InputStream in = Files.newInputStream(path);
 			return mapper.readValue(in, type);
 		}
 		catch (Exception ex) {
@@ -53,7 +51,7 @@ public class YamlConfigFile implements IConfigFile {
 
 	@Override
 	public void write(Path path, Object value) {
-		try (OutputStream out = new DataOutputStream(Files.newOutputStream(path))) {
+		try (OutputStream out = Files.newOutputStream(path)) {
 			mapper.writeValue(out, value);
 		}
 		catch (Exception ex) {
