@@ -58,10 +58,6 @@ public class SpringCliTerminal implements org.springframework.cli.util.ITerminal
 		shellFlush();
 	}
 
-	public void shellFlush() {
-		this.terminal.writer().flush();
-	}
-
 	public AttributedString styledString(String text, String tag) {
 		AttributedStyle style = null;
 		if (StringUtils.hasText(tag)) {
@@ -73,6 +69,10 @@ public class SpringCliTerminal implements org.springframework.cli.util.ITerminal
 
 	public AttributedString join(AttributedString left, AttributedString right) {
 		return AttributedString.join(null, Arrays.asList(left, right));
+	}
+
+	private void shellFlush() {
+		this.terminal.writer().flush();
 	}
 
 }
