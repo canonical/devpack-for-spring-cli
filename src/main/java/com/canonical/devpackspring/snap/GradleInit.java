@@ -28,7 +28,6 @@ import java.nio.file.StandardOpenOption;
 public class GradleInit {
 
 	private static final String GRADLE_INIT_STRING = """
-
 			apply plugin: SpringBootSnapRepositoryPlugin
 
 			class SpringBootSnapRepositoryPlugin implements Plugin<Gradle> {
@@ -44,16 +43,19 @@ public class GradleInit {
 							handler.addFirst(repo)
 						}
 					}
-					gradle.allprojects { project ->
-						project.repositories {
-							maven {
-								name="%s"
-								url="file:///snap/%s/current/maven-repo/"
+
+					gradle.settingsEvaluated { settings ->
+						settings.dependencyResolutionManagement {
+							repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+							repositories {
+								maven {
+									name="%s"
+									url="file:///snap/%s/current/maven-repo/"
+								}
 							}
 						}
 					}
 				}
-
 			}
 			""";
 
