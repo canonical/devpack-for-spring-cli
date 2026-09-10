@@ -17,6 +17,7 @@
 package com.canonical.devpackspring.setup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -80,8 +81,8 @@ public class SetupCategory {
 		return allowMultiSelect;
 	}
 
-	public ArrayList<SetupEntry> getSetupEntries() {
-		return setupEntries;
+	public List<SetupEntry> getSetupEntries() {
+		return Collections.unmodifiableList(setupEntries);
 	}
 
 }

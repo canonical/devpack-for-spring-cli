@@ -24,19 +24,20 @@ import com.canonical.devpackspring.TerminalStyles;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.text.StringSubstitutor;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.shell.jline.tui.component.flow.DefaultSelectItem;
 
 public abstract class SetupEntry extends DefaultSelectItem {
 
-	private ArrayList<String> extraCommands;
+	@NonNull private ArrayList<String> extraCommands;
 
 	private String suffix;
 
-	public SetupEntry(String name, String description, ArrayList<String> extraCommands, boolean selected) {
+	public SetupEntry(String name, String description, @Nullable ArrayList<String> extraCommands, boolean selected) {
 		super(description, name, true, selected);
-		this.extraCommands = extraCommands;
+		this.extraCommands = (extraCommands != null) ? new ArrayList<>(extraCommands) : new ArrayList<>();
 		this.suffix = "";
 	}
 
@@ -53,9 +54,6 @@ public abstract class SetupEntry extends DefaultSelectItem {
 	public abstract boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
 
 	protected boolean executeExtraCommands(ITerminalMessage msg, boolean retry, IProcessUtil ipc) throws IOException {
-		if (extraCommands == null) {
-			return true;
-		}
 		for (var command : extraCommands.stream().filter(x -> x != null && !x.isBlank()).toList()) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
 			if (!runWithBackoff(retry, msg, ipc, CommandLine.parse(command).toStrings())) {
