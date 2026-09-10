@@ -41,7 +41,7 @@ public class RefactoringTests {
 	public void testRefactoring(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor desc = new PluginDescriptor("foo", "bar", null, null,
 					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
@@ -60,7 +60,7 @@ public class RefactoringTests {
 	public void testRefactoringWithVersionVariables(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			PluginDescriptor foo = new PluginDescriptor("foo", "${bar}", null, null,
 					new PluginTasks(Collections.emptyMap()), new PluginConfiguration(null, null, null, null), null,
@@ -83,7 +83,7 @@ public class RefactoringTests {
 	public void testRefactoringWithConfigBlock(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,
@@ -103,7 +103,7 @@ public class RefactoringTests {
 	public void testRefactoringWithConfigBlockNoSubprojects(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			Path buildFile = workingDir.resolve("build.gradle.kts");
 			String kotlinSnippet = "configure<com.example.MyOptions> {\n    setTargetRelease(21)\n}";
 			PluginDescriptor desc = new PluginDescriptor("foo", "1.0.0", null, null,

@@ -76,7 +76,7 @@ public class BuildCommandTests {
 	public void testRunGradlePlugin(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			// we can specify the task to run
@@ -89,7 +89,7 @@ public class BuildCommandTests {
 	public void testRunGradlePluginDefaultCommand(final @TempDir Path workingDir) {
 		Path projectPath = Path.of("test-data").resolve("projects").resolve("gradle-kotlin");
 		IntegrationTestSupport.installInWorkingDirectory(projectPath, workingDir);
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			assertThatCode(() -> commands.run("format", null, workingDir)).doesNotThrowAnyException();
@@ -108,7 +108,7 @@ public class BuildCommandTests {
 				getClass().getResourceAsStream("/com/canonical/devpackspring/build/test-custom-plugin.yaml")
 					.readAllBytes());
 
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			Files.writeString(workingDir.resolve("src/main/java/com/example/demo/Test.java"), """
@@ -164,7 +164,7 @@ public class BuildCommandTests {
 		Files.writeString(workingDir.resolve("build.gradle"), "plugins {\n    id(\"foo\")\n"); // Missing
 																								// closing
 																								// brace
-		contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run(context -> {
+		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			assertThatThrownBy(() -> commands.run("rockcraft", "create-rock", workingDir))

@@ -93,9 +93,4 @@ public class SpringCliConfiguration {
 		return new InitializrClientCache(webClientBuilder);
 	}
 
-	@Bean
-	public SpringCliUserConfig springCliUserConfig() {
-		return new SpringCliUserConfig();
-	}
-
 }

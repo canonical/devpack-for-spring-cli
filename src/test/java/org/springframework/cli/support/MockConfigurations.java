@@ -17,16 +17,11 @@
 package org.springframework.cli.support;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
-import java.util.function.Function;
 
-import com.google.common.jimfs.Jimfs;
 import org.jline.terminal.Terminal;
 import org.mockito.Mockito;
 
 import org.springframework.cli.command.BuildCommands;
-import org.springframework.cli.config.SpringCliUserConfig;
 import org.springframework.cli.util.ITerminalMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,33 +47,6 @@ public class MockConfigurations {
 		@Bean
 		BuildCommands buildCommands() throws IOException {
 			return new BuildCommands(ITerminalMessage.noop(), null);
-		}
-
-	}
-
-	@Configuration
-	public static class MockUserConfig {
-
-		@Bean
-		SpringCliUserConfig springCliUserConfig() {
-			try (FileSystem fileSystem = Jimfs.newFileSystem()) {
-				Function<String, Path> pathProvider = fileSystem::getPath;
-				return new SpringCliUserConfig(pathProvider);
-			}
-			catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-	}
-
-	@Configuration
-	public static class MockFakeUserConfig {
-
-		@Bean
-		SpringCliUserConfig springCliUserConfig() {
-			SpringCliUserConfig mock = Mockito.mock(SpringCliUserConfig.class);
-			return mock;
 		}
 
 	}
