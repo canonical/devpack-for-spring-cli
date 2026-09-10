@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.canonical.devpackspring.TerminalStyles;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -47,8 +45,6 @@ import org.springframework.shell.core.command.exit.ExitStatusExceptionMapper;
 import org.springframework.util.ObjectUtils;
 
 public class DevpackShellRunner implements ShellRunner {
-
-	private static final Log log = LogFactory.getLog(DevpackShellRunner.class);
 
 	public static final String HELP = "help";
 
@@ -125,16 +121,11 @@ public class DevpackShellRunner implements ShellRunner {
 				// ignore empty lines
 				continue;
 			}
-			ParsedInput parsedInput;
+
+			ParsedInput parsedInput = null;
 			try {
 				parsedInput = this.commandParser.parse(input);
-				CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
-						this.inputReader);
-
-				ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
-				if (ExitStatus.OK.code() != exitStatus.code()) {
-					throw new ShellExitException(exitStatus);
-				}
+				executeInput(parsedInput);
 			}
 			catch (Exception ex) {
 				ExitStatus status = exitCodeMapper.apply(ex);
@@ -149,19 +140,7 @@ public class DevpackShellRunner implements ShellRunner {
 		ParsedInput parsedInput = null;
 		try {
 			parsedInput = this.commandParser.parse(primaryCommand);
-			if (!isLikeHelp(parsedInput.commandName())) {
-				commandValidator.validateOptions(parsedInput);
-				if (commandValidator.hasHelpOption(parsedInput)) {
-					contextHelp(parsedInput);
-					return;
-				}
-			}
-			CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
-					this.inputReader);
-			ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
-			if (ExitStatus.OK.code() != exitStatus.code()) {
-				throw new ShellExitException(exitStatus);
-			}
+			executeInput(parsedInput);
 		}
 		catch (Exception ex) {
 			if (primaryCommand != null && (primaryCommand.startsWith(HELP + " ") || primaryCommand.equals(HELP))) {
@@ -181,6 +160,22 @@ public class DevpackShellRunner implements ShellRunner {
 			outputWriter.flush();
 		}
 
+	}
+
+	private void executeInput(ParsedInput parsedInput) throws Exception {
+		if (!isLikeHelp(parsedInput.commandName())) {
+			commandValidator.validateOptions(parsedInput);
+			if (commandValidator.hasHelpOption(parsedInput)) {
+				contextHelp(parsedInput);
+				return;
+			}
+		}
+		CommandContext commandContext = new CommandContext(parsedInput, this.commandRegistry, this.outputWriter,
+				this.inputReader);
+		ExitStatus exitStatus = this.commandExecutor.execute(commandContext);
+		if (ExitStatus.OK.code() != exitStatus.code()) {
+			throw new ShellExitException(exitStatus);
+		}
 	}
 
 	private void reportError(String description, String primaryCommand, Exception reportException,
@@ -232,16 +227,16 @@ public class DevpackShellRunner implements ShellRunner {
 	 */
 	private static class ShellExitException extends RuntimeException implements ExitCodeGenerator {
 
-		private final ExitStatus status;
+		private final int exitCode;
 
 		ShellExitException(ExitStatus status) {
 			super(status.description());
-			this.status = status;
+			this.exitCode = status.code();
 		}
 
 		@Override
 		public int getExitCode() {
-			return status.code();
+			return exitCode;
 		}
 
 	}
