@@ -19,16 +19,11 @@ package org.springframework.cli.util;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Mark Pollack
  * @author Janne Valkealahti
  */
 public abstract class IoUtils {
-
-	private static final Logger logger = LoggerFactory.getLogger(IoUtils.class);
 
 	public static Path getWorkingDirectory() {
 		return Path.of("").toAbsolutePath();
