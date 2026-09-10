@@ -69,7 +69,7 @@ public class SetupCommandsTests {
 
 	@Test
 	public void testSetupCommand() {
-		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			assertThatThrownBy(
@@ -417,7 +417,7 @@ public class SetupCommandsTests {
 
 	@Test
 	public void testAddAndFileOptionsAreExclusive() {
-		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			org.assertj.core.api.Assertions
@@ -433,7 +433,7 @@ public class SetupCommandsTests {
 		String originalUserHome = System.getProperty("user.home");
 		try {
 			System.setProperty("user.home", tempDir.toString());
-			this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+			this.contextRunner.run((context) -> {
 				StubTerminalMessage stub = new StubTerminalMessage();
 				SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null, null, false, false,
@@ -464,7 +464,7 @@ public class SetupCommandsTests {
 		Path configPath = tempDir.resolve("installed_config.yaml");
 		java.nio.file.Files.writeString(configPath, "- foo\n- bar\n");
 
-		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, false))
@@ -481,7 +481,7 @@ public class SetupCommandsTests {
 	public void testSetupWithMissingFileOption(@org.junit.jupiter.api.io.TempDir Path tempDir) {
 		Path configPath = tempDir.resolve("missing_config.yaml");
 
-		this.contextRunner.withUserConfiguration(MockConfigurations.MockUserConfig.class).run((context) -> {
+		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, false))
