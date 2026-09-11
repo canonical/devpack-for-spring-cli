@@ -77,11 +77,13 @@ public class SetupEntryFactory {
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
-				if (!ret) {
+				if (ret) {
+					msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
+				}
+				else {
 					msg.print(TerminalStyles
 						.error(String.format("Failed to install snap %s. Post-installation commands failed.", item())));
 				}
-				msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
@@ -137,11 +139,13 @@ public class SetupEntryFactory {
 					return false;
 				}
 				boolean ret = executeExtraCommands(msg, retry, processUtil);
-				if (!ret) {
+				if (ret) {
+					msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
+				}
+				else {
 					msg.print(TerminalStyles.error(
 							String.format("Failed to install package %s. Post-installation commands failed.", item())));
 				}
-				msg.print(TerminalStyles.ok(String.format("%s was successfully installed.", name())));
 				return ret;
 			}
 
