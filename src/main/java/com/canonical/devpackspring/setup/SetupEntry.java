@@ -95,6 +95,7 @@ public abstract class SetupEntry extends DefaultSelectItem {
 			Thread.sleep(seconds * 1000L);
 		}
 		catch (InterruptedException ex) {
+			Thread.currentThread().interrupt(); // restore interrupt flag before re-throw
 			throw new RuntimeException("Interrupted while waiting to retry command", ex);
 		}
 
