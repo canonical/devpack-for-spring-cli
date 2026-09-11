@@ -221,13 +221,16 @@ public class AddPluginVisitorSupport<C extends JavaSourceFile> {
 	}
 
 	private boolean versionMatches(J.MethodInvocation versionCall) {
-		if (versionCall.getArguments().isEmpty()) {
+		if (versionCall.getArguments().isEmpty() || pluginVersion == null) {
 			return false;
 		}
 		Expression expr = versionCall.getArguments().getFirst();
-		String versionStr = (expr instanceof J.Literal literal && literal.getValue() != null)
-				? literal.getValue().toString() : expr.toString();
-		return (pluginVersion != null) && pluginVersion.equals(versionStr);
+		if (expr instanceof J.Literal literal && literal.getValue() != null) {
+			return pluginVersion.equals(literal.getValue());
+		}
+		// Cannot determine version from non-literal expression; conservatively return
+		// false
+		return false;
 	}
 
 	private boolean pluginNameFilter(J.MethodInvocation method) {
