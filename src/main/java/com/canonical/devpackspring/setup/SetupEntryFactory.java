@@ -39,7 +39,7 @@ public class SetupEntryFactory {
 
 	SetupEntry createSnapEntry(Map<String, Object> item) {
 		if (item.size() != 1) {
-			throw new IllegalArgumentException("Apt entry should be a map of size 1");
+			throw new IllegalArgumentException("Snap entry should be a map of size 1");
 		}
 		String itemId = item.keySet().iterator().next();
 		var data = (Map<String, Object>) item.get(itemId);
