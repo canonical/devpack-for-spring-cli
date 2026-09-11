@@ -47,7 +47,7 @@ public class SetupEntryFactory {
 		ArrayList<String> extraCommands = (ArrayList<String>) data.get("extra-commands");
 		boolean isClassic = (Boolean) data.getOrDefault("classic", false);
 		String channel = (String) data.get("channel");
-		var installed = isInstalled("/bin/sh", "-c", String.format("snap info %s | grep -q \"installed:\"", itemId));
+		var installed = isSnapInstalled(itemId);
 
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
@@ -57,7 +57,7 @@ public class SetupEntryFactory {
 					return true;
 				}
 
-				if (installed) {
+				if (isSnapInstalled(name())) {
 					msg.print(String.format("Snap %s is already installed.", item()));
 					return true;
 				}
@@ -115,8 +115,7 @@ public class SetupEntryFactory {
 		var data = (Map<String, Object>) item.get(itemId);
 		String description = (String) data.get("description");
 		ArrayList<String> extraCommands = (ArrayList<String>) data.get("extra-commands");
-		var installed = isInstalled("/bin/sh", "-c",
-				String.format("dpkg -s %s | grep -q \"Status: install ok installed\"", itemId));
+		var installed = isAptInstalled(itemId);
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
 			public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
@@ -125,7 +124,7 @@ public class SetupEntryFactory {
 					return true;
 				}
 
-				if (installed) {
+				if (isAptInstalled(name())) {
 					msg.print(String.format("Package %s is already installed.", item()));
 					return true;
 				}
@@ -169,7 +168,17 @@ public class SetupEntryFactory {
 		};
 	}
 
-	private boolean isInstalled(String... args) {
+	private boolean isAptInstalled(String itemId) {
+		return dispatchInstalledProcess("/bin/sh", "-c",
+				String.format("dpkg -s %s | grep -q \"Status: install ok installed\"", itemId));
+	}
+
+	private boolean isSnapInstalled(String itemId) {
+		return dispatchInstalledProcess("/bin/sh", "-c",
+				String.format("snap info %s | grep -q \"installed:\"", itemId));
+	}
+
+	private boolean dispatchInstalledProcess(String... args) {
 		ITerminalMessage message = ITerminalMessage.noop();
 		try {
 			int exitCode = processUtil.runProcess(message, false, args);
