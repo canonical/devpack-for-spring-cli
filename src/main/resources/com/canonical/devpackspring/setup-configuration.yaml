@@ -31,6 +31,9 @@ docker:
           - sudo snap connect docker:home
           - sudo snap disable docker
           - sudo snap enable docker
+          - sudo addgroup --system docker
+          - grep -qE 'docker.*'$USER /etc/group || sudo adduser --quiet $USER docker
+          - newgrp docker
 ide:
   description: Integrated Development Environment
   multiselect: true
