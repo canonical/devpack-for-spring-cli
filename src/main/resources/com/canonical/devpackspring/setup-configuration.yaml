@@ -10,6 +10,8 @@ java:
         description: OpenJDK 17
     - openjdk-21-jdk:
         description: OpenJDK 21
+    - openjdk-25-jdk:
+        description: OpenJDK 25
 docker:
   description: Container environment
   apt:
