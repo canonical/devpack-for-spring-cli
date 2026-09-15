@@ -49,7 +49,7 @@ public class SetupEntryTests {
 		given(this.mockProcessUtil.runProcess(any(), anyBoolean(), any())).willReturn(1);
 
 		MockSetupEntry entry = new MockSetupEntry();
-		boolean result = entry.runWithBackoff(false, new StubTerminalMessage(), this.mockProcessUtil, "cmd");
+		boolean result = entry.runWithBackoff(0, new StubTerminalMessage(), this.mockProcessUtil, "cmd");
 
 		assertThat(result).isFalse();
 		verify(this.mockProcessUtil, times(1)).runProcess(any(), anyBoolean(), any());
@@ -61,12 +61,28 @@ public class SetupEntryTests {
 			.willReturn(0);
 
 		MockSetupEntry entry = new MockSetupEntry();
-		boolean result = entry.runWithBackoff(true, new StubTerminalMessage(), this.mockProcessUtil, "sudo", "apt-get",
+		boolean result = entry.runWithBackoff(-1, new StubTerminalMessage(), this.mockProcessUtil, "sudo", "apt-get",
 				"update");
 
 		assertThat(result).isTrue();
 		verify(this.mockProcessUtil, times(1)).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("update"));
 		assertThat(entry.backoffValues).isEmpty();
+	}
+
+	@Test
+	public void testRetryAttempts() throws IOException {
+		List<Integer> retryArray = List.of(0, 1, 2);
+		AtomicInteger calls = new AtomicInteger(0);
+
+		given(this.mockProcessUtil.runProcess(any(), anyBoolean(), any())).willAnswer(_ -> calls.incrementAndGet());
+
+		for (Integer retry : retryArray) {
+			calls.set(0);
+			MockSetupEntry entry = new MockSetupEntry();
+			assertThat(entry.runWithBackoff(retry, new StubTerminalMessage(), this.mockProcessUtil, "cmd")).isFalse();
+			assertThat(calls.get()).isEqualTo(retry + 1);
+			assertThat(entry.backoffValues.size()).isEqualTo(retry);
+		}
 	}
 
 	@Test
@@ -78,7 +94,7 @@ public class SetupEntryTests {
 			.willAnswer(_ -> (calls.incrementAndGet() < retryArray.size() + 1) ? 1 : 0);
 
 		MockSetupEntry entry = new MockSetupEntry();
-		boolean result = entry.runWithBackoff(true, new StubTerminalMessage(), this.mockProcessUtil, "cmd");
+		boolean result = entry.runWithBackoff(-1, new StubTerminalMessage(), this.mockProcessUtil, "cmd");
 
 		assertThat(result).isTrue();
 		assertThat(calls.get()).isEqualTo(retryArray.size() + 1);
@@ -91,7 +107,7 @@ public class SetupEntryTests {
 		MockSetupEntry entry = new MockSetupEntry(extras);
 		given(this.mockProcessUtil.runProcess(any(), anyBoolean(), eq("failing-cmd"))).willReturn(1);
 
-		boolean result = entry.executeExtraCommands(new StubTerminalMessage(), false, this.mockProcessUtil);
+		boolean result = entry.executeExtraCommands(new StubTerminalMessage(), 1, this.mockProcessUtil);
 
 		assertThat(result).isFalse();
 	}
@@ -109,12 +125,12 @@ public class SetupEntryTests {
 		}
 
 		@Override
-		public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+		public boolean install(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 			return true;
 		}
 
 		@Override
-		public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+		public boolean remove(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 			return true;
 		}
 

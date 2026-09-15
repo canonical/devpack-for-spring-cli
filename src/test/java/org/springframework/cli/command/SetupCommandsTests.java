@@ -57,6 +57,8 @@ public class SetupCommandsTests {
 
 	private String tempPath;
 
+	private final int retry = 1;
+
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withUserConfiguration(MockConfigurations.MockBaseConfig.class);
 
@@ -73,7 +75,7 @@ public class SetupCommandsTests {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			assertThatThrownBy(
-					() -> setupCommands.setup(new String[] { "foo", "bar" }, null, tempPath, false, false, false))
+					() -> setupCommands.setup(new String[] { "foo", "bar" }, null, tempPath, false, false, retry))
 				.isInstanceOf(RuntimeException.class)
 				.hasCauseInstanceOf(IOException.class)
 				.hasMessageContaining("Missing software item definitions");
@@ -95,7 +97,7 @@ public class SetupCommandsTests {
 		given(mockProcessUtil.runProcess(any(), anyBoolean(), any(), any(), contains("| grep -q \"installed:\"")))
 			.willReturn(0);
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, retry);
 		assertThat(tm.getPrintAttributedMessages())
 			.contains(String.format("%s was successfully installed.", description));
 	}
@@ -119,7 +121,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, retry);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install package %s.", toInstall));
 	}
 
@@ -138,7 +140,7 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		File installFile = File.createTempFile("install", ".tmp");
 		installFile.deleteOnExit();
-		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, false);
+		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, retry);
 		assertThat(tm.getPrintAttributedMessages())
 			.contains(String.format("%s was successfully installed.", description));
 		assertThat(Files.readString(installFile.toPath())).isEqualTo("[docker]\n");
@@ -164,7 +166,7 @@ public class SetupCommandsTests {
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
 		File installFile = File.createTempFile("install", ".tmp");
 		installFile.deleteOnExit();
-		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, true);
+		setupCommands.setup(new String[] { toInstall }, null, installFile.getAbsolutePath(), false, false, -1);
 
 		// The install command must have been called twice (initial attempt + one retry)
 		verify(mockProcessUtil, Mockito.times(2)).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("install"),
@@ -188,7 +190,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, false, retry);
 		assertThat(tm.getPrintAttributedMessages()).contains(String.format("Failed to install snap %s.", toInstall));
 	}
 
@@ -210,7 +212,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
 
-		setupCommands.setup(new String[] {}, null, tempPath, true, false, false);
+		setupCommands.setup(new String[] {}, null, tempPath, true, false, retry);
 
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
 				eq(aptPackage));
@@ -237,7 +239,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), ComponentFlow.builder(), mockProcessUtil);
 
-		setupCommands.setup(new String[] {}, null, tempPath, true, false, false);
+		setupCommands.setup(new String[] {}, null, tempPath, true, false, retry);
 
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("snap"), eq("remove"), eq(snapPackage));
 		// we do not uninstall anything else, e.g. apt packages
@@ -261,7 +263,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] {}, null, tempPath, true, false, false);
+		setupCommands.setup(new String[] {}, null, tempPath, true, false, retry);
 
 		// The apt-get remove command must never be issued
 		verify(mockProcessUtil, never()).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"),
@@ -298,7 +300,7 @@ public class SetupCommandsTests {
 
 		StubTerminalMessage tm = new StubTerminalMessage();
 		SetupCommands setupCommands = new SetupCommands(tm, mockBuilder, mockProcessUtil);
-		setupCommands.setup(null, null, tempPath, false, false, false);
+		setupCommands.setup(null, null, tempPath, false, false, retry);
 
 		assertThat(tm.getPrintAttributedMessages())
 			.contains(String.format("%s was successfully installed.", description));
@@ -334,7 +336,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
 		// null add → wizard path
-		setupCommands.setup(null, null, tempPath, false, false, false);
+		setupCommands.setup(null, null, tempPath, false, false, retry);
 
 		// openjdk-17-jdk was installed and not selected → must be removed
 		verify(mockProcessUtil).runProcess(any(), anyBoolean(), eq("sudo"), eq("apt-get"), eq("remove"), eq("-y"),
@@ -365,7 +367,7 @@ public class SetupCommandsTests {
 
 		var setupCommands = new SetupCommands(new StubTerminalMessage(), mockBuilder, mockProcessUtil);
 		// null add, uninstall true → wizard path
-		setupCommands.setup(null, null, tempPath, true, false, false);
+		setupCommands.setup(null, null, tempPath, true, false, retry);
 
 		// openjdk-17-jdk was installed and not selected → must be removed because
 		// uninstall defaults to true
@@ -422,7 +424,7 @@ public class SetupCommandsTests {
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 			org.assertj.core.api.Assertions
 				.assertThatThrownBy(
-						() -> setupCommands.setup(new String[] { "foo" }, "config.yaml", tempPath, false, false, false))
+						() -> setupCommands.setup(new String[] { "foo" }, "config.yaml", tempPath, false, false, retry))
 				.isInstanceOf(RuntimeException.class)
 				.hasMessage("Options --add and --file options are mutually exclusive.");
 		});
@@ -437,7 +439,7 @@ public class SetupCommandsTests {
 				StubTerminalMessage stub = new StubTerminalMessage();
 				SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
 				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null, null, false, false,
-						false);
+						retry);
 
 				Path expectedPath = tempDir.resolve(".config")
 					.resolve("devpack-for-spring")
@@ -449,7 +451,7 @@ public class SetupCommandsTests {
 				File installFile = File.createTempFile("install", ".tmp");
 				installFile.deleteOnExit();
 				setupCommands.setup(new String[] { "openjdk-17-jdk", "openjdk-21-jdk" }, null,
-						installFile.getAbsolutePath(), false, false, false);
+						installFile.getAbsolutePath(), false, false, retry);
 				assertThat(installFile).exists();
 
 			});
@@ -467,7 +469,7 @@ public class SetupCommandsTests {
 		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, false))
+			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, retry))
 				.isInstanceOf(RuntimeException.class)
 				.hasCauseInstanceOf(IOException.class)
 				.hasMessageContaining("Missing software item definitions");
@@ -484,7 +486,7 @@ public class SetupCommandsTests {
 		this.contextRunner.run((context) -> {
 			StubTerminalMessage stub = new StubTerminalMessage();
 			SetupCommands setupCommands = new SetupCommands(stub, ComponentFlow.builder(), mockProcessUtil);
-			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, false))
+			assertThatThrownBy(() -> setupCommands.setup(null, configPath.toString(), tempPath, false, false, retry))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("The software list " + configPath + " does not exist!");
 		});
@@ -503,7 +505,7 @@ public class SetupCommandsTests {
 			.willReturn(0);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, retry);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would install package %s.", toInstall));
 		// The actual apt-get install must never be called in save-only mode
@@ -525,7 +527,7 @@ public class SetupCommandsTests {
 			.willReturn(1);
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, false);
+		setupCommands.setup(new String[] { toInstall }, null, tempPath, false, true, retry);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would install snap %s.", toInstall));
 		// The actual snap install must never be called in save-only mode
@@ -541,7 +543,7 @@ public class SetupCommandsTests {
 		StubTerminalMessage tm = new StubTerminalMessage();
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
+		setupCommands.setup(new String[] {}, null, tempPath, true, true, retry);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would remove package %s.", toRemove));
 		// The actual apt-get remove must never be called in save-only mode
@@ -555,7 +557,7 @@ public class SetupCommandsTests {
 		StubTerminalMessage tm = new StubTerminalMessage();
 
 		SetupCommands setupCommands = new SetupCommands(tm, ComponentFlow.builder(), mockProcessUtil);
-		setupCommands.setup(new String[] {}, null, tempPath, true, true, false);
+		setupCommands.setup(new String[] {}, null, tempPath, true, true, retry);
 
 		assertThat(tm.getPrintMessages()).contains(String.format("Save only: would remove snap %s.", toRemove));
 		// The actual snap remove must never be called in save-only mode

@@ -91,7 +91,7 @@ public class SetupCommands {
 			@Option(description = "Uninstall unselected options", defaultValue = "false") boolean uninstall,
 			@Option(description = "Do not update the host system, only save the install file", longName = "save-only",
 					defaultValue = "false") boolean saveOnly,
-			@Option(description = "Retry failing commands", longName = "retry", defaultValue = "false") boolean retry) {
+			@Option(description = "Retry failing commands", longName = "retry", defaultValue = "0") int retry) {
 		try (InputStreamReader ir = new InputStreamReader(getSetupConfiguration())) {
 			SetupModel model = new SetupModel(ir, new SetupEntryFactory(processUtil));
 			if (add != null && fileConfig != null) {
@@ -170,7 +170,7 @@ public class SetupCommands {
 
 	}
 
-	private void headlessSetup(String[] add, SetupModel model, boolean uninstall, boolean retry, boolean saveOnly)
+	private void headlessSetup(String[] add, SetupModel model, boolean uninstall, int retry, boolean saveOnly)
 			throws IOException {
 		HashSet<String> toAdd = new HashSet<>(Arrays.asList(add));
 		ArrayList<IOperation> operators = new ArrayList<>();

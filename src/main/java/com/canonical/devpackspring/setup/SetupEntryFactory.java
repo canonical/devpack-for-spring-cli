@@ -51,7 +51,7 @@ public class SetupEntryFactory {
 
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean install(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would install snap %s.", item()));
 					return true;
@@ -88,7 +88,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean remove(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would remove snap %s.", item()));
 					return true;
@@ -118,7 +118,7 @@ public class SetupEntryFactory {
 		var installed = isAptInstalled(itemId);
 		return new SetupEntry(itemId, description, extraCommands, installed) {
 			@Override
-			public boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean install(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would install package %s.", item()));
 					return true;
@@ -149,7 +149,7 @@ public class SetupEntryFactory {
 			}
 
 			@Override
-			public boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException {
+			public boolean remove(ITerminalMessage msg, int retry, boolean dryRun) throws IOException {
 				if (dryRun) {
 					msg.print(String.format("Save only: would remove package %s.", item()));
 					return true;
