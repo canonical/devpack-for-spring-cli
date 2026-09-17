@@ -100,7 +100,7 @@ public abstract class ProcessUtil {
 		}
 		catch (InterruptedException ex) {
 			// ignore the exception
-			LOG.debug("interrupted stout", ex);
+			LOG.debug("interrupted stdout", ex);
 		}
 
 		return ret;
