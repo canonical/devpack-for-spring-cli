@@ -49,11 +49,11 @@ public abstract class SetupEntry extends DefaultSelectItem {
 		this.suffix = suffix;
 	}
 
-	public abstract boolean install(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
+	public abstract boolean install(ITerminalMessage msg, int retry, boolean dryRun) throws IOException;
 
-	public abstract boolean remove(ITerminalMessage msg, boolean retry, boolean dryRun) throws IOException;
+	public abstract boolean remove(ITerminalMessage msg, int retry, boolean dryRun) throws IOException;
 
-	protected boolean executeExtraCommands(ITerminalMessage msg, boolean retry, IProcessUtil ipc) throws IOException {
+	protected boolean executeExtraCommands(ITerminalMessage msg, int retry, IProcessUtil ipc) throws IOException {
 		for (var command : extraCommands.stream().filter(x -> x != null && !x.isBlank()).toList()) {
 			command = StringSubstitutor.replaceSystemProperties(command); // expand macros
 			if (!runWithBackoff(retry, msg, ipc, CommandLine.parse(command).toStrings())) {
@@ -72,11 +72,13 @@ public abstract class SetupEntry extends DefaultSelectItem {
 	 * @param args Command to run
 	 * @return true if the command succeeded, false otherwise
 	 */
-	protected boolean runWithBackoff(boolean retry, ITerminalMessage msg, IProcessUtil ipc, String... args)
+	protected boolean runWithBackoff(int retry, ITerminalMessage msg, IProcessUtil ipc, String... args)
 			throws IOException {
 		int backoff = 5;
+		int attempts = 0;
 		while (ipc.runProcess(msg, true, args) != 0) {
-			if (!retry) {
+			attempts += 1;
+			if (retry > -1 && attempts > retry) {
 				return false;
 			}
 			msg.print(TerminalStyles.error(
