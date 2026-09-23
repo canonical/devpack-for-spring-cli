@@ -1,8 +1,14 @@
+# Top level menu item
 java:
+  # Menu text
   description: OpenJDK
+  # Single or multi-selection menu
   multiselect: true
+  # apt packages to install
   apt:
+    # Package name
     - openjdk-8-jdk:
+        # Menu item text
         description: OpenJDK 8
     - openjdk-11-jdk:
         description: OpenJDK 11
@@ -12,13 +18,28 @@ java:
         description: OpenJDK 21
     - openjdk-25-jdk:
         description: OpenJDK 25
+  # snap packages to install
+  snap:
+    # snap name
+    - graalvm-jdk:
+        # Menu item text
+        description: GraalVM Community Edition for the Java Development Kit
 docker:
   description: Container environment
   apt:
     - docker.io:
         description: docker.io - Docker container runtime
+        # post-installation commands
+        # they can be used to set up user groups,
+        # connect snap interfaces or refresh the snap to the
+        # desired channel
+        extra-commands:
+          - sudo usermod -aG docker ${user.name}
+          - echo Please logout and login or run 'newgrp docker' to apply the group changes.
     - podman:
         description: podman - A daemon-less alternative to docker
+        extra-commands:
+          - sudo apt-get -y install podman-docker
   snap:
     - docker:
         description: docker - Docker container runtime snap
@@ -32,8 +53,8 @@ docker:
           - sudo snap disable docker
           - sudo snap enable docker
           - sudo addgroup --system docker
-          - grep -qE 'docker.*'$USER /etc/group || sudo adduser --quiet $USER docker
-          - newgrp docker
+          - sudo usermod -aG docker ${user.name}
+          - echo Please logout and login or run 'newgrp docker' to apply the group changes.
 ide:
   description: Integrated Development Environment
   multiselect: true
@@ -45,16 +66,21 @@ ide:
         classic: true
         description: Eclipse snap
     - code:
-        description: Visual Studio Code snap
         classic: true
+        description: Visual Studio Code snap
         extra-commands:
-          - code --install-extension redhat.java
+          - code --install-extension redhat.java --force
+          - code --install-extension ms-azuretools.vscode-containers  --force
+          - code --install-extension vmware.vscode-spring-boot --force
+          - code --install-extension vmware.vscode-boot-dev-pack --force
 misc:
   description: Additional tools
   snap:
     - snapcraft:
+        classic: true
         description: snapcraft - easily create snaps
     - rockcraft:
+        classic: true
         description: rockcraft - a craft like experience to create rocks
   apt:
     - git:
