@@ -91,9 +91,9 @@ public class BuildCommands {
 	@Command(name = "run", description = "Run a build plugin for the project")
 	public void run(@Argument(index = 0, description = "plugin name") String plugin,
 			@Argument(index = 1, description = "task/goal") String command,
-			@Option(description = "project path") Path projectPath) throws IOException {
+			@Option(description = "project path") Path projectPath,
+			@Option(description = "build system") String buildSystem) throws IOException {
 		PluginRunner runner = new PluginRunner((projectPath != null) ? projectPath : workingDir);
-		BuildSystem buildSystem = runner.detectBuildSystem();
 		if ("".equals(plugin)) {
 			plugin = null;
 		}
@@ -101,26 +101,28 @@ public class BuildCommands {
 			command = null;
 		}
 
-		if (buildSystem == BuildSystem.unknown) {
+		// resolve the internal build system to be used
+		BuildSystem resolvedBuildSystem = runner.detectBuildSystem(buildSystem);
+		if (resolvedBuildSystem == BuildSystem.unknown) {
 			throw new IllegalArgumentException("Unknown build system, only Maven and Gradle are supported.\n");
 		}
 
 		PluginDescriptor desc = null;
 		if (plugin != null) {
-			desc = container.get(plugin, buildSystem);
+			desc = container.get(plugin, resolvedBuildSystem);
 			if (desc == null) {
 				throw new IllegalArgumentException(
-						"Unknown plugin " + plugin + " for build system " + buildSystem + "\n");
+						"Unknown plugin " + plugin + " for build system " + resolvedBuildSystem + "\n");
 			}
 		}
 
 		if (desc == null) {
-			List<SelectItem> items = container.plugins(buildSystem)
+			List<SelectItem> items = container.plugins(resolvedBuildSystem)
 				.stream()
 				.map(x -> (SelectItem) new DefaultSelectItem(x, x, true, false))
 				.toList();
 			if (items.isEmpty()) {
-				throw new IllegalArgumentException("No plugins defined for " + buildSystem + ".\n");
+				throw new IllegalArgumentException("No plugins defined for " + resolvedBuildSystem + ".\n");
 			}
 
 			// @formatter:off
@@ -136,9 +138,9 @@ public class BuildCommands {
 				.and()
 				.build();
 			plugin = wizard.run().getContext().get(PLUGIN_PARAMETER_ID);
-			desc = container.get(plugin, buildSystem);
+			desc = container.get(plugin, resolvedBuildSystem);
 			if (desc == null) {
-				throw new IllegalArgumentException("No plugin defined for " + buildSystem + " named " + plugin + "\n");
+				throw new IllegalArgumentException("No plugin defined for " + resolvedBuildSystem + " named " + plugin + "\n");
 			}
 
 			List<SelectItem> tasks = desc.tasks()
@@ -165,7 +167,7 @@ public class BuildCommands {
 
 		if (command != null && !desc.tasks().aliases().contains(command)) {
 			throw new IllegalArgumentException("Command '" +
-					command + "' is not defined in plugin " + plugin + " for build system " + buildSystem + "\n");
+					command + "' is not defined in plugin " + plugin + " for build system " + resolvedBuildSystem + "\n");
 		}
 
 		var alias = (command != null) ? command : desc.defaultTask();
@@ -178,7 +180,7 @@ public class BuildCommands {
 			throw new RuntimeException(plugin + ": Task " + alias + " is not found, or has no commands.");
 		}
 
-		if (!runner.run(buildSystem, desc, actualArguments, terminalMessage)) {
+		if (!runner.run(resolvedBuildSystem, desc, actualArguments, terminalMessage)) {
 			StringBuilder message = new StringBuilder();
 			message.append("Failed to run plugin ");
 			message.append(desc.id());

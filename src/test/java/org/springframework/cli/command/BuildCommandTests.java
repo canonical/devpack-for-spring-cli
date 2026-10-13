@@ -80,7 +80,7 @@ public class BuildCommandTests {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			// we can specify the task to run
-			commands.run("rockcraft", "create-rock", workingDir);
+			commands.run("rockcraft", "create-rock", workingDir, null);
 			assertThat(workingDir.resolve("build/rockcraft.yaml")).exists();
 		});
 	}
@@ -92,7 +92,7 @@ public class BuildCommandTests {
 		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
-			assertThatCode(() -> commands.run("format", null, workingDir)).doesNotThrowAnyException();
+			assertThatCode(() -> commands.run("format", null, workingDir, null)).doesNotThrowAnyException();
 		});
 	}
 
@@ -118,7 +118,7 @@ public class BuildCommandTests {
 
 					""");
 			// format can be run
-			assertThatCode(() -> commands.run("format-me", null, workingDir)).doesNotThrowAnyException();
+			assertThatCode(() -> commands.run("format-me", null, workingDir, null)).doesNotThrowAnyException();
 		});
 	}
 
@@ -130,10 +130,10 @@ public class BuildCommandTests {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
 			// we can specify the task to run
-			commands.run("rockcraft", "create-rock", workingDir);
+			commands.run("rockcraft", "create-rock", workingDir, null);
 			assertThat(workingDir.resolve("target/rockcraft.yaml")).exists();
 			// default task works
-			assertThatNoException().isThrownBy(() -> commands.run("format", null, workingDir));
+			assertThatNoException().isThrownBy(() -> commands.run("format", null, workingDir, null));
 		});
 	}
 
@@ -152,7 +152,7 @@ public class BuildCommandTests {
 
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
-			commands.run("checkStyle", "check", workingDir);
+			commands.run("checkStyle", "check", workingDir, null);
 		});
 	}
 
@@ -167,7 +167,7 @@ public class BuildCommandTests {
 		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(BuildCommands.class);
 			BuildCommands commands = context.getBean(BuildCommands.class);
-			assertThatThrownBy(() -> commands.run("rockcraft", "create-rock", workingDir))
+			assertThatThrownBy(() -> commands.run("rockcraft", "create-rock", workingDir, null))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessageContaining("parsing failed");
 		});

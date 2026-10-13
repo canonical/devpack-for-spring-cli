@@ -18,6 +18,16 @@ package com.canonical.devpackspring.build;
 
 public enum BuildSystem {
 
-	gradle, maven, unknown
+	gradle, maven, unknown;
+
+	public static BuildSystem fromString(String value) {
+		for (BuildSystem system : BuildSystem.values()) {
+			if (system.name().equalsIgnoreCase(value)) {
+				return system;
+			}
+		}
+
+		return unknown;
+	}
 
 }
