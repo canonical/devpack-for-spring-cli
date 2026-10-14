@@ -91,8 +91,8 @@ public class BuildCommands {
 	@Command(name = "run", description = "Run a build plugin for the project")
 	public void run(@Argument(index = 0, description = "plugin name") String plugin,
 			@Argument(index = 1, description = "task/goal") String command,
-			@Option(description = "project path") Path projectPath,
-			@Option(description = "build system") String buildSystem) throws IOException {
+			@Option(description = "project path", longName = "project-path") Path projectPath,
+			@Option(description = "build system", longName = "build-system") String buildSystem) throws IOException {
 		PluginRunner runner = new PluginRunner((projectPath != null) ? projectPath : workingDir);
 		if ("".equals(plugin)) {
 			plugin = null;
@@ -198,7 +198,7 @@ public class BuildCommands {
 	}
 
 	@Command(name = "init-plugin", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
-	public void initPluginConfiguration(@Option(description = "project path") Path projectPath) throws IOException {
+	public void initPluginConfiguration(@Option(description = "project path", longName="project-path") Path projectPath) throws IOException {
 		if (projectPath == null) {
 			projectPath = workingDir;
 		}
