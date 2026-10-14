@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BuildSystemTests {
 
@@ -29,9 +30,9 @@ public class BuildSystemTests {
 		assertThat(BuildSystem.fromString("maven")).isEqualTo(BuildSystem.maven);
 		assertThat(BuildSystem.fromString("gradle")).isEqualTo(BuildSystem.gradle);
 
-		assertThat(BuildSystem.fromString("")).isEqualTo(BuildSystem.unknown);
-		assertThat(BuildSystem.fromString(null)).isEqualTo(BuildSystem.unknown);
-		assertThat(BuildSystem.fromString("abcdef")).isEqualTo(BuildSystem.unknown);
+		assertThatThrownBy(() -> BuildSystem.fromString(""));
+		assertThatThrownBy(() -> BuildSystem.fromString(null));
+		assertThatThrownBy(() -> BuildSystem.fromString("abcdef"));
 	}
 
 }

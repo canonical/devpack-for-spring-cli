@@ -51,10 +51,6 @@ public class PluginRunner {
 		return BuildSystem.unknown;
 	}
 
-	public BuildSystem detectBuildSystem(String unknownSystem) {
-		return (unknownSystem != null) ? BuildSystem.fromString(unknownSystem) : detectBuildSystem();
-	}
-
 	public boolean run(BuildSystem buildSystem, PluginDescriptor desc, java.util.List<String> args,
 			@NonNull ITerminalMessage message) throws IOException {
 		return switch (buildSystem) {
