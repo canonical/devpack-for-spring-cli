@@ -91,9 +91,10 @@ public class BuildCommands {
 	@Command(name = "run", description = "Run a build plugin for the project")
 	public void run(@Argument(index = 0, description = "plugin name") String plugin,
 			@Argument(index = 1, description = "task/goal") String command,
-			@Option(description = "project path") Path projectPath) throws IOException {
+			@Option(description = "project path", longName = "project-path") Path projectPath,
+			@Option(description = "build system", longName = "build-system") String unknownBuildSystem)
+			throws IOException {
 		PluginRunner runner = new PluginRunner((projectPath != null) ? projectPath : workingDir);
-		BuildSystem buildSystem = runner.detectBuildSystem();
 		if ("".equals(plugin)) {
 			plugin = null;
 		}
@@ -101,9 +102,9 @@ public class BuildCommands {
 			command = null;
 		}
 
-		if (buildSystem == BuildSystem.unknown) {
-			throw new IllegalArgumentException("Unknown build system, only Maven and Gradle are supported.\n");
-		}
+		// resolve the internal build system to be used
+		BuildSystem buildSystem = (unknownBuildSystem != null) ? BuildSystem.fromString(unknownBuildSystem)
+				: runner.detectBuildSystem();
 
 		PluginDescriptor desc = null;
 		if (plugin != null) {
@@ -196,7 +197,7 @@ public class BuildCommands {
 	}
 
 	@Command(name = "init-plugin", description = "Initialize local plugin configuration in .devpack-for-spring/plugin-configuration.yaml")
-	public void initPluginConfiguration(@Option(description = "project path") Path projectPath) throws IOException {
+	public void initPluginConfiguration(@Option(description = "project path", longName = "project-path") Path projectPath) throws IOException {
 		if (projectPath == null) {
 			projectPath = workingDir;
 		}

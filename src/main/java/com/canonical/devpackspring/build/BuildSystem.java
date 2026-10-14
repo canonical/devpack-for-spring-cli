@@ -16,8 +16,19 @@
 
 package com.canonical.devpackspring.build;
 
+import org.jspecify.annotations.NonNull;
+
 public enum BuildSystem {
 
-	gradle, maven, unknown
+	gradle, maven, unknown;
+
+	public static BuildSystem fromString(@NonNull String value) {
+		try {
+			return BuildSystem.valueOf(value.toLowerCase());
+		}
+		catch (IllegalArgumentException ex) {
+			throw new IllegalArgumentException("Unknown build system, only Maven and Gradle are supported.\n", ex);
+		}
+	}
 
 }
